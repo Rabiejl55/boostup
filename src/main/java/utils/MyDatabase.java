@@ -6,23 +6,26 @@ import java.sql.SQLException;
 
 public class MyDatabase {
 
-
     private final String USER = "root";
     private final String PASSWORD = "";
     private final String URL = "jdbc:mysql://localhost:3306/boostup";
+
     private static MyDatabase instance;
     private Connection connection;
 
-    public MyDatabase() {
+    // Constructeur PRIVATE (Singleton)
+    private MyDatabase() {
         try {
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Connexion à la base boostup établie");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Erreur de connexion à la base de données");
+            System.out.println(e.getMessage());
         }
     }
 
-    public static MyDatabase getInstance(){
-        if(instance == null){
+    public static MyDatabase getInstance() {
+        if (instance == null) {
             instance = new MyDatabase();
         }
         return instance;
@@ -31,12 +34,4 @@ public class MyDatabase {
     public Connection getConnection() {
         return connection;
     }
-
-
-
-
-
-
-
-
 }
