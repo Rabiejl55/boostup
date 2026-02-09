@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.UsersManagementController"
+            stylesheets="@../css/style.css">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="top-bar">
+            <padding><Insets top="15" right="30" bottom="15" left="30"/></padding>
+            <Label text="Gestion des Utilisateurs" styleClass="logo-label" />
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button text="Retour Dashboard" onAction="#goToDashboard" styleClass="nav-button" />
+            <Button text="Déconnexion" onAction="#handleLogout" styleClass="nav-button logout-button" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+            <!-- Boutons d'action -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Button text="Ajouter utilisateur" onAction="#showAddUserDialog" styleClass="action-button" />
+                <Button text="Modifier sélection" onAction="#showEditUserDialog" styleClass="action-button" />
+                <Button text="Supprimer sélection" onAction="#deleteSelectedUser" styleClass="action-button " />
+                <Button text="Rafraîchir" onAction="#refreshUsers" styleClass="action-button " />
+            </HBox>
+
+            <!-- TableView -->
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="60" />
+                    <TableColumn fx:id="nomColumn" text="Nom" prefWidth="180" />
+                    <TableColumn fx:id="emailColumn" text="Email" prefWidth="220" />
+                    <TableColumn fx:id="roleColumn" text="Rôle" prefWidth="130" />
+                    <TableColumn fx:id="activeColumn" text="Actif" prefWidth="80" />
+                    <TableColumn fx:id="dateCreationColumn" text="Créé le" prefWidth="160" />
+                </columns>
+            </TableView>
+
+            <!-- Feedback -->
+            <Label fx:id="feedbackLabel" text="" styleClass="feedback-message" wrapText="true" />
+        </VBox>
+    </center>
+</BorderPane>
