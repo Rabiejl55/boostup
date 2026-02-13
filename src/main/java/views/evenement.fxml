@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.EvenementController"
+            prefHeight="600.0" prefWidth="900.0">
+
+    <!-- Titre -->
+    <Label text="🎯 GESTION DES ÉVÉNEMENTS - BOOSTUP"
+           layoutX="20" layoutY="20"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <!-- TableView -->
+    <TableView fx:id="tableEvenements" layoutX="20" layoutY="60"
+               prefWidth="860" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colTitre" text="Titre" prefWidth="200"/>
+            <TableColumn fx:id="colType" text="Type" prefWidth="100"/>
+            <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+            <TableColumn fx:id="colLieu" text="Lieu" prefWidth="150"/>
+            <TableColumn fx:id="colCapacite" text="Capacité" prefWidth="80"/>
+        </columns>
+    </TableView>
+
+    <!-- Formulaire -->
+    <Label text="Titre:" layoutX="20" layoutY="280"/>
+    <TextField fx:id="tfTitre" layoutX="100" layoutY="275" prefWidth="200"/>
+
+    <Label text="Type:" layoutX="20" layoutY="320"/>
+    <TextField fx:id="tfType" layoutX="100" layoutY="315" prefWidth="200"/>
+
+    <Label text="Date:" layoutX="320" layoutY="280"/>
+    <DatePicker fx:id="dpDate" layoutX="380" layoutY="275"/>
+
+    <Label text="Lieu:" layoutX="320" layoutY="320"/>
+    <TextField fx:id="tfLieu" layoutX="380" layoutY="315" prefWidth="200"/>
+
+    <Label text="Description:" layoutX="20" layoutY="370"/>
+    <TextArea fx:id="taDescription" layoutX="120" layoutY="365"
+              prefWidth="300" prefHeight="80"/>
+
+    <Label text="Capacité:" layoutX="450" layoutY="370"/>
+    <TextField fx:id="tfCapacite" layoutX="520" layoutY="365" prefWidth="100"/>
+
+    <!-- Boutons -->
+    <Button text="➕ Ajouter" fx:id="btnAjouter"
+            layoutX="20" layoutY="480"
+            style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+
+    <Button text="✏️ Modifier" fx:id="btnModifier"
+            layoutX="120" layoutY="480"
+            style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+
+    <Button text="🗑️ Supprimer" fx:id="btnSupprimer"
+            layoutX="220" layoutY="480"
+            style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+
+    <Button text="🔄 Actualiser" fx:id="btnActualiser"
+            layoutX="320" layoutY="480"
+            style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
+
+</AnchorPane>

@@ -1,0 +1,145 @@
+/* Front (User) - palette bleu/violet + glassmorphism */
+.root {
+    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    -fx-background-color:
+            radial-gradient(center 20% 10%, radius 70%, rgba(111,66,193,0.35), transparent),
+            radial-gradient(center 80% 30%, radius 70%, rgba(30,60,253,0.28), transparent),
+            linear-gradient(to bottom right, #0b1020, #0f1630);
+}
+
+.front-header {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 0 0 1 0;
+}
+
+.front-header-inner {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-padding: 14 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.30), 18, 0, 0, 8);
+}
+
+.front-search {
+    -fx-pref-width: 520;
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(255,255,255,0.20);
+    -fx-border-width: 1.2;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.60);
+    -fx-padding: 12 14;
+}
+
+.front-search:focused {
+    -fx-border-color: rgba(111,66,193,0.65);
+    -fx-effect: dropshadow(gaussian, rgba(111,66,193,0.35), 14, 0, 0, 3);
+}
+
+.front-sort {
+    -fx-pref-width: 170;
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(255,255,255,0.20);
+    -fx-border-width: 1.2;
+    -fx-padding: 6 10;
+}
+
+.front-sort .list-cell {
+    -fx-text-fill: white;
+}
+
+.front-sort:focused {
+    -fx-border-color: rgba(30,60,253,0.70);
+    -fx-effect: dropshadow(gaussian, rgba(30,60,253,0.35), 14, 0, 0, 3);
+}
+
+.front-scroll {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
+.front-footer {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1 0 0 0;
+}
+
+.front-status {
+    -fx-text-fill: rgba(255,255,255,0.75);
+    -fx-font-weight: 600;
+}
+
+/* Carte événement */
+.event-card {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 18, 0, 0, 10);
+}
+
+.event-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(111,66,193,0.35), 24, 0, 0, 14);
+}
+
+.event-image {
+    -fx-background-radius: 18 18 0 0;
+}
+
+.event-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+}
+
+.event-date {
+    -fx-text-fill: rgba(255,255,255,0.72);
+    -fx-font-weight: 600;
+}
+
+.event-desc {
+    -fx-text-fill: rgba(255,255,255,0.60);
+}
+
+/* Top-bar (réutilisé depuis le back-office) */
+.top-bar {
+    -fx-background-color: linear-gradient(to right, #0d6efd, #6f42c1);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+}
+
+.logo-label {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+}
+
+.logout-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c82333;
+}
