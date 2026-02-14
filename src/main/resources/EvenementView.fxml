@@ -84,7 +84,7 @@
             <Button fx:id="btnExportCsv" layoutX="545.0" layoutY="49.0" styleClass="btn-secondary" text="⬇ Export CSV" />
 
             <!-- TableView -->
-            <TableView fx:id="tableEvenements" layoutX="58.0" layoutY="101.0" prefHeight="200" prefWidth="669.0">
+            <TableView fx:id="tableEvenements" layoutX="58.0" layoutY="101.0" prefHeight="200" prefWidth="716.0">
                 <columns>
                     <TableColumn fx:id="colId" maxWidth="0" minWidth="0" prefWidth="0" text="ID" visible="false" />
                     <TableColumn fx:id="colTitre" prefWidth="160" text="Titre" />

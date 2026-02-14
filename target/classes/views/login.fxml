@@ -29,7 +29,7 @@
                 </image>
             </ImageView>
 
-            <Label style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #241a4a;" text="BOOSTUP" />
+            <Label style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #241a4a;" text="Connexion" />
             <Label styleClass="subtle-label" text="Connecte-toi pour accéder au tableau de bord" />
 
             <VBox maxWidth="360" spacing="10">

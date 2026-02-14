@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Modal feedback (Front) -->
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.FeedbackFrontModalController"
+           stylesheets="@/css/front.css"
+           style="-fx-background-color: transparent;">
+
+    <VBox spacing="14" styleClass="premium-modal card-glass">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+
+        <Label text="Donner un feedback" styleClass="premium-title" />
+        <Label fx:id="lblEventTitle" text="" style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-weight: 700;" wrapText="true"/>
+
+        <Separator opacity="0.35" />
+
+        <VBox spacing="10" styleClass="mini-card">
+            <Label text="Commentaire" styleClass="mini-card-label" />
+            <TextArea fx:id="taCommentaire" promptText="Écrivez votre avis..." wrapText="true" prefRowCount="4"
+                      styleClass="front-textarea" />
+
+            <Label text="Note (1 à 5)" styleClass="mini-card-label" />
+            <ChoiceBox fx:id="cbNote" prefWidth="160" styleClass="front-sort" />
+
+            <Label fx:id="lblError" text="" style="-fx-text-fill: #ffb4b4; -fx-font-weight: 800;" wrapText="true" />
+        </VBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Annuler" onAction="#handleCancel" styleClass="btn-secondary" />
+            <Button text="Envoyer" onAction="#handleSubmit" styleClass="btn-primary" />
+        </HBox>
+    </VBox>
+
+</StackPane>
+

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Modal premium injecté dans FrontEvenementsView (overlay). -->
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.EventDetailPremiumController"
+           styleClass="premium-modal-root">
+
+    <VBox spacing="14" styleClass="premium-modal card-glass">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+
+        <!-- Header image + LED glow -->
+        <StackPane styleClass="premium-image-frame">
+            <ImageView fx:id="imgEvent" fitWidth="760" fitHeight="300" preserveRatio="false" styleClass="premium-image" />
+            <StackPane fx:id="ledGlow" mouseTransparent="true" styleClass="premium-led"/>
+        </StackPane>
+
+        <!-- Titre + badges -->
+        <VBox spacing="8">
+            <Label fx:id="lblTitre" text="Titre" styleClass="premium-title" wrapText="true"/>
+            <HBox spacing="10" alignment="CENTER">
+                <Label fx:id="badgeStatut" text="STATUT" styleClass="badge badge-status"/>
+                <Label fx:id="badgeNote" text="⭐ —" styleClass="badge badge-note"/>
+            </HBox>
+        </VBox>
+
+        <Separator opacity="0.35"/>
+
+        <!-- Infos (cards) -->
+        <HBox spacing="12" styleClass="premium-info-row">
+            <VBox spacing="6" styleClass="mini-card">
+                <Label text="📅 Date" styleClass="mini-card-label"/>
+                <Label fx:id="lblDate" text="-" styleClass="mini-card-value"/>
+            </VBox>
+            <VBox spacing="6" styleClass="mini-card">
+                <Label text="👥 Capacité" styleClass="mini-card-label"/>
+                <Label fx:id="lblCapacite" text="-" styleClass="mini-card-value"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="12" styleClass="premium-info-row">
+            <VBox spacing="6" styleClass="mini-card">
+                <Label text="🏷️ Catégorie" styleClass="mini-card-label"/>
+                <Label fx:id="lblCategorie" text="-" styleClass="mini-card-value"/>
+            </VBox>
+            <VBox spacing="6" styleClass="mini-card">
+                <Label text="💰 Prix" styleClass="mini-card-label"/>
+                <Label fx:id="lblPrix" text="-" styleClass="mini-card-value"/>
+            </VBox>
+            <VBox spacing="6" styleClass="mini-card">
+                <Label text="🧩 Type" styleClass="mini-card-label"/>
+                <Label fx:id="lblType" text="-" styleClass="mini-card-value"/>
+            </VBox>
+        </HBox>
+
+        <!-- Description stylisée -->
+        <VBox spacing="8">
+            <Label text="📝 Description" styleClass="section-label"/>
+            <ScrollPane fitToWidth="true" prefViewportHeight="110" styleClass="premium-desc-scroll">
+                <content>
+                    <Label fx:id="lblDescription" wrapText="true" styleClass="premium-desc" text=""/>
+                </content>
+            </ScrollPane>
+        </VBox>
+
+        <!-- CTA -->
+        <HBox spacing="10" alignment="CENTER" styleClass="cta-row">
+            <Button text="⬅ Retour" onAction="#handleClose" styleClass="btn-danger"/>
+            <Button text="S’inscrire" onAction="#handleInscription" styleClass="btn-primary"/>
+            <Button text="QR Code" onAction="#handleQr" styleClass="btn-primary"/>
+            <Button text="Générer &amp; Afficher" onAction="#handleGenererAfficher" styleClass="btn-primary"/>
+            <Button text="Maps" onAction="#handleMaps" styleClass="btn-primary"/>
+            <Button text="Feedback" onAction="#handleFeedback" styleClass="btn-primary"/>
+        </HBox>
+
+        <!-- Bouton fermer discret -->
+        <Button text="✖ Fermer" onAction="#handleClose" styleClass="close-btn"/>
+
+    </VBox>
+
+</StackPane>
+

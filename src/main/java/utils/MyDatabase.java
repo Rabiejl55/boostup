@@ -3,6 +3,7 @@ package utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class MyDatabase {
 
@@ -18,10 +19,34 @@ public class MyDatabase {
         try {
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("✅ Connexion à la base boostup établie");
+            ensureSchema();
         } catch (SQLException e) {
             System.err.println("❌ Erreur de connexion à la base de données boostup");
             e.printStackTrace();
             // Important: on garde connection à null, mais on rend l'erreur claire.
+        }
+    }
+
+    /**
+     * Mini-migration safe: ajoute la colonne `archived` si elle n'existe pas.
+     * Objectif: permettre la soft-delete (évènement grisé côté front) sans action manuelle.
+     */
+    private void ensureSchema() {
+        if (connection == null) return;
+
+        // MySQL: ADD COLUMN IF NOT EXISTS n'est pas garanti selon versions.
+        // On tente l'ALTER, et si la colonne existe déjà, on ignore l'erreur.
+        String alter = "ALTER TABLE evenement ADD COLUMN archived TINYINT(1) NOT NULL DEFAULT 0";
+        try (Statement st = connection.createStatement()) {
+            st.executeUpdate(alter);
+            System.out.println("✅ Migration: colonne evenement.archived ajoutée");
+        } catch (SQLException e) {
+            // 1060 = Duplicate column name
+            if (e.getErrorCode() == 1060) {
+                // colonne déjà présente -> rien à faire
+            } else {
+                System.err.println("⚠️ Migration ignorée (archived): " + e.getMessage());
+            }
         }
     }
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.QrCodeModalController"
+           stylesheets="@/css/front.css"
+           style="-fx-background-color: transparent;">
+
+    <VBox spacing="14" styleClass="premium-modal card-glass">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+
+        <Label text="QR Code de l’événement" styleClass="premium-title" />
+
+        <Separator opacity="0.35" />
+
+        <!-- QR centré -->
+        <StackPane styleClass="mini-card" style="-fx-alignment: center;">
+            <ImageView fx:id="imgQr" fitWidth="300" fitHeight="300" preserveRatio="true" smooth="true" />
+        </StackPane>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Fermer" onAction="#handleClose" styleClass="btn-secondary" />
+        </HBox>
+    </VBox>
+
+</StackPane>

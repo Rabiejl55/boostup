@@ -455,8 +455,8 @@ public class EvenementController implements Initializable {
         try {
             evenementList.clear();
 
-            // Récupérer les Evenement depuis le service
-            for (Evenement e : es.read()) {
+            // Récupérer les Evenement depuis le service (actifs uniquement -> les archivés ne s'affichent plus)
+            for (Evenement e : es.readActifs()) {
                 // Convertir chaque Evenement en EvenementFX
                 evenementList.add(new EvenementFX(e));
             }

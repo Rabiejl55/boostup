@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.CalendarController"
+           stylesheets="@/css/front.css"
+           styleClass="calendar-root">
+
+    <BorderPane maxWidth="980" maxHeight="720" styleClass="calendar-card">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="calendar-topbar">
+                <padding>
+                    <Insets top="16" right="18" bottom="12" left="18"/>
+                </padding>
+
+                <Button text="⬅ Retour" onAction="#handleClose" styleClass="btn-danger"/>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button text="◀" onAction="#handlePrevMonth" styleClass="btn-secondary"/>
+                <Label fx:id="lblMonth" text="Mois" styleClass="calendar-month-title"/>
+                <Button text="▶" onAction="#handleNextMonth" styleClass="btn-secondary"/>
+            </HBox>
+        </top>
+
+        <center>
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="0" right="18" bottom="18" left="18"/>
+                </padding>
+                <GridPane fx:id="gridDays" hgap="10" vgap="10" styleClass="calendar-grid"/>
+            </VBox>
+        </center>
+    </BorderPane>
+
+</StackPane>
+

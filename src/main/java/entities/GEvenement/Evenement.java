@@ -12,6 +12,7 @@ public class Evenement {
     private String description;
     private int capaciteMax;
     private String image; // URL ou chemin
+    private boolean archived; // soft delete
 
     // Constructeurs
     public Evenement() {}
@@ -81,6 +82,9 @@ public class Evenement {
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
 
+    public boolean isArchived() { return archived; }
+    public void setArchived(boolean archived) { this.archived = archived; }
+
     @Override
     public String toString() {
         return "Evenement{" +
@@ -91,6 +95,7 @@ public class Evenement {
                 ", lieu='" + lieu + '\'' +
                 ", capaciteMax=" + capaciteMax +
                 ", image='" + image + '\'' +
+                ", archived=" + archived +
                 '}';
     }
 

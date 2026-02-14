@@ -14,6 +14,7 @@ public class EvenementFX {
     private final StringProperty description = new SimpleStringProperty();
     private final IntegerProperty capaciteMax = new SimpleIntegerProperty();
     private final StringProperty image = new SimpleStringProperty();
+    private final BooleanProperty archived = new SimpleBooleanProperty(false);
 
     // ================= CONSTRUCTEURS =================
 
@@ -78,6 +79,7 @@ public class EvenementFX {
             this.description.set(e.getDescription());
             this.capaciteMax.set(e.getCapaciteMax());
             this.image.set(e.getImage());
+            this.archived.set(e.isArchived());
         }
     }
 
@@ -85,7 +87,7 @@ public class EvenementFX {
 
     // Convertir EvenementFX → Evenement (pour vos services)
     public Evenement toEvenement() {
-        return new Evenement(
+        Evenement e = new Evenement(
                 getId(),
                 getTitre(),
                 getType(),
@@ -95,6 +97,8 @@ public class EvenementFX {
                 getCapaciteMax(),
                 getImage()
         );
+        e.setArchived(isArchived());
+        return e;
     }
 
     // Convertir Evenement → EvenementFX (méthode statique)
@@ -134,6 +138,8 @@ public class EvenementFX {
 
     public StringProperty imageProperty() { return image; }
 
+    public BooleanProperty archivedProperty() { return archived; }
+
     // ================= GETTERS =================
 
     public int getId() {
@@ -166,6 +172,8 @@ public class EvenementFX {
 
     public String getImage() { return image.get(); }
 
+    public boolean isArchived() { return archived.get(); }
+
     // ================= SETTERS =================
 
     public void setId(int id) {
@@ -197,6 +205,8 @@ public class EvenementFX {
     }
 
     public void setImage(String image) { this.image.set(image); }
+
+    public void setArchived(boolean archived) { this.archived.set(archived); }
 
     // ================= MÉTHODES UTILES =================
 

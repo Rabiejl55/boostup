@@ -16,13 +16,25 @@ public class EvenementService implements IService<Evenement> {
         connection = MyDatabase.getInstance().getConnection();
     }
 
+    private Connection conn() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = MyDatabase.getInstance().getConnection();
+            }
+        } catch (SQLException ignored) {
+            connection = MyDatabase.getInstance().getConnection();
+        }
+        return connection;
+    }
+
     @Override
     public void ajouter(Evenement evenement) throws SQLException {
+        Connection c = conn();
         // On inclut image (nullable)
         String req = "INSERT INTO evenement (titre, type, date_evenement, lieu, description, capacite_max, image) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement ps = connection.prepareStatement(req);
+        PreparedStatement ps = c.prepareStatement(req);
         ps.setString(1, evenement.getTitre());
         ps.setString(2, evenement.getType());
         ps.setDate(3, evenement.getDateEvenement());
@@ -34,20 +46,36 @@ public class EvenementService implements IService<Evenement> {
         ps.executeUpdate();
     }
 
+    /**
+     * Suppression "soft" : on archive au lieu de supprimer.
+     * Objectif: l'événement disparaît du dashboard mais reste visible (grisé) côté front.
+     */
     @Override
     public void supprimer(int id) throws SQLException {
-        String req = "DELETE FROM evenement WHERE id_evenement = ?";
-        PreparedStatement ps = connection.prepareStatement(req);
-        ps.setInt(1, id);
-        ps.executeUpdate();
+        Connection c = conn();
+
+        // On tente d'archiver (si colonne existe). Si la colonne n'existe pas => fallback DELETE.
+        try {
+            String req = "UPDATE evenement SET archived = 1 WHERE id_evenement = ?";
+            PreparedStatement ps = c.prepareStatement(req);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            // fallback: ancien comportement
+            String req = "DELETE FROM evenement WHERE id_evenement = ?";
+            PreparedStatement ps = c.prepareStatement(req);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public void update(Evenement evenement) throws SQLException {
+        Connection c = conn();
         String req = "UPDATE evenement SET titre = ?, type = ?, date_evenement = ?, " +
                 "lieu = ?, description = ?, capacite_max = ?, image = ? WHERE id_evenement = ?";
 
-        PreparedStatement ps = connection.prepareStatement(req);
+        PreparedStatement ps = c.prepareStatement(req);
         ps.setString(1, evenement.getTitre());
         ps.setString(2, evenement.getType());
         ps.setDate(3, evenement.getDateEvenement());
@@ -62,10 +90,11 @@ public class EvenementService implements IService<Evenement> {
 
     @Override
     public List<Evenement> read() throws SQLException {
+        Connection c = conn();
         List<Evenement> evenements = new ArrayList<>();
         String req = "SELECT * FROM evenement";
 
-        Statement st = connection.createStatement();
+        Statement st = c.createStatement();
         ResultSet rs = st.executeQuery(req);
 
         while (rs.next()) {
@@ -77,15 +106,70 @@ public class EvenementService implements IService<Evenement> {
             e.setLieu(rs.getString("lieu"));
             e.setDescription(rs.getString("description"));
             e.setCapaciteMax(rs.getInt("capacite_max"));
-            // Nouvelle colonne
+
             try {
                 e.setImage(rs.getString("image"));
             } catch (SQLException ignored) {
-                // Si la colonne n'existe pas (DB pas migrée), on laisse null
+            }
+
+            // colonne archived (optionnelle)
+            try {
+                e.setArchived(rs.getInt("archived") == 1);
+            } catch (SQLException ignored) {
+                e.setArchived(false);
             }
 
             evenements.add(e);
         }
         return evenements;
+    }
+
+    /**
+     * Lecture des événements non archivés (dashboard).
+     */
+    public List<Evenement> readActifs() throws SQLException {
+        Connection c = conn();
+        List<Evenement> evenements = new ArrayList<>();
+
+        // Si la colonne n'existe pas, on retombe sur read().
+        String req = "SELECT * FROM evenement WHERE archived = 0";
+        try (Statement st = c.createStatement(); ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                Evenement e = new Evenement();
+                e.setId(rs.getInt("id_evenement"));
+                e.setTitre(rs.getString("titre"));
+                e.setType(rs.getString("type"));
+                e.setDateEvenement(rs.getDate("date_evenement"));
+                e.setLieu(rs.getString("lieu"));
+                e.setDescription(rs.getString("description"));
+                e.setCapaciteMax(rs.getInt("capacite_max"));
+                try { e.setImage(rs.getString("image")); } catch (SQLException ignored) {}
+                evenements.add(e);
+            }
+        } catch (SQLException ex) {
+            // colonne pas encore ajoutée
+            return read();
+        }
+
+        return evenements;
+    }
+
+    /**
+     * Vérifie si un événement est archivé.
+     */
+    public boolean isArchived(int id) {
+        try {
+            Connection c = conn();
+            String req = "SELECT archived FROM evenement WHERE id_evenement = ?";
+            try (PreparedStatement ps = c.prepareStatement(req)) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return false;
+                    return rs.getInt(1) == 1;
+                }
+            }
+        } catch (SQLException ex) {
+            return false;
+        }
     }
 }

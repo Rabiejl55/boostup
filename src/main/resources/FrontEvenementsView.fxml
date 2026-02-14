@@ -16,83 +16,96 @@
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="650.0" prefWidth="1000.0"
-            stylesheets="@/css/front.css"
-            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.FrontEvenementsController">
+<!-- Root stack pour permettre un overlay modal premium -->
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.FrontEvenementsController"
+           stylesheets="@/css/front.css">
 
-    <!-- Stage / Top-bar (même look que le dashboard) -->
-    <top>
-        <VBox>
-            <HBox alignment="CENTER_LEFT" spacing="30" styleClass="top-bar">
-                <padding>
-                    <Insets bottom="15" left="30" right="30" top="15" />
-                </padding>
+    <!-- Contenu principal existant -->
+    <BorderPane fx:id="rootPane" prefHeight="650.0" prefWidth="1000.0">
 
-                <HBox alignment="CENTER_LEFT" spacing="15">
-                    <StackPane>
-                        <ImageView fitHeight="36" fitWidth="36" preserveRatio="true" style="-fx-border-radius: 18; -fx-border-color: #0d6efd; -fx-border-width: 1.5;">
-                            <effect>
-                                <DropShadow />
-                            </effect>
-                            <image>
-                                <Image url="@images/logo.png" />
-                            </image>
-                        </ImageView>
-                    </StackPane>
-
-                    <VBox spacing="2">
-                        <Label styleClass="logo-label" text="BoostUp" />
-                        <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12px;" text="Événements (Front)" />
-                    </VBox>
-                </HBox>
-
-                <HBox HBox.hgrow="ALWAYS" />
-
-                <HBox alignment="CENTER" spacing="15">
-                    <VBox alignment="CENTER_RIGHT" spacing="2">
-                        <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="Utilisateur" />
-                        <Label style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px;" text="Explorer" />
-                    </VBox>
-                    <Separator orientation="VERTICAL" prefHeight="25" style="-fx-background-color: rgba(255,255,255,0.3);" />
-                    <Button onAction="#handleLogout" styleClass="nav-button logout-button" text="Déconnexion" />
-                </HBox>
-            </HBox>
-
-            <!-- Header glassmorphism (recherche + tri) -->
-            <StackPane styleClass="front-header">
-                <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
-                </padding>
-
-                <HBox spacing="14" alignment="CENTER" maxWidth="920" styleClass="front-header-inner">
-                    <TextField fx:id="tfRecherche" promptText="Rechercher un événement..." styleClass="front-search" />
-                    <ComboBox fx:id="cbTri" promptText="Trier par" styleClass="front-sort" />
-                </HBox>
-            </StackPane>
-        </VBox>
-    </top>
-
-    <!-- Grille responsive de cartes -->
-    <center>
-        <ScrollPane fitToWidth="true" pannable="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="front-scroll">
-            <content>
-                <TilePane fx:id="tileEvenements" hgap="18" vgap="18" prefColumns="3" tileAlignment="TOP_LEFT">
+        <!-- Stage / Top-bar (même look que le dashboard) -->
+        <top>
+            <VBox>
+                <HBox alignment="CENTER_LEFT" spacing="30" styleClass="top-bar">
                     <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
+                        <Insets bottom="15" left="30" right="30" top="15" />
                     </padding>
-                </TilePane>
-            </content>
-        </ScrollPane>
-    </center>
 
-    <bottom>
-        <HBox alignment="CENTER" styleClass="front-footer">
-            <padding>
-                <Insets top="10" right="18" bottom="10" left="18"/>
-            </padding>
-            <Label fx:id="lblStatus" text="" styleClass="front-status" />
-        </HBox>
-    </bottom>
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <StackPane>
+                            <ImageView fitHeight="36" fitWidth="36" preserveRatio="true" style="-fx-border-radius: 18; -fx-border-color: #0d6efd; -fx-border-width: 1.5;">
+                                <effect>
+                                    <DropShadow />
+                                </effect>
+                                <image>
+                                    <Image url="@images/logo.png" />
+                                </image>
+                            </ImageView>
+                        </StackPane>
 
-</BorderPane>
+                        <VBox spacing="2">
+                            <Label styleClass="logo-label" text="BoostUp" />
+                            <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12px;" text="Événements (Front)" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox HBox.hgrow="ALWAYS" />
+
+                    <HBox alignment="CENTER" spacing="15">
+                        <VBox alignment="CENTER_RIGHT" spacing="2">
+                            <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="Utilisateur" />
+                            <Label style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px;" text="Explorer" />
+                        </VBox>
+                        <Separator orientation="VERTICAL" prefHeight="25" style="-fx-background-color: rgba(255,255,255,0.3);" />
+                        <Button onAction="#handleLogout" styleClass="nav-button logout-button" text="Déconnexion" />
+                    </HBox>
+                </HBox>
+
+                <!-- Header glassmorphism (recherche + tri) -->
+                <StackPane styleClass="front-header">
+                    <padding>
+                        <Insets top="8" right="12" bottom="8" left="12"/>
+                    </padding>
+
+                    <HBox spacing="10" alignment="CENTER" maxWidth="980" styleClass="front-header-inner">
+                        <TextField fx:id="tfRecherche" promptText="Rechercher un événement..." styleClass="front-search" />
+                        <ComboBox fx:id="cbTri" promptText="Trier par" styleClass="front-sort" />
+                        <Button fx:id="btnCalendrier" text="📅 Calendrier" onAction="#handleOpenCalendar" styleClass="front-calendar-btn" />
+                    </HBox>
+                </StackPane>
+            </VBox>
+        </top>
+
+        <!-- Grille responsive de cartes -->
+        <center>
+            <ScrollPane fitToWidth="true" pannable="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="front-scroll">
+                <content>
+                    <TilePane fx:id="tileEvenements" hgap="18" vgap="18" prefColumns="3" tileAlignment="TOP_LEFT">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
+                    </TilePane>
+                </content>
+            </ScrollPane>
+        </center>
+
+        <bottom>
+            <HBox alignment="CENTER" styleClass="front-footer">
+                <padding>
+                    <Insets top="10" right="18" bottom="10" left="18"/>
+                </padding>
+                <Label fx:id="lblStatus" text="" styleClass="front-status" />
+            </HBox>
+        </bottom>
+
+    </BorderPane>
+
+    <!-- Overlay premium (invisible par défaut) -->
+    <StackPane fx:id="overlayRoot" visible="false" managed="false" styleClass="premium-overlay">
+        <StackPane fx:id="overlayBackdrop" onMouseClicked="#handleOverlayBackdrop" styleClass="premium-backdrop" />
+        <StackPane fx:id="modalHost" styleClass="premium-host" />
+    </StackPane>
+
+</StackPane>
+

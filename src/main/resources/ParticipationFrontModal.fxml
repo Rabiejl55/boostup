@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Modal inscription participation (Front) -->
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.ParticipationFrontModalController"
+           stylesheets="@/css/front.css"
+           style="-fx-background-color: transparent;">
+
+    <VBox spacing="14" styleClass="premium-modal card-glass">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+
+        <Label text="Inscription à l’événement" styleClass="premium-title" />
+        <Label fx:id="lblEventTitle" text="" style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-weight: 700;" wrapText="true"/>
+
+        <Separator opacity="0.35" />
+
+        <VBox spacing="10" styleClass="mini-card">
+            <Label text="Nom de la startup" styleClass="mini-card-label" />
+            <TextField fx:id="tfStartup" promptText="Ex: BoostUp Startup" styleClass="front-search" />
+
+            <Label text="Nom de l’investisseur" styleClass="mini-card-label" />
+            <TextField fx:id="tfInvestisseur" promptText="Ex: Ahmed Ben Ali" styleClass="front-search" />
+
+            <Label text="Allez-vous assister à cet événement ?" styleClass="mini-card-label" />
+            <ChoiceBox fx:id="cbPresence" prefWidth="320" styleClass="front-sort" />
+
+            <Label fx:id="lblError" text="" style="-fx-text-fill: #ffb4b4; -fx-font-weight: 800;" wrapText="true" />
+        </VBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Annuler" onAction="#handleCancel" styleClass="btn-secondary" />
+            <Button text="Valider l’inscription" onAction="#handleSubmit" styleClass="btn-primary" />
+        </HBox>
+    </VBox>
+
+</StackPane>
+

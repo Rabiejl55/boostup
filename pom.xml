@@ -34,6 +34,30 @@
             <artifactId>javafx-fxml</artifactId>
             <version>17.0.10</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>17.0.10</version>
+        </dependency>
+
+        <!-- JavaFX WebView (Maps) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>17.0.10</version>
+        </dependency>
+
+        <!-- ZXing (QR Code) : build fiable (pas dépendant d'IntelliJ) -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -45,6 +69,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>main.MainApp</mainClass>
+                    <addModules>javafx.controls,javafx.fxml,javafx.web</addModules>
                 </configuration>
             </plugin>
         </plugins>
