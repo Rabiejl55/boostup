@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AdminDashboardController"
+            stylesheets="@../css/style.css" style="-fx-background-color: #f8f9fa;">
+
+    <!-- Barre latérale gauche (Sidebar) -->
+    <left>
+        <VBox styleClass="sidebar admin-sidebar" prefWidth="280" spacing="20"
+              style="-fx-background-color: linear-gradient(to bottom, #0d6efd, #0a58ca);">
+            <padding>
+                <Insets top="25" right="15" bottom="25" left="15"/>
+            </padding>
+
+            <!-- Logo et avatar utilisateur -->
+            <!-- Logo et avatar utilisateur - SIMPLE VERSION WITHOUT BORDERS -->
+            <VBox spacing="15" alignment="CENTER" styleClass="sidebar-header">
+                <StackPane>
+                    <!-- Just ONE subtle background circle, no white circle -->
+
+                    <!-- ImageView only - no white circles! -->
+                    <ImageView fx:id="avatarImageView" fitHeight="80" fitWidth="80"
+                               preserveRatio="true" styleClass="sidebar-avatar" />
+                </StackPane>
+                <VBox alignment="CENTER" spacing="5">
+                    <Label fx:id="welcomeLabel" text="admin" styleClass="sidebar-user-name" />
+                    <Label fx:id="userInfoLabel" text="ADMIN" styleClass="sidebar-user-role" />
+                    <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+                        <Button text="Mon Profil" onAction="#goToProfile" styleClass="sidebar-profile-btn" />
+                        <Button text="Déconnexion" onAction="#handleLogout" styleClass="sidebar-logout-btn" />
+                    </HBox>
+                </VBox>
+            </VBox>
+            <!-- Séparateur -->
+            <Separator styleClass="sidebar-separator" />
+
+            <!-- Menu de navigation principal -->
+            <VBox spacing="8" styleClass="sidebar-menu">
+                <Label text="MENU PRINCIPAL" styleClass="sidebar-menu-category" />
+                <Button text="📊  Dashboard" onAction="#goToDashboard" styleClass="sidebar-menu-item active" />
+                <Button text="👥  Utilisateurs" onAction="#openUsersManagement" styleClass="sidebar-menu-item" />
+                <Button text="📅  Événements" onAction="#manageEvents" styleClass="sidebar-menu-item" />
+                <Button text="💰  Financements" onAction="#manageFinancements" styleClass="sidebar-menu-item" />
+                <Button text="📈  Statistiques" onAction="#viewStats" styleClass="sidebar-menu-item" />
+                <Button text="🛡️  Modération" onAction="#moderateContent" styleClass="sidebar-menu-item" />
+                <Button text="⚙️  Paramètres" onAction="#systemSettings" styleClass="sidebar-menu-item" />
+            </VBox>
+
+            <!-- Séparateur -->
+            <Separator styleClass="sidebar-separator" />
+
+            <!-- Section gestion rapide -->
+            <VBox spacing="8" styleClass="sidebar-menu">
+                <Label text="GESTION RAPIDE" styleClass="sidebar-menu-category" />
+                <Button text="🚀  Startups" onAction="#viewStartups" styleClass="sidebar-menu-item" />
+                <Button text="📋  Rapports" onAction="#viewStats" styleClass="sidebar-menu-item" />
+                <Button text="🔔  Notifications" styleClass="sidebar-menu-item" />
+            </VBox>
+
+            <!-- Espace flexible -->
+            <Region VBox.vgrow="ALWAYS" />
+
+            <!-- Footer sidebar -->
+            <VBox spacing="10" styleClass="sidebar-footer">
+                <Separator styleClass="sidebar-separator" />
+                <Label text="BoostUp Admin v1.0" styleClass="sidebar-version" />
+                <Label text="© 2024 Tous droits réservés" styleClass="sidebar-copyright" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Centre: Contenu principal -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #f8f9fa; -fx-padding: 0;"
+                    styleClass="content-scrollpane">
+            <VBox spacing="30" styleClass="dashboard-content">
+
+                <!-- En-tête de page -->
+                <VBox spacing="10" styleClass="page-header">
+                    <Label text="Tableau de bord" styleClass="page-title" />
+                    <Label text="Bienvenue sur votre espace d'administration" styleClass="page-subtitle" />
+                </VBox>
+
+                <!-- Section 1: Cartes de statistiques -->
+                <HBox spacing="20" alignment="CENTER" styleClass="stats-row">
+                    <!-- Carte Utilisateurs -->
+                    <VBox alignment="CENTER" spacing="10" styleClass="stats-card-modern" prefWidth="280" prefHeight="160">
+                        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 15 0;">
+                            <StackPane styleClass="stats-icon blue">
+                                <Label text="👥" style="-fx-font-size: 28px;" />
+                            </StackPane>
+                            <VBox>
+                                <Label text="Utilisateurs" styleClass="stats-label-modern" />
+                                <Label fx:id="statsUsersLabel" styleClass="stats-number-modern" text="0 utilisateurs" />
+                            </VBox>
+                        </HBox>
+                        <Button text="Gérer les utilisateurs" onAction="#openUsersManagement"
+                                styleClass="stats-action-btn" maxWidth="Infinity" />
+                    </VBox>
+
+                    <!-- Carte Événements -->
+                    <VBox alignment="CENTER" spacing="10" styleClass="stats-card-modern" prefWidth="280" prefHeight="160">
+                        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 15 0;">
+                            <StackPane styleClass="stats-icon green">
+                                <Label text="📅" style="-fx-font-size: 28px;" />
+                            </StackPane>
+                            <VBox>
+                                <Label text="Événements" styleClass="stats-label-modern" />
+                                <Label fx:id="statsEventsLabel" styleClass="stats-number-modern" text="0 événements" />
+                            </VBox>
+                        </HBox>
+                        <Button text="Gérer les événements" onAction="#manageEvents"
+                                styleClass="stats-action-btn" maxWidth="Infinity" />
+                    </VBox>
+
+                    <!-- Carte Startups -->
+                    <VBox alignment="CENTER" spacing="10" styleClass="stats-card-modern" prefWidth="280" prefHeight="160">
+                        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 15 0;">
+                            <StackPane styleClass="stats-icon purple">
+                                <Label text="🚀" style="-fx-font-size: 28px;" />
+                            </StackPane>
+                            <VBox>
+                                <Label text="Startups" styleClass="stats-label-modern" />
+                                <Label fx:id="statsStartupsLabel" styleClass="stats-number-modern" text="0 startups" />
+                            </VBox>
+                        </HBox>
+                        <Button text="Voir les startups" onAction="#viewStartups"
+                                styleClass="stats-action-btn" maxWidth="Infinity" />
+                    </VBox>
+                </HBox>
+
+                <!-- Section 2: Actions rapides en grille -->
+                <VBox spacing="20">
+                    <Label text="Actions rapides" styleClass="section-title-modern" />
+
+                    <GridPane hgap="20" vgap="20" styleClass="quick-action-grid">
+                        <padding><Insets top="10" right="0" bottom="10" left="0"/></padding>
+
+                        <!-- Ligne 1 -->
+                        <VBox spacing="12" styleClass="quick-action-card-modern"
+                              GridPane.rowIndex="0" GridPane.columnIndex="0">
+                            <Label text="📊" style="-fx-font-size: 32px;" />
+                            <Label text="Rapports" styleClass="quick-action-title" />
+                            <Label text="Générer des rapports détaillés" styleClass="quick-action-desc" />
+                            <Button text="Générer" onAction="#viewStats" styleClass="quick-action-btn" />
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="quick-action-card-modern"
+                              GridPane.rowIndex="0" GridPane.columnIndex="1">
+                            <Label text="🔔" style="-fx-font-size: 32px;" />
+                            <Label text="Notifications" styleClass="quick-action-title" />
+                            <Label text="Gérer les notifications système" styleClass="quick-action-desc" />
+                            <Button text="Configurer" styleClass="quick-action-btn" />
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="quick-action-card-modern"
+                              GridPane.rowIndex="0" GridPane.columnIndex="2">
+                            <Label text="🛡️" style="-fx-font-size: 32px;" />
+                            <Label text="Sécurité" styleClass="quick-action-title" />
+                            <Label text="Paramètres de sécurité" styleClass="quick-action-desc" />
+                            <Button text="Configurer" onAction="#systemSettings" styleClass="quick-action-btn" />
+                        </VBox>
+
+                        <!-- Ligne 2 -->
+                        <VBox spacing="12" styleClass="quick-action-card-modern"
+                              GridPane.rowIndex="1" GridPane.columnIndex="0">
+                            <Label text="💬" style="-fx-font-size: 32px;" />
+                            <Label text="Support" styleClass="quick-action-title" />
+                            <Label text="Messages des utilisateurs" styleClass="quick-action-desc" />
+                            <Button text="Voir messages" styleClass="quick-action-btn" />
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="quick-action-card-modern"
+                              GridPane.rowIndex="1" GridPane.columnIndex="1">
+                            <Label text="📈" style="-fx-font-size: 32px;" />
+                            <Label text="Analytics" styleClass="quick-action-title" />
+                            <Label text="Analyses détaillées" styleClass="quick-action-desc" />
+                            <Button text="Analyser" styleClass="quick-action-btn" />
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="quick-action-card-modern"
+                              GridPane.rowIndex="1" GridPane.columnIndex="2">
+                            <Label text="⚙️" style="-fx-font-size: 32px;" />
+                            <Label text="Configuration" styleClass="quick-action-title" />
+                            <Label text="Paramètres système" styleClass="quick-action-desc" />
+                            <Button text="Configurer" onAction="#systemSettings" styleClass="quick-action-btn" />
+                        </VBox>
+                    </GridPane>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>  <!-- IMPORT MANQUANT AJOUTÉ -->
+<?import javafx.scene.image.ImageView?> <!-- IMPORT MANQUANT AJOUTÉ -->
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.UsersManagementController"
+            stylesheets="@../css/style.css" style="-fx-background-color: #f8f9fa;">
+
+    <!-- Barre latérale gauche (Sidebar) -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="280" spacing="20"
+              style="-fx-background-color: linear-gradient(to bottom, #0d6efd, #0a58ca);">
+            <padding>
+                <Insets top="25" right="15" bottom="25" left="15"/>
+            </padding>
+
+            <!-- Logo et avatar utilisateur -->
+            <!-- Logo et avatar utilisateur - SIMPLE VERSION WITHOUT BORDERS -->
+            <VBox spacing="15" alignment="CENTER" styleClass="sidebar-header">
+                <StackPane>
+                    <!-- Just the ImageView - no circles! -->
+                    <ImageView fx:id="avatarImageView" fitHeight="80" fitWidth="80"
+                               preserveRatio="true" styleClass="sidebar-avatar" />
+                </StackPane>
+                <VBox alignment="CENTER" spacing="5">
+                    <Label fx:id="welcomeLabel" text="admin" styleClass="sidebar-user-name" />
+                </VBox>
+            </VBox>
+
+            <Separator styleClass="sidebar-separator" />
+
+            <VBox spacing="8" styleClass="sidebar-menu">
+                <Label text="MENU" styleClass="sidebar-menu-category" />
+                <Button text="📊  Dashboard" onAction="#goToDashboard" styleClass="sidebar-menu-item" />
+                <Button text="👥  Utilisateurs" onAction="#showAddUserDialog" styleClass="sidebar-menu-item active" />
+                <Button text="📅  Événements" styleClass="sidebar-menu-item" />
+                <Button text="💰  Financements" styleClass="sidebar-menu-item" />
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <VBox spacing="10" styleClass="sidebar-footer">
+                <Separator styleClass="sidebar-separator" />
+                <Button text="🚪  Déconnexion" onAction="#handleLogout"
+                        styleClass="sidebar-logout-btn" maxWidth="Infinity" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Centre: Contenu gestion utilisateurs -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+            <!-- En-tête de page -->
+            <VBox spacing="10" styleClass="page-header">
+                <Label text="Gestion des utilisateurs" styleClass="page-title" />
+                <Label text="Gérez les comptes, les rôles et les permissions" styleClass="page-subtitle" />
+            </VBox>
+
+            <!-- Filtres et recherche -->
+            <VBox spacing="15" styleClass="filter-section-modern">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <TextField fx:id="searchField" promptText="Rechercher un utilisateur..."
+                               HBox.hgrow="ALWAYS" styleClass="modern-input" prefHeight="40" />
+                    <ComboBox fx:id="filterComboBox" prefWidth="150" styleClass="modern-input" />
+                </HBox>
+
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="roleFilterComboBox" prefWidth="150" styleClass="modern-input" />
+                    <ComboBox fx:id="statusFilterComboBox" prefWidth="150" styleClass="modern-input" />
+                    <Button text="Effacer les filtres" onAction="#clearFilters" styleClass="clear-btn-modern" />
+                </HBox>
+            </VBox>
+
+            <!-- Boutons d'action -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Button text="➕ Ajouter" onAction="#showAddUserDialog" styleClass="action-btn-primary" />
+                <Button text="✏️ Modifier" onAction="#showEditUserDialog" styleClass="action-btn-secondary" />
+                <Button text="🔒 Bloquer" onAction="#blockSelectedUser" styleClass="action-btn-danger" />
+                <Button text="🔓 Débloquer" onAction="#unblockSelectedUser" styleClass="action-btn-success" />
+                <Button text="🗑️ Supprimer" onAction="#deleteSelectedUser" styleClass="action-btn-danger-outline" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="userCountLabel" styleClass="user-count-modern" />
+            </HBox>
+
+            <!-- Tableau des utilisateurs -->
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="500" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="60" />
+                    <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150" />
+                    <TableColumn fx:id="emailColumn" text="Email" prefWidth="200" />
+                    <TableColumn fx:id="roleColumn" text="Rôle" prefWidth="120" />
+                    <TableColumn fx:id="activeColumn" text="Statut" prefWidth="100" />
+                    <TableColumn fx:id="dateCreationColumn" text="Inscription" prefWidth="150" />
+                </columns>
+            </TableView>
+
+            <Label fx:id="feedbackLabel" styleClass="feedback-message-modern" />
+        </VBox>
+    </center>
+</BorderPane>
