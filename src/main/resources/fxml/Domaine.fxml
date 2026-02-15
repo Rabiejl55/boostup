@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.DomaineController"
+            stylesheets="@../css/domainestyle.css"
+            style="-fx-background-color: #f8f9fa;">
+
+    <!-- ================= SIDEBAR ================= -->
+    <left>
+        <VBox spacing="20" prefWidth="280" styleClass="sidebar"
+              style="-fx-background-color: linear-gradient(to bottom, #0d6efd, #0a58ca);">
+            <padding>
+                <Insets top="25" right="15" bottom="25" left="15"/>
+            </padding>
+
+            <!-- Logo et avatar -->
+            <VBox spacing="15" alignment="CENTER" styleClass="sidebar-header">
+                <StackPane>
+                    <Circle radius="45" fill="white" style="-fx-opacity: 0.2;" />
+                    <Circle radius="42" fill="white" />
+                    <ImageView fx:id="avatarImageView" fitHeight="76" fitWidth="76"
+                               preserveRatio="true" styleClass="sidebar-avatar" />
+                </StackPane>
+                <VBox alignment="CENTER" spacing="5">
+                    <Label fx:id="welcomeLabel" text="Administrateur" styleClass="sidebar-user-name" />
+                    <Label text="Gestion des domaines" styleClass="sidebar-user-role" />
+                </VBox>
+            </VBox>
+
+            <Separator styleClass="sidebar-separator" />
+
+            <VBox spacing="8" styleClass="sidebar-menu">
+                <Label text="MENU" styleClass="sidebar-menu-category" />
+                <Button text="🏠 Dashboard" onAction="#goToFront" styleClass="sidebar-menu-item" />
+                <Button text="👨‍🏫 Gestion Coach" onAction="#goToCoach" styleClass="sidebar-menu-item" />
+                <Button text="💻 Gestion Sessions" onAction="#goToSessions" styleClass="sidebar-menu-item"/>
+
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <VBox spacing="10" styleClass="sidebar-footer">
+                <Separator styleClass="sidebar-separator" />
+                <Button text="🚪 Déconnexion" onAction="#handleLogout"
+                        styleClass="sidebar-logout-btn" maxWidth="Infinity" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- ================= CONTENU PRINCIPAL ================= -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+            <!-- Titre -->
+            <Label text="Gestion des Domaines"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+            <!-- TableView Domaines -->
+            <TableView fx:id="domainesTable" VBox.vgrow="ALWAYS" prefHeight="500" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150"/>
+                    <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="200"/>
+                    <TableColumn fx:id="niveauColumn" text="Niveau" prefWidth="120"/>
+                    <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
+                    <TableColumn fx:id="imageColumn" text="Image" prefWidth="120"/>
+                </columns>
+            </TableView>
+            <!-- Boutons actions -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Button text="➕ Ajouter" onAction="#ajouterDomaine" styleClass="action-btn-primary"/>
+                <Button text="✏ Modifier" onAction="#modifierDomaine" styleClass="action-btn-secondary"/>
+                <Button text="🗑 Supprimer" onAction="#supprimerDomaine" styleClass="action-btn-danger"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="feedbackLabel" styleClass="feedback-message-modern"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

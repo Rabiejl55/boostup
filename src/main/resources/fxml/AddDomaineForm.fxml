@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.AddDomaineController"
+            prefWidth="500" prefHeight="600"
+            stylesheets="@../css/style.css">
+
+    <VBox spacing="15" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+
+        <!-- Titre -->
+        <Label text="Ajouter un Domaine"
+               styleClass="section-title"
+               alignment="CENTER"/>
+
+        <!-- Nom -->
+        <VBox spacing="5">
+            <Label text="Nom" styleClass="form-label"/>
+            <TextField fx:id="nomField" promptText="Nom du domaine" styleClass="modern-input"/>
+            <Label fx:id="nomError" styleClass="error"/>
+        </VBox>
+
+        <!-- Description -->
+        <VBox spacing="5">
+            <Label text="Description" styleClass="form-label"/>
+            <TextArea fx:id="descriptionField" promptText="Description du domaine" prefRowCount="4" styleClass="modern-input"/>
+            <Label fx:id="descriptionError" styleClass="error"/>
+        </VBox>
+
+        <!-- Niveau -->
+        <VBox spacing="5">
+            <Label text="Niveau" styleClass="form-label"/>
+            <TextField fx:id="niveauField" promptText="Ex: Débutant, Intermédiaire" styleClass="modern-input"/>
+            <Label fx:id="niveauError" styleClass="error"/>
+        </VBox>
+
+        <!-- Statut -->
+        <VBox spacing="5">
+            <Label text="Statut" styleClass="form-label"/>
+            <ComboBox fx:id="statutBox" promptText="Sélectionner le statut" styleClass="combo-box"/>
+            <Label fx:id="statutError" styleClass="error"/>
+        </VBox>
+
+        <!-- Image -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Choisir une image" onAction="#chooseImage" styleClass="primary-button"/>
+            <Label fx:id="imageLabel" text="Aucune image sélectionnée"/>
+        </HBox>
+
+        <!-- Message d'erreur général -->
+        <Label fx:id="errorLabel" styleClass="error"/>
+
+        <!-- Boutons -->
+        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+            <Button text="Annuler" onAction="#closeForm" styleClass="secondary-button"/>
+            <Button text="Ajouter" onAction="#submitForm" styleClass="primary-button"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

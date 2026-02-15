@@ -1,98 +1,62 @@
 package entities.GUtilisateurs;
 
-import java.time.LocalDateTime;
+import entities.Role_enum;
+
+import java.util.Date;
 import java.util.Objects;
 
 public class User {
-
     private int id;
     private String nom;
     private String email;
-    private String mdp;
-    private String role;  // Ou vous pourriez utiliser RoleEnum comme type
+    private String MDP;
+    private Role_enum role;
     private boolean active;
-    private LocalDateTime dateCreation;
+    private Date dateCreation;
 
-    public User() {
-    }
+    // Constructeurs
+    public User() {}
 
-    public User(int id, String nom, String email, String mdp, String role, boolean active, LocalDateTime dateCreation) {
-        this.id = id;
+    public User(String nom, String email, String MDP, Role_enum role) {
         this.nom = nom;
         this.email = email;
-        this.mdp = mdp;
+        this.MDP = MDP;
         this.role = role;
-        this.active = active;
-        this.dateCreation = dateCreation;
+        this.active = true;
+        this.dateCreation = new Date();
     }
 
-    public String getMdp() {
-        return mdp;
+    // Constructeur avec String pour rôle (conversion automatique)
+    public User(String nom, String email, String MDP, String role) {
+        this(nom, email, MDP, Role_enum.fromString(role));
     }
 
-    public void setMdp(String mdp) {
-        this.mdp = mdp;
-    }
+    // Getters et Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public int getId() {
-        return id;
-    }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getNom() {
-        return nom;
-    }
+    public String getMDP() { return MDP; }
+    public void setMDP(String MDP) { this.MDP = MDP; }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
+    public Role_enum getRole() { return role; }
+    public void setRole(Role_enum role) { this.role = role; }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
+    // Setter avec String (conversion automatique)
     public void setRole(String role) {
-        this.role = role;
+        this.role = Role_enum.fromString(role);
     }
 
-    public boolean isActive() {
-        return active;
-    }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public LocalDateTime getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(LocalDateTime dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return id == user.id && active == user.active && Objects.equals(nom, user.nom) && Objects.equals(email, user.email) && Objects.equals(mdp, user.mdp) && Objects.equals(role, user.role) && Objects.equals(dateCreation, user.dateCreation);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nom, email, mdp, role, active, dateCreation);
-    }
+    public Date getDateCreation() { return dateCreation; }
+    public void setDateCreation(Date dateCreation) { this.dateCreation = dateCreation; }
 
     @Override
     public String toString() {
@@ -100,10 +64,20 @@ public class User {
                 "id=" + id +
                 ", nom='" + nom + '\'' +
                 ", email='" + email + '\'' +
-                ", mdp='" + mdp + '\'' +
-                ", role='" + role + '\'' +
+                ", role=" + role +
                 ", active=" + active +
-                ", dateCreation=" + dateCreation +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id && active == user.active && Objects.equals(nom, user.nom) && Objects.equals(email, user.email) && Objects.equals(MDP, user.MDP) && role == user.role && Objects.equals(dateCreation, user.dateCreation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nom, email, MDP, role, active, dateCreation);
     }
 }
