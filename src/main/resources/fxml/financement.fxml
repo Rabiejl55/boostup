@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.FinancementController"
+            prefWidth="1000.0" prefHeight="650.0">
+
+    <stylesheets>
+        <URL value="@/css/sidebar.css"/>
+        <URL value="@/css/financement.css"/>
+    </stylesheets>
+
+    <left>
+        <VBox styleClass="sidebar">
+            <Label text="BoostUp" styleClass="sidebar-brand"/>
+            <Label text="Admin Panel" styleClass="sidebar-subtitle"/>
+            <Region styleClass="sidebar-sep"/>
+
+            <Button text="Dashboard" styleClass="sidebar-btn active" onAction="#goDashboard"/>
+            <Button text="Financement" styleClass="sidebar-btn" onAction="#goFinancement"/>
+            <Button text="Investissements" styleClass="sidebar-btn" onAction="#goInvestissements"/>
+            <Button text="Transactions" styleClass="sidebar-btn" onAction="#goTransactions"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Logout" styleClass="sidebar-btn danger" onAction="#logout"/>
+        </VBox>
+    </left>
+
+
+
+
+
+    <center>
+        <TabPane>
+
+
+            <!-- ===================== PROJETS ===================== -->
+            <Tab text="Projets" closable="false">
+                <BorderPane styleClass="page">
+
+                    <top>
+                        <VBox spacing="10" styleClass="card">
+                            <Label text="Gestion des Projets" styleClass="h2"/>
+                            <!-- Message global (succès/erreur) -->
+                            <Label fx:id="lblProjetToast"
+                                   text=""
+                                   visible="false"
+                                   managed="false"
+                                   wrapText="true"
+                                   styleClass="toastInfo"/>
+
+                            <GridPane hgap="10" vgap="6">
+                                <columnConstraints>
+                                    <ColumnConstraints prefWidth="120"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                    <ColumnConstraints prefWidth="120"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                </columnConstraints>
+
+                                <!-- TITRE -->
+                                <Label text="Titre" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <VBox spacing="3" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                    <TextField fx:id="tfTitre" promptText="Titre du projet"/>
+                                    <Label fx:id="errTitre" text="" visible="false" managed="false" styleClass="fieldError"/>
+                                </VBox>
+
+                                <!-- BUDGET -->
+                                <Label text="Budget" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                                <VBox spacing="3" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                                    <TextField fx:id="tfBudget" promptText="Ex: 1200.50"/>
+                                    <Label fx:id="errBudget" text="" visible="false" managed="false" styleClass="fieldError"/>
+                                </VBox>
+
+                                <!-- STATUT -->
+                                <Label text="Statut" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <VBox spacing="3" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                                    <ComboBox fx:id="cbStatutProjet"/>
+                                    <Label fx:id="errStatut" text="" visible="false" managed="false" styleClass="fieldError"/>
+                                </VBox>
+
+                                <!-- DESCRIPTION -->
+                                <Label text="Description" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextArea fx:id="taDescription" promptText="Description..."
+                                          prefRowCount="3"
+                                          GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.columnSpan="3"/>
+                            </GridPane>
+
+                            <HBox spacing="10" styleClass="actions">
+                                <Button text="Ajouter" onAction="#ajouterProjet" styleClass="btnPrimary"/>
+                                <Button fx:id="btnModifierProjet" text="Modifier" onAction="#modifierProjet" styleClass="btn"/>
+                                <Button fx:id="btnSupprimerProjet" text="Supprimer" onAction="#supprimerProjet" styleClass="btnDanger"/>
+                                <Button text="Vider" onAction="#clearProjetForm" styleClass="btn"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Rafraîchir" onAction="#refreshProjets" styleClass="btn"/>
+                            </HBox>
+                        </VBox>
+                    </top>
+
+                    <center>
+                        <VBox spacing="10" styleClass="card">
+                            <Label text="Liste des projets" styleClass="h2"/>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <TextField fx:id="tfSearchProjet"
+                                           promptText="🔍 Rechercher par titre / budget..."
+                                           HBox.hgrow="ALWAYS"/>
+
+                                <ComboBox fx:id="cbFilterStatutProjet"
+                                          promptText="Filtrer statut"
+                                          prefWidth="170"/>
+
+                                <Label fx:id="lblProjetCount"
+                                       text="Résultats: 0 / Total: 0"
+                                       styleClass="muted"/>
+
+                                <Button text="Effacer" onAction="#clearSearchProjet" styleClass="btn"/>
+                            </HBox>
+
+                            <TableView fx:id="tableProjets" VBox.vgrow="ALWAYS" styleClass="table">
+                                <columns>
+                                    <TableColumn fx:id="colProjetId" text="ID" prefWidth="60"/>
+                                    <TableColumn fx:id="colProjetTitre" text="Titre" prefWidth="260"/>
+                                    <TableColumn fx:id="colProjetBudget" text="Budget" prefWidth="120"/>
+                                    <TableColumn fx:id="colProjetStatut" text="Statut" prefWidth="140"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </center>
+
+                </BorderPane>
+            </Tab>
+            <Tab text="Investissements" closable="false">
+                <fx:include source="investissement.fxml"/>
+            </Tab>
+            <Tab text="Transactions" closable="false">
+                <fx:include source="transaction.fxml"/>
+            </Tab>
+
+
+        </TabPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.DashboardController"
+            prefWidth="1200" prefHeight="720"
+            styleClass="dash-root"
+            stylesheets="@../css/sidebar.css,@../css/dashboard.css">
+
+    <!-- ===== SIDEBAR ===== -->
+    <left>
+        <VBox styleClass="sidebar">
+            <VBox styleClass="sidebar-header" spacing="2">
+                <Label text="BoostUp" styleClass="sidebar-brand"/>
+                <Label text="Admin Panel" styleClass="sidebar-subtitle"/>
+            </VBox>
+
+            <Region styleClass="sidebar-sep"/>
+
+            <Button text="Dashboard" styleClass="sidebar-btn active" onAction="#goDashboard"/>
+            <Button text="Financement" styleClass="sidebar-btn" onAction="#goFinancementModule"/>
+            <Button text="Investissements" styleClass="sidebar-btn" onAction="#goInvestissements"/>
+            <Button text="Transactions" styleClass="sidebar-btn" onAction="#goTransactions"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <VBox styleClass="sidebar-footer">
+                <Button text="Logout" styleClass="sidebar-btn danger" onAction="#logout"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- ===== TOP BAR ===== -->
+    <top>
+        <HBox spacing="10" styleClass="content-top">
+            <VBox spacing="2">
+                <Label text="Bienvenue Admin" styleClass="content-title"/>
+                <Label text="Vue globale du module Financement" styleClass="content-muted"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblAdminEmail" text="admin@boostup.tn" styleClass="content-chip"/>
+        </HBox>
+    </top>
+
+    <!-- ===== CONTENT ===== -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+            <VBox spacing="16" styleClass="content-area">
+
+                <!-- ===== STATS CARDS ===== -->
+                <GridPane hgap="14" vgap="14">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                    </columnConstraints>
+
+                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="dash-card dash-card-blue">
+                        <Label text="Projets" styleClass="dash-label"/>
+                        <Label fx:id="lblCountProjets" text="0" styleClass="dash-number"/>
+                        <Label text="Total projets enregistrés" styleClass="muted"/>
+                    </VBox>
+
+                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="dash-card dash-card-green">
+                        <Label text="Investissements" styleClass="dash-label"/>
+                        <Label fx:id="lblCountInv" text="0" styleClass="dash-number"/>
+                        <Label text="Total investissements" styleClass="muted"/>
+                    </VBox>
+
+                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="dash-card dash-card-orange">
+                        <Label text="Transactions" styleClass="dash-label"/>
+                        <Label fx:id="lblCountTx" text="0" styleClass="dash-number"/>
+                        <Label text="Transactions financières" styleClass="muted"/>
+                    </VBox>
+                    <VBox spacing="10" styleClass="card">
+                        <Label text="Dernières transactions" styleClass="h2"/>
+
+                        <TableView fx:id="tableLastTx" prefHeight="220">
+                            <columns>
+                                <TableColumn fx:id="colLastTxId" text="ID" prefWidth="70"/>
+                                <TableColumn fx:id="colLastTxDate" text="Date" prefWidth="130"/>
+                                <TableColumn fx:id="colLastTxMontant" text="Montant" prefWidth="120"/>
+                                <TableColumn fx:id="colLastTxStatut" text="Statut" prefWidth="120"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                </GridPane>
+
+                <!-- ===== QUICK ACTIONS ===== -->
+                <HBox spacing="12" styleClass="toolbar">
+                    <Button text="Aller au module Financement" styleClass="btnPrimary" onAction="#goFinancementModule"/>
+                    <Button text="Gérer les utilisateurs" styleClass="btn" onAction="#goUsers"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Rafraîchir" styleClass="btn" onAction="#refreshStats"/>
+                </HBox>
+
+                <!-- ===== ROW 2: Last Transactions + Alerts ===== -->
+                <GridPane hgap="14" vgap="14">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="65"/>
+                        <ColumnConstraints percentWidth="35"/>
+                    </columnConstraints>
+
+                    <!-- Last transactions -->
+                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="card">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Dernières transactions" styleClass="h2"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblLastTxCount" text="0 affichées" styleClass="muted"/>
+                        </HBox>
+
+                        <TableView fx:id="tableLastTx" VBox.vgrow="ALWAYS" styleClass="table">
+                            <columns>
+                                <TableColumn fx:id="colLastTxId" text="ID" prefWidth="70"/>
+                                <TableColumn fx:id="colLastTxMontant" text="Montant" prefWidth="120"/>
+                                <TableColumn fx:id="colLastTxDate" text="Date" prefWidth="140"/>
+                                <TableColumn fx:id="colLastTxMode" text="Mode" prefWidth="140"/>
+                                <TableColumn fx:id="colLastTxStatut" text="Statut" prefWidth="140"/>
+                            </columns>
+                        </TableView>
+
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <Button text="Voir tout (Transactions)" styleClass="btn" onAction="#goTransactions"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Budget alerts -->
+                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="card">
+                        <Label text="Alertes Budget" styleClass="h2"/>
+                        <Label text="Projets proches du dépassement" styleClass="muted"/>
+
+                        <ListView fx:id="listBudgetAlerts" VBox.vgrow="ALWAYS" styleClass="list"/>
+                        <Label fx:id="lblAlertsHint" text="—" styleClass="muted"/>
+                    </VBox>
+                </GridPane>
+
+                <!-- ===== OVERVIEW ===== -->
+                <VBox spacing="10" styleClass="card">
+                    <Label text="Aperçu Admin" styleClass="h2"/>
+                    <Label text="• Actions rapides • Suivi global • Statistiques • Alertes • Dernières opérations"
+                           styleClass="muted"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>

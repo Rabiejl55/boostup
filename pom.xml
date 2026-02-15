@@ -12,8 +12,25 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- ✅ même version que ton JavaFX installé -->
+        <javafx.version>17.0.18</javafx.version>
     </properties>
+
     <dependencies>
+        <!-- ✅ JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- ✅ MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
@@ -21,4 +38,17 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- ✅ Permet de lancer l'app sans VM options -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>Main.AppF</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

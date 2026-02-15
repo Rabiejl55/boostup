@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.InvestissementController">
+
+    <stylesheets>
+        <URL value="@/css/sidebar.css"/>
+        <URL value="@/css/financement.css"/>
+    </stylesheets>
+    <center>
+        <BorderPane styleClass="page">
+
+            <!-- FORMULAIRE -->
+            <top>
+                <VBox spacing="10" styleClass="card">
+                    <Label text="Gestion des Investissements" styleClass="h2"/>
+
+                    <!-- Toast -->
+                    <Label fx:id="lblInvToast"
+                           text=""
+                           visible="false"
+                           managed="false"
+                           wrapText="true"
+                           styleClass="toastInfo"/>
+
+                    <GridPane hgap="10" vgap="8">
+                        <columnConstraints>
+                            <ColumnConstraints prefWidth="140"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints prefWidth="140"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <!-- Montant -->
+                        <Label text="Montant :" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <VBox spacing="3" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                            <TextField fx:id="tfInvMontant" promptText="Ex: 1000.00"/>
+                            <Label fx:id="errInvMontant" text="" visible="false" managed="false" styleClass="fieldError"/>
+                        </VBox>
+
+                        <!-- Date -->
+                        <Label text="Date :" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <VBox spacing="3" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                            <DatePicker fx:id="dpInvDate"/>
+                            <Label fx:id="errInvDate" text="" visible="false" managed="false" styleClass="fieldError"/>
+                        </VBox>
+
+                        <!-- Statut -->
+                        <Label text="Statut :" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <VBox spacing="3" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                            <ComboBox fx:id="cbInvStatut" promptText="Choisir statut"/>
+                            <Label fx:id="errInvStatut" text="" visible="false" managed="false" styleClass="fieldError"/>
+                        </VBox>
+
+                        <!-- Projet (SANS afficher l'ID) -->
+                        <Label text="Projet :" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                        <VBox spacing="3" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                            <ComboBox fx:id="cbInvProjet" promptText="Choisir un projet"/>
+                            <Label fx:id="errInvProjet" text="" visible="false" managed="false" styleClass="fieldError"/>
+                        </VBox>
+
+                        <!-- User (SANS afficher l'ID) -->
+                        <Label text="Utilisateur :" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <VBox spacing="3" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                            <ComboBox fx:id="cbInvUser" promptText="Choisir un utilisateur"/>
+                            <Label fx:id="errInvUser" text="" visible="false" managed="false" styleClass="fieldError"/>
+                        </VBox>
+                    </GridPane>
+
+                    <HBox spacing="10" styleClass="actions">
+                        <Button text="Ajouter" onAction="#ajouterInvestissement" styleClass="btnPrimary"/>
+                        <Button fx:id="btnModifierInv" text="Modifier" onAction="#modifierInvestissement" styleClass="btn"/>
+                        <Button fx:id="btnSupprimerInv" text="Supprimer" onAction="#supprimerInvestissement" styleClass="btnDanger"/>
+                        <Button text="Vider" onAction="#clearInvestissementForm" styleClass="btn"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Rafraîchir" onAction="#refreshInvestissements" styleClass="btn"/>
+                    </HBox>
+                </VBox>
+            </top>
+
+            <!-- TABLE -->
+            <center>
+                <VBox spacing="10" styleClass="card">
+                    <Label text="Liste des Investissements" styleClass="h2"/>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="tfSearchInv"
+                                   promptText="🔍 Rechercher (montant / statut)..."
+                                   HBox.hgrow="ALWAYS"/>
+
+                        <ComboBox fx:id="cbFilterInvStatut"
+                                  promptText="Filtrer statut"
+                                  prefWidth="170"/>
+
+                        <Label fx:id="lblInvCount"
+                               text="Résultats: 0 / Total: 0"
+                               styleClass="muted"/>
+
+                        <Button text="Effacer" onAction="#clearSearchInv" styleClass="btn"/>
+                    </HBox>
+
+                    <TableView fx:id="tableInvestissements" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <!-- ID caché : on garde la colonne pour sélection interne mais on ne l'affiche pas -->
+                            <TableColumn fx:id="colInvId" text="ID" prefWidth="0" minWidth="0" maxWidth="0"/>
+
+                            <TableColumn fx:id="colInvMontant" text="Montant" prefWidth="160"/>
+                            <TableColumn fx:id="colInvStatut" text="Statut" prefWidth="160"/>
+                            <TableColumn fx:id="colInvDate" text="Date" prefWidth="160"/>
+
+                            <!-- Optionnel : afficher le projet/user en libellé -->
+                            <TableColumn fx:id="colInvProjet" text="Projet" prefWidth="240"/>
+                            <TableColumn fx:id="colInvUser" text="Utilisateur" prefWidth="220"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </center>
+
+        </BorderPane>
+    </center>
+</BorderPane>
