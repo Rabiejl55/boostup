@@ -37,8 +37,15 @@
         <Label text="Objectif:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
         <TextField fx:id="objectifField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
         <Label fx:id="objectifError" textFill="red" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
-        <ComboBox fx:id="coachComboBox" prefWidth="200"/>
 
+        <!-- Coach -->
+        <Label text="Coach:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="coachComboBox" prefWidth="200" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+        <!-- Domaine -->
+        <Label text="Domaine:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="domaineComboBox" prefWidth="200" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+        <Label fx:id="domaineError" textFill="red" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
     </GridPane>
 
     <HBox spacing="15" alignment="CENTER_RIGHT">

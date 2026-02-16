@@ -112,7 +112,6 @@ public class AddCoachController {
 
         if (!valid) return;
 
-        // ===== VÉRIFICATION UNICITÉ EN BASE =====
         try {
             boolean unique = true;
 
@@ -133,11 +132,9 @@ public class AddCoachController {
 
             if (!unique) return;
 
-            // ===== AJOUT EN BASE =====
             Coach c = new Coach(nom, prenom, email, telephone, selectedImageFile.getAbsolutePath());
             coachService.ajouter(c);
 
-            // ===== FERMER LE FORMULAIRE =====
             closeForm();
 
         } catch (Exception e) {

@@ -4,11 +4,18 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 
@@ -24,6 +31,7 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.io.File;
+import java.io.IOException;
 
 public class HomeController {
 
@@ -36,29 +44,91 @@ public class HomeController {
     @FXML
     private FlowPane coachesContainer;
 
+    // SUPPRIMEZ CES LIGNES SI ELLES EXISTENT
+    // @FXML private Label statsProgrammes;
+    // @FXML private Label statsParticipants;
+    // @FXML private Label statsCoachs;
+
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE dd MMM");
+    private final SessionService sessionService = new SessionService();
+    private final CoachService coachService = new CoachService();
+    private final DomaineService domaineService = new DomaineService();
 
     @FXML
     public void initialize() {
-        chargerDomaines();
-        chargerSessions();
-        chargerCoaches();
+        System.out.println("=== DÉBOGAGE: Initialisation de HomeController ===");
+
+        try {
+            System.out.println("Chargement des domaines...");
+            chargerDomaines();
+            System.out.println("✓ Domaines chargés avec succès");
+        } catch (Exception e) {
+            System.err.println("✗ Erreur chargement domaines: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            System.out.println("Chargement des sessions...");
+            chargerSessions();
+            System.out.println("✓ Sessions chargées avec succès");
+        } catch (Exception e) {
+            System.err.println("✗ Erreur chargement sessions: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            System.out.println("Chargement des coaches...");
+            chargerCoaches();
+            System.out.println("✓ Coaches chargés avec succès");
+        } catch (Exception e) {
+            System.err.println("✗ Erreur chargement coaches: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        System.out.println("=== Initialisation terminée ===");
     }
 
-    // ---------------------------
-    // Charger les Domaines avec images dynamiques
-    // ---------------------------
+    // SUPPRIMEZ COMPLÈTEMENT LA MÉTHODE updateStatistics()
+    // private void updateStatistics() { ... }
+
+    // ======================== NAVIGATION ========================
+    @FXML
+    private void handleTableauDeBordClick(MouseEvent event) {
+        System.out.println("=== Navigation vers tableau de bord ===");
+
+        try {
+            Node source = (Node) event.getSource();
+            Stage stage = (Stage) source.getScene().getWindow();
+
+            // Charger le fichier FXML d'accompagnement
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/accompagnement.fxml"));
+            Parent root = loader.load();
+
+            // Changer la scène
+            stage.setScene(new Scene(root));
+            stage.show();
+            System.out.println("✓ Navigation réussie");
+
+        } catch (IOException e) {
+            System.err.println("✗ Erreur lors de la navigation: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // ======================== DOMAINES ========================
     private void chargerDomaines() {
-        DomaineService service = new DomaineService();
         try {
             domainesContainer.getChildren().clear();
-            List<Domaine> domaines = service.afficherAll();
+            List<Domaine> domaines = domaineService.afficherAll();
+            System.out.println("  - " + domaines.size() + " domaines trouvés");
+
             for (Domaine d : domaines) {
                 VBox card = createDomaineCard(d);
                 domainesContainer.getChildren().add(card);
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors du chargement des domaines : " + e.getMessage());
+            System.err.println("Erreur SQL domaines: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -68,6 +138,8 @@ public class HomeController {
         card.setSpacing(0);
         card.setPadding(new Insets(0));
         card.setAlignment(Pos.CENTER);
+        card.setPrefWidth(280);
+        card.setPrefHeight(280);
 
         // ImageView pour l'image du domaine
         ImageView imageView = new ImageView();
@@ -107,80 +179,195 @@ public class HomeController {
 
         Label nom = new Label(domaine.getNom());
         nom.getStyleClass().add("domain-name");
+        nom.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label desc = new Label(domaine.getDescription());
         desc.getStyleClass().add("domain-description");
         desc.setWrapText(true);
         desc.setMaxWidth(240);
+        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
 
-        content.getChildren().addAll(nom, desc);
+        Button explorerBtn = new Button("Explorer");
+        explorerBtn.getStyleClass().add("explorer-button");
+        explorerBtn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20;");
+        explorerBtn.setMaxWidth(120);
+        explorerBtn.setOnAction(e -> System.out.println("Explorer domaine: " + domaine.getNom()));
 
-        // Ajouter l'image et le contenu à la carte
+        content.getChildren().addAll(nom, desc, explorerBtn);
         card.getChildren().addAll(imageView, content);
 
         return card;
     }
 
-    // ---------------------------
-    // Charger les Sessions
-    // ---------------------------
+    // ======================== SESSIONS ========================
     private void chargerSessions() {
-        SessionService service = new SessionService();
         try {
             planningGrid.getChildren().clear();
-            List<Session> sessions = service.afficherAll();
+            List<Session> sessions = sessionService.afficherAll();
+            System.out.println("  - " + sessions.size() + " sessions trouvées");
+
+            // Limiter à 6 sessions pour l'affichage
+            int count = 0;
             for (Session s : sessions) {
-                VBox dayCard = createSessionCard(s);
-                planningGrid.getChildren().add(dayCard);
+                if (count >= 6) break;
+                VBox sessionCard = createSessionCard(s);
+                planningGrid.getChildren().add(sessionCard);
+                count++;
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors du chargement des sessions : " + e.getMessage());
+            System.err.println("Erreur SQL sessions: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private VBox createSessionCard(Session s) {
+    private VBox createSessionCard(Session session) {
         VBox card = new VBox();
-        card.getStyleClass().add("planning-day-card");
-        card.setSpacing(8);
-        card.setPadding(new Insets(10));
+        card.getStyleClass().add("session-card");
+        card.setSpacing(12);
+        card.setPadding(new Insets(18));
+        card.setPrefWidth(320);
+        card.setPrefHeight(350);
+        card.setAlignment(Pos.TOP_LEFT);
 
-        VBox header = new VBox(5);
-        header.setAlignment(Pos.CENTER_LEFT);
+        // Badge de type de session
+        HBox typeBadge = new HBox();
+        typeBadge.getStyleClass().add("session-type-badge");
+        typeBadge.setPadding(new Insets(4, 12, 4, 12));
+        typeBadge.setStyle("-fx-background-color: #eef2ff; -fx-background-radius: 20;");
 
-        Label dateLabel = new Label(s.getDateSession().format(dateFormatter));
-        dateLabel.getStyleClass().add("planning-day-name");
+        Label typeLabel = new Label(session.getTypeSession());
+        typeLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2563eb;");
+        typeBadge.getChildren().add(typeLabel);
 
-        Label dureeLabel = new Label(s.getDuree() + "h");
-        dureeLabel.getStyleClass().add("planning-day-number");
+        // Date et durée
+        HBox dateBox = new HBox(10);
+        dateBox.setAlignment(Pos.CENTER_LEFT);
 
-        header.getChildren().addAll(dateLabel, dureeLabel);
+        Label dateIcon = new Label("📅");
+        dateIcon.setStyle("-fx-font-size: 14px;");
 
-        VBox content = new VBox(5);
-        Label objectifLabel = new Label(s.getObjectif());
-        objectifLabel.getStyleClass().add("planning-session-title");
+        Label dateLabel = new Label(formatDate(session.getDateSession().toString()));
+        dateLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
+
+        Label dureeLabel = new Label("(" + session.getDuree() + "h)");
+        dureeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
+
+        dateBox.getChildren().addAll(dateIcon, dateLabel, dureeLabel);
+
+        // Objectif
+        Label objectifLabel = new Label(session.getObjectif());
+        objectifLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
         objectifLabel.setWrapText(true);
-        objectifLabel.setMaxWidth(150);
-        content.getChildren().add(objectifLabel);
+        objectifLabel.setMaxWidth(280);
 
-        card.getChildren().addAll(header, content);
+        // Lieu
+        HBox lieuBox = new HBox(8);
+        lieuBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label lieuIcon = new Label("📍");
+        lieuIcon.setStyle("-fx-font-size: 14px;");
+
+        Label lieuText = new Label(session.getLieu());
+        lieuText.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+
+        lieuBox.getChildren().addAll(lieuIcon, lieuText);
+
+        // SECTION COACH
+        VBox coachSection = new VBox(8);
+        coachSection.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;");
+
+        Label coachTitle = new Label("👨‍🏫 Coach de la session");
+        coachTitle.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2563eb;");
+
+        if (session.getCoach() != null) {
+            Coach coach = session.getCoach();
+
+            HBox coachInfo = new HBox(12);
+            coachInfo.setAlignment(Pos.CENTER_LEFT);
+
+            // Avatar du coach
+            Label avatarPlaceholder = new Label("👤");
+            avatarPlaceholder.setStyle("-fx-font-size: 30px; -fx-background-color: #e2e8f0; -fx-padding: 5; -fx-background-radius: 20; -fx-min-width: 40; -fx-min-height: 40; -fx-alignment: center;");
+
+            // Informations du coach
+            VBox coachDetails = new VBox(4);
+
+            // NOM ET PRÉNOM DU COACH
+            Label coachName = new Label(coach.getNom() + " " + coach.getPrenom());
+            coachName.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
+
+            // Email du coach
+            Label coachEmail = new Label(coach.getEmail());
+            coachEmail.setStyle("-fx-font-size: 12px; -fx-text-fill: #2563eb;");
+
+            // Téléphone si disponible
+            if (coach.getTelephone() != null && !coach.getTelephone().isEmpty()) {
+                Label coachPhone = new Label("📞 " + coach.getTelephone());
+                coachPhone.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b;");
+                coachDetails.getChildren().addAll(coachName, coachEmail, coachPhone);
+            } else {
+                coachDetails.getChildren().addAll(coachName, coachEmail);
+            }
+
+            coachInfo.getChildren().addAll(avatarPlaceholder, coachDetails);
+            coachSection.getChildren().addAll(coachTitle, coachInfo);
+        } else {
+            // Cas où aucun coach n'est assigné
+            Label noCoach = new Label("Aucun coach assigné à cette session");
+            noCoach.setStyle("-fx-font-size: 13px; -fx-text-fill: #ef4444; -fx-font-style: italic; -fx-padding: 8;");
+            coachSection.getChildren().addAll(coachTitle, noCoach);
+        }
+
+        // Bouton d'inscription
+        Button inscriptionButton = new Button("S'inscrire à cette session");
+        inscriptionButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 10; -fx-cursor: hand;");
+        inscriptionButton.setMaxWidth(Double.MAX_VALUE);
+        inscriptionButton.setOnAction(event -> {
+            System.out.println("Inscription à la session : " + session.getObjectif());
+        });
+
+        // Assemblage de la carte
+        card.getChildren().addAll(
+                typeBadge,
+                dateBox,
+                objectifLabel,
+                lieuBox,
+                coachSection,
+                inscriptionButton
+        );
+
         return card;
     }
 
-    // ---------------------------
-    // Charger les Coaches avec images dynamiques
-    // ---------------------------
-    private void chargerCoaches() {
-        CoachService service = new CoachService();
+    private String formatDate(String date) {
         try {
-            List<Coach> coaches = service.afficherAll();
+            String[] parts = date.split("-");
+            if (parts.length == 3) {
+                String[] months = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                        "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+                int month = Integer.parseInt(parts[1]) - 1;
+                return parts[2] + " " + months[month] + " " + parts[0];
+            }
+        } catch (Exception e) {
+            // Ignorer et retourner la date originale
+        }
+        return date;
+    }
+
+    // ======================== COACHS ========================
+    private void chargerCoaches() {
+        try {
             coachesContainer.getChildren().clear();
+            List<Coach> coaches = coachService.afficherAll();
+            System.out.println("  - " + coaches.size() + " coaches trouvés");
 
             for (Coach c : coaches) {
                 VBox card = createCoachCard(c);
                 coachesContainer.getChildren().add(card);
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors du chargement des coaches : " + e.getMessage());
+            System.err.println("Erreur SQL coaches: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -189,6 +376,8 @@ public class HomeController {
         card.getStyleClass().add("coach-profile-card");
         card.setSpacing(0);
         card.setPadding(new Insets(0));
+        card.setPrefWidth(260);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
 
         // ImageView pour l'image dynamique
         ImageView imageView = new ImageView();
@@ -197,7 +386,7 @@ public class HomeController {
         imageView.setPreserveRatio(false);
         imageView.setSmooth(true);
         imageView.setCache(true);
-        imageView.getStyleClass().add("coach-profile-image");
+        imageView.setStyle("-fx-background-radius: 15 15 0 0;");
 
         // Charger l'image depuis le chemin stocké en base
         if (coach.getImagecoach() != null && !coach.getImagecoach().isEmpty()) {
@@ -221,48 +410,46 @@ public class HomeController {
 
         // Contenu texte dynamique
         VBox content = new VBox();
-        content.getStyleClass().add("coach-profile-content");
-        content.setSpacing(12);
-        content.setPadding(new Insets(20));
+        content.setStyle("-fx-padding: 20; -fx-spacing: 12;");
         content.setAlignment(Pos.CENTER_LEFT);
 
         Label nomLabel = new Label(coach.getNom() + " " + coach.getPrenom());
-        nomLabel.getStyleClass().add("coach-profile-name");
+        nomLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label emailLabel = new Label(coach.getEmail());
-        emailLabel.getStyleClass().add("coach-profile-email");
+        emailLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #2563eb;");
 
-        // Badges statiques
+        // Badges
         HBox stats = new HBox(10);
         stats.setAlignment(Pos.CENTER_LEFT);
 
         HBox starBadge = new HBox();
-        starBadge.getStyleClass().add("coach-stat-badge");
+        starBadge.setStyle("-fx-background-color: #fef9c3; -fx-padding: 5 10; -fx-background-radius: 20;");
         starBadge.getChildren().add(new Label("⭐ 4.9"));
 
-        HBox yearsBadge = new HBox();
-        yearsBadge.getStyleClass().add("coach-stat-badge");
-        yearsBadge.getChildren().add(new Label("🎓 12 ans"));
-
         HBox availabilityBadge = new HBox();
-        availabilityBadge.getStyleClass().add("availability-badge");
-        availabilityBadge.getChildren().add(new Label("Disponible"));
+        availabilityBadge.setStyle("-fx-background-color: #dcfce7; -fx-padding: 5 10; -fx-background-radius: 20;");
+        availabilityBadge.getChildren().add(new Label("✓ Disponible"));
 
-        stats.getChildren().addAll(starBadge, yearsBadge, availabilityBadge);
+        stats.getChildren().addAll(starBadge, availabilityBadge);
 
-        content.getChildren().addAll(nomLabel, emailLabel, stats);
+        // Bouton Voir profil
+        Button voirProfilBtn = new Button("Voir le profil");
+        voirProfilBtn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 10; -fx-font-size: 13px; -fx-font-weight: bold;");
+        voirProfilBtn.setMaxWidth(Double.MAX_VALUE);
+        voirProfilBtn.setOnAction(e -> System.out.println("Voir profil de: " + coach.getNom()));
 
-        // Ajouter l'imageView et le contenu à la carte
+        content.getChildren().addAll(nomLabel, emailLabel, stats, voirProfilBtn);
         card.getChildren().addAll(imageView, content);
 
         return card;
     }
 
-    // Méthode pour définir une image par défaut pour les coaches
+    // ======================== IMAGES PAR DÉFAUT ========================
     private void setDefaultCoachImage(ImageView imageView) {
         try {
             Image defaultImage = new Image(getClass().getResourceAsStream("/images/default-coach.png"));
-            if (defaultImage != null) {
+            if (defaultImage != null && !defaultImage.isError()) {
                 imageView.setImage(defaultImage);
             } else {
                 imageView.setStyle("-fx-background-color: linear-gradient(to bottom right, #43A3DB, #2D3E50);");
@@ -272,11 +459,10 @@ public class HomeController {
         }
     }
 
-    // Méthode pour définir une image par défaut pour les domaines
     private void setDefaultDomaineImage(ImageView imageView) {
         try {
             Image defaultImage = new Image(getClass().getResourceAsStream("/images/default-domaine.png"));
-            if (defaultImage != null) {
+            if (defaultImage != null && !defaultImage.isError()) {
                 imageView.setImage(defaultImage);
             } else {
                 imageView.setStyle("-fx-background-color: linear-gradient(to bottom right, #43A3DB, #2D3E50);");

@@ -37,7 +37,6 @@ public class CoachController {
     @FXML private ImageView avatarImageView;
     @FXML private Label welcomeLabel;
 
-    // ================= INITIALIZE =================
     @FXML
     public void initialize() {
         // Lier les colonnes
@@ -148,7 +147,6 @@ public class CoachController {
         }
     }
 
-    // ================= ACTIONS TABLE =================
     @FXML
     private void ajouterCoach() {
         try {

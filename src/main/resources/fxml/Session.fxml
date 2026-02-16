@@ -40,7 +40,7 @@
                 <Button text="🏠 HomePage" onAction="#goToFront" styleClass="sidebar-menu-item" />
                 <Button text="👨‍🏫 Gestion Coach" onAction="#goToCoach" styleClass="sidebar-menu-item"/>
                 <Button text="📚 Gestion Domaines" onAction="#goToDomaine" styleClass="sidebar-menu-item"/>
-             </VBox>
+            </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
 
@@ -69,8 +69,8 @@
                     <TableColumn fx:id="lieuColumn" text="Lieu" prefWidth="120"/>
                     <TableColumn fx:id="typeColumn" text="Type" prefWidth="120"/>
                     <TableColumn fx:id="objectifColumn" text="Objectif" prefWidth="150"/>
-                    <TableColumn fx:id="coachColumn" text="Coach"/>
-
+                    <TableColumn fx:id="coachColumn" text="Coach" prefWidth="150"/>
+                    <TableColumn fx:id="domaineColumn" text="Domaine" prefWidth="150"/>
                 </columns>
 
             </TableView>
@@ -83,7 +83,6 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="feedbackLabel" styleClass="feedback-message-modern"/>
                 <Label fx:id="errorLabel" textFill="red" />
-
             </HBox>
         </VBox>
     </center>

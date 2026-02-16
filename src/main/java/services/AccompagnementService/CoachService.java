@@ -28,7 +28,6 @@ public class CoachService {
         }
     }
 
-    // Modifier un coach avec imagecoach
     public void modifier(Coach coach) throws SQLException {
         String sql = "UPDATE Coach SET nom=?, prenom=?, email=?, telephone=?, imagecoach=? WHERE id_coach=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -42,7 +41,6 @@ public class CoachService {
         }
     }
 
-    // Supprimer un coach
     public void supprimer(int idCoach) throws SQLException {
         String sql = "DELETE FROM Coach WHERE id_coach=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -51,7 +49,6 @@ public class CoachService {
         }
     }
 
-    // Afficher tous les coaches
     public List<Coach> afficherAll() throws SQLException {
         List<Coach> liste = new ArrayList<>();
         String sql = "SELECT * FROM Coach";
@@ -72,7 +69,6 @@ public class CoachService {
         return liste;
     }
 
-    // ===== Vérifications d'unicité =====
     public boolean emailExiste(String email) throws SQLException {
         String query = "SELECT COUNT(*) FROM coach WHERE email = ?";
         try (PreparedStatement pst = conn.prepareStatement(query)) {

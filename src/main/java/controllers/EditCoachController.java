@@ -64,7 +64,8 @@ public class EditCoachController {
     // ===== MODIFIER =====
     @FXML
     private void submitForm() {
-        // ===== RÉINITIALISER LES MESSAGES D'ERREUR =====
+        System.out.println("coach = " + coachToEdit);
+
         nomError.setText("");
         prenomError.setText("");
         emailError.setText("");
@@ -76,7 +77,6 @@ public class EditCoachController {
             return;
         }
 
-        // ===== RÉCUPÉRER LES VALEURS DU FORMULAIRE =====
         String nom = nomField.getText().trim();
         String prenom = prenomField.getText().trim();
         String email = emailField.getText().trim();
@@ -85,7 +85,6 @@ public class EditCoachController {
 
         boolean valid = true;
 
-        // ===== VALIDATION NOM =====
         if (nom.isEmpty() || !nom.matches("[a-zA-ZÀ-ÿ ]{2,50}")) {
             nomError.setText("Nom invalide (2-50 lettres)");
             valid = false;
@@ -117,7 +116,6 @@ public class EditCoachController {
 
         if (!valid) return;
 
-        // ===== VÉRIFICATION UNICITÉ EN BASE =====
         try {
             boolean unique = true;
 
@@ -127,13 +125,11 @@ public class EditCoachController {
                 unique = false;
             }
 
-            // Vérifier téléphone uniquement si différent de l'actuel
             if (!telephone.equals(coachToEdit.getTelephone()) && coachService.telephoneExiste(telephone)) {
                 telephoneError.setText("Téléphone déjà utilisé");
                 unique = false;
             }
 
-            // Vérifier image uniquement si différente de l'actuelle
             if (!imagecoach.equals(coachToEdit.getImagecoach()) && coachService.imageExiste(imagecoach)) {
                 errorLabel.setText("Image déjà utilisée");
                 unique = false;
@@ -141,14 +137,12 @@ public class EditCoachController {
 
             if (!unique) return;
 
-            // ===== METTRE À JOUR L'OBJET COACH =====
             coachToEdit.setNom(nom);
             coachToEdit.setPrenom(prenom);
             coachToEdit.setEmail(email);
             coachToEdit.setTelephone(telephone);
             coachToEdit.setImagecoach(imagecoach);
 
-            // ===== APPEL AU SERVICE POUR MODIFIER =====
             coachService.modifier(coachToEdit);
             closeForm();
 

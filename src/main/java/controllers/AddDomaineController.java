@@ -32,7 +32,6 @@ public class AddDomaineController {
         statutBox.getItems().addAll("Actif", "Inactif");
     }
 
-    // ===== CHOISIR IMAGE =====
     @FXML
     private void chooseImage() {
         FileChooser fileChooser = new FileChooser();
@@ -49,14 +48,12 @@ public class AddDomaineController {
         }
     }
 
-    // ===== FERMER =====
     @FXML
     private void closeForm() {
         Stage stage = (Stage) nomField.getScene().getWindow();
         stage.close();
     }
 
-    // ===== AJOUTER =====
     @FXML
     private void submitForm() {
 

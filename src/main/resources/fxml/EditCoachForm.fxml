@@ -27,6 +27,8 @@
         <Label text="Email:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
         <TextField fx:id="emailField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
         <Label fx:id="emailError" textFill="red" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <Label fx:id="errorLabel" />
+
 
         <!-- Téléphone -->
         <Label text="Téléphone:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>

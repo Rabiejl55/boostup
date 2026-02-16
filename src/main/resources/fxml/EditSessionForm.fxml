@@ -42,6 +42,11 @@
         <Label text="Coach:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
         <ComboBox fx:id="coachComboBox" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
         <Label fx:id="coachError" textFill="red" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+        <!-- Domaine -->
+        <Label text="Domaine:" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="domaineComboBox" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+        <Label fx:id="domaineError" textFill="red" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
     </GridPane>
 
     <!-- Boutons -->

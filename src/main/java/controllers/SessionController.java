@@ -1,6 +1,7 @@
 package controllers;
 
 import entities.GAccompagnement.Session;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,15 +31,14 @@ public class SessionController {
     @FXML private TableColumn<Session, String> lieuColumn;
     @FXML private TableColumn<Session, String> typeColumn;
     @FXML private TableColumn<Session, String> objectifColumn;
+    @FXML private TableColumn<Session, String> coachColumn;
+    @FXML private TableColumn<Session, String> domaineColumn; // <-- Colonne pour le domaine
 
     @FXML private Label feedbackLabel;
 
     // Sidebar
     @FXML private ImageView avatarImageView;
     @FXML private Label welcomeLabel;
-    @FXML
-    private TableColumn<Session, String> coachColumn;
-
 
     // ================= INITIALIZE =================
     @FXML
@@ -49,15 +49,24 @@ public class SessionController {
         lieuColumn.setCellValueFactory(new PropertyValueFactory<>("lieu"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("typeSession"));
         objectifColumn.setCellValueFactory(new PropertyValueFactory<>("objectif"));
+
         coachColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue().getCoach() != null) {
-                return new javafx.beans.property.SimpleStringProperty(
+                return new SimpleStringProperty(
                         cellData.getValue().getCoach().getNom() + " " +
-                                cellData.getValue().getCoach().getPrenom()  // <-- ajoute le prénom ici
+                                cellData.getValue().getCoach().getPrenom()
                 );
             }
-            return new javafx.beans.property.SimpleStringProperty("Aucun");
+            return new SimpleStringProperty("Aucun");
         });
+
+        domaineColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getDomaine() != null) {
+                return new SimpleStringProperty(cellData.getValue().getDomaine().getNom());
+            }
+            return new SimpleStringProperty("Aucun");
+        });
+
         loadSessions();
 
         try {
@@ -70,8 +79,7 @@ public class SessionController {
         welcomeLabel.setText("Administrateur");
     }
 
-
-    // ================= LOAD DATA =================
+    // ================= LOAD SESSIONS =================
     private void loadSessions() {
         try {
             sessionsTable.setItems(FXCollections.observableArrayList(sessionService.afficherAll()));
@@ -81,29 +89,33 @@ public class SessionController {
             e.printStackTrace();
         }
     }
+
     // ================= NAVIGATION =================
     @FXML
     private void goToFront(ActionEvent event) {
+        navigateTo(event, "/fxml/home.fxml", "Dashboard");
+    }
+
+    @FXML
+    private void goToCoach(ActionEvent event) {
+        navigateTo(event, "/fxml/accompagnement.fxml", "Gestion Coachs");
+    }
+
+    @FXML
+    private void goToDomaine(ActionEvent event) {
+        navigateTo(event, "/fxml/Domaine.fxml", "Gestion Domaines");
+    }
+
+    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/home.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 1200, 800));
-            stage.setTitle("Dashboard");
+            stage.setTitle(title);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @FXML
-    private void dummyAction(ActionEvent event) {
-        System.out.println("Bouton cliqué !");
-    }
-
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        feedbackLabel.setText("Déconnexion !");
-        // redirection vers login
     }
 
     // ================= ACTIONS =================
@@ -169,27 +181,15 @@ public class SessionController {
             feedbackLabel.setText("Veuillez sélectionner une session à supprimer.");
         }
     }
-    @FXML
-    private void goToCoach(ActionEvent event) {
-        navigateTo(event, "/fxml/accompagnement.fxml", "Gestion Coachs");
-    }
 
     @FXML
-    private void goToDomaine(ActionEvent event) {
-        navigateTo(event, "/fxml/Domaine.fxml", "Gestion Domaines");
-    }
-    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 1200, 800));
-            stage.setTitle(title);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void dummyAction(ActionEvent event) {
+        System.out.println("Bouton cliqué !");
     }
 
-
-
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        feedbackLabel.setText("Déconnexion !");
+        // redirection vers login
+    }
 }

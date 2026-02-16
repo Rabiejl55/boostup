@@ -311,7 +311,8 @@
 /* ========== STYLES POUR LES IMAGES ========== */
 /* Styles communs pour les ImageView */
 .coach-profile-card ImageView,
-.domain-card ImageView {
+.domain-card ImageView,
+.session-card ImageView {
     -fx-fit-height: 140px;
     -fx-fit-width: 260px;
     -fx-preserve-ratio: false;
@@ -369,7 +370,7 @@
     -fx-wrap-text: true;
 }
 
-/* ========== SESSIONS ========== */
+/* ========== SESSIONS - STYLE CALENDRIER CRÉATIF ========== */
 .sessions-title {
     -fx-text-fill: #2D3E50;
     -fx-font-size: 24px;
@@ -413,22 +414,259 @@
     -fx-padding: 5 15;
 }
 
-.planning-day-card {
-    -fx-background-color: #F8FAFC;
-    -fx-background-radius: 20px;
-    -fx-padding: 15;
-    -fx-pref-width: 180px;
-    -fx-spacing: 10;
-    -fx-border-color: #E2E8F0;
-    -fx-border-radius: 20px;
+.filter-chip {
+    -fx-background-color: white;
+    -fx-background-radius: 30px;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.filter-chip:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.filter-chip Label {
+    -fx-text-fill: #2D3E50;
+    -fx-font-weight: bold;
+}
+
+/* STYLE DES CARTES DE SESSIONS */
+.session-card {
+    -fx-background-color: white;
+    -fx-background-radius: 25px;
+    -fx-padding: 20;
+    -fx-pref-width: 320px;
+    -fx-pref-height: 350px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 15, 0, 0, 5);
+    -fx-cursor: hand;
+    -fx-border-color: #f0f2f5;
     -fx-border-width: 1;
+    -fx-border-radius: 25px;
+    -fx-transition: all 0.3s ease;
+}
+
+.session-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.4), 20, 0, 0, 10);
+    -fx-translate-y: -5;
+    -fx-border-color: #43A3DB;
+}
+
+/* Badge de type de session */
+.session-type-badge {
+    -fx-background-color: linear-gradient(to right, #43A3DB, #5fb0e0);
+    -fx-background-radius: 30px;
+    -fx-padding: 6 15;
+    -fx-max-width: 120px;
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.3), 8, 0, 0, 2);
+}
+
+.session-type-badge .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+/* Badge pour différents types */
+.session-type-badge.online {
+    -fx-background-color: linear-gradient(to right, #10B981, #34D399);
+}
+
+.session-type-badge.presentiel {
+    -fx-background-color: linear-gradient(to right, #F59E0B, #FBBF24);
+}
+
+.session-type-badge.mixte {
+    -fx-background-color: linear-gradient(to right, #8B5CF6, #A78BFA);
+}
+
+/* Date et durée */
+.session-date-box {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 15px;
+    -fx-padding: 8 12;
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.session-date {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.session-duree {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 15px;
+    -fx-padding: 3 10;
+}
+
+/* Objectif */
+.session-objectif {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+    -fx-wrap-text: true;
+    -fx-padding: 5 0;
+}
+
+/* Lieu */
+.session-lieu {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 12px;
+    -fx-padding: 6 10;
+    -fx-spacing: 5;
+    -fx-alignment: center-left;
+}
+
+.session-lieu .label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+}
+
+/* SECTION COACH AMÉLIORÉE */
+.session-coach-section {
+    -fx-background-color: linear-gradient(to right, #f8fafc, #f1f5f9);
+    -fx-background-radius: 18px;
+    -fx-padding: 15;
+    -fx-spacing: 10;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 18px;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.02), 5, 0, 0, 2);
+}
+
+.coach-section-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #43A3DB;
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 4 12;
+    -fx-max-width: 100px;
+}
+
+.coach-info-box {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.coach-avatar-placeholder {
+    -fx-font-size: 30px;
+    -fx-background-color: linear-gradient(to bottom right, #43A3DB, #2D3E50);
+    -fx-background-radius: 20px;
+    -fx-padding: 8;
+    -fx-text-fill: white;
+    -fx-min-width: 45px;
+    -fx-min-height: 45px;
+    -fx-alignment: center;
+}
+
+.coach-details {
+    -fx-spacing: 3;
+}
+
+.coach-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.coach-email {
+    -fx-font-size: 12px;
+    -fx-text-fill: #43A3DB;
+    -fx-font-weight: 500;
+}
+
+.coach-phone {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 2 8;
+    -fx-max-width: 120px;
+}
+
+.no-coach-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #ef4444;
+    -fx-font-style: italic;
+    -fx-background-color: #fee2e2;
+    -fx-background-radius: 15px;
+    -fx-padding: 8 15;
+}
+
+/* Bouton d'inscription */
+.inscription-button {
+    -fx-background-color: linear-gradient(to right, #43A3DB, #2D3E50);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 20;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.3), 10, 0, 0, 2);
+}
+
+.inscription-button:hover {
+    -fx-background-color: linear-gradient(to right, #2D3E50, #43A3DB);
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.5), 15, 0, 0, 5);
+    -fx-scale-y: 1.02;
+}
+
+/* INDICATEUR DE CALENDRIER */
+.calendar-indicator {
+    -fx-background-color: white;
+    -fx-background-radius: 15px;
+    -fx-padding: 3 10;
+    -fx-spacing: 5;
+    -fx-alignment: center;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 15px;
+}
+
+.calendar-indicator .day-number {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #43A3DB;
+}
+
+.calendar-indicator .month-name {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+/* GRILLE DE PLANNING EN STYLE CALENDRIER */
+.planning-grid {
+    -fx-padding: 20 0;
+    -fx-hgap: 20;
+    -fx-vgap: 20;
+    -fx-alignment: center;
+}
+
+/* CARTES JOURS DU CALENDRIER */
+.planning-day-card {
+    -fx-background-color: white;
+    -fx-background-radius: 25px;
+    -fx-padding: 15;
+    -fx-pref-width: 200px;
+    -fx-min-height: 150px;
+    -fx-spacing: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-border-radius: 25px;
 }
 
 .planning-day-card:hover {
-    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.3), 20, 0, 0, 8);
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.2), 15, 0, 0, 8);
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
-    -fx-background-color: white;
+    -fx-border-color: #43A3DB;
 }
 
 .planning-day-name {
@@ -438,15 +676,17 @@
 }
 
 .planning-day-number {
-    -fx-text-fill: #E67E22;
-    -fx-font-size: 24px;
+    -fx-text-fill: #43A3DB;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
 }
 
-.planning-session-title {
-    -fx-text-fill: #2C3E50;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
+.planning-session-count {
+    -fx-text-fill: #5F7A92;
+    -fx-font-size: 12px;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 20px;
+    -fx-padding: 3 10;
 }
 
 /* ========== CARTES COACHS ========== */
@@ -482,7 +722,7 @@
     -fx-background-color: white;
     -fx-background-radius: 30px;
     -fx-pref-width: 260px;
-    -fx-pref-height: 320px;
+    -fx-pref-height: 340px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 25, 0, 0, 10);
     -fx-cursor: hand;
     -fx-padding: 0;
@@ -493,6 +733,13 @@
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
     -fx-translate-y: -8;
+}
+
+.coach-profile-image {
+    -fx-fit-height: 140px;
+    -fx-fit-width: 260px;
+    -fx-preserve-ratio: false;
+    -fx-background-radius: 30px 30px 0 0;
 }
 
 .coach-profile-content {
@@ -538,15 +785,55 @@
     -fx-font-weight: bold;
 }
 
+/* Bouton Voir profil */
+.profile-button {
+    -fx-background-color: #43A3DB;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-background-radius: 12px;
+    -fx-cursor: hand;
+}
+
+.profile-button:hover {
+    -fx-background-color: #2D3E50;
+}
+
+/* Bouton Explorer */
+.explorer-button {
+    -fx-background-color: #43A3DB;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+}
+
+.explorer-button:hover {
+    -fx-background-color: #E67E22;
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.3), 10, 0, 0, 2);
+}
+
 /* ========== SCROLL BAR ========== */
 .scroll-bar:vertical .thumb {
+    -fx-background-color: #43A3DB;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar:vertical .thumb:hover {
     -fx-background-color: #E67E22;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: #f0f0f0;
     -fx-background-radius: 4px;
 }
 
 /* ========== ANIMATIONS ========== */
 .button, .filter-chip, .menu-item, .stats-mini-card,
-.domain-card, .coach-profile-card, .planning-day-card,
-.planning-session-item, .objectif-card {
+.domain-card, .coach-profile-card, .session-card,
+.planning-day-card, .objectif-card {
     -fx-transition: all 0.3s ease;
 }

@@ -55,7 +55,7 @@
                         <VBox styleClass="sidebar-menu">
                             <Label styleClass="menu-section" text="MENU PRINCIPAL" />
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
+                            <HBox fx:id="tableauDeBordItem" styleClass="menu-item" alignment="CENTER_LEFT" spacing="15" onMouseClicked="#handleTableauDeBordClick">
                                 <Label styleClass="menu-icon" text="📊" />
                                 <Label text="Tableau de bord" />
                             </HBox>
@@ -244,9 +244,10 @@
 
                                 <TilePane fx:id="planningGrid"
                                           styleClass="planning-grid"
-                                          prefColumns="6"
+                                          prefColumns="3"
                                           hgap="15"
                                           vgap="15">
+                                    <!-- Les cartes de sessions seront générées dynamiquement ici -->
                                 </TilePane>
                             </VBox>
 
