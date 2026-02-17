@@ -545,3 +545,25 @@
     -fx-text-fill: white;
     -fx-fill: white;
 }
+
+/* ScrollPane interne de la modal premium (pour garder les boutons visibles) */
+.premium-modal-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.premium-modal-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Cadre d'affiche générée */
+.poster-frame {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1;
+    -fx-padding: 8;
+}
+
