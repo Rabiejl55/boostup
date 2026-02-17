@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import java.net.URL?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -15,143 +14,124 @@
     <!-- ===== SIDEBAR ===== -->
     <left>
         <VBox styleClass="sidebar">
-            <VBox styleClass="sidebar-header" spacing="2">
+            <VBox styleClass="sidebar-header" spacing="6">
                 <Label text="BoostUp" styleClass="sidebar-brand"/>
                 <Label text="Admin Panel" styleClass="sidebar-subtitle"/>
             </VBox>
 
             <Region styleClass="sidebar-sep"/>
 
-            <Button text="Dashboard" styleClass="sidebar-btn active" onAction="#goDashboard"/>
-            <Button text="Financement" styleClass="sidebar-btn" onAction="#goFinancementModule"/>
-            <Button text="Investissements" styleClass="sidebar-btn" onAction="#goInvestissements"/>
-            <Button text="Transactions" styleClass="sidebar-btn" onAction="#goTransactions"/>
+            <Button text="HomePage" onAction="#goHomePage" styleClass="menu-item"/>
+            <Button text="🏠  Dashboard" styleClass="sidebar-btn active" onAction="#goDashboard"/>
+            <Button text="💰  Financement" styleClass="sidebar-btn" onAction="#goFinancementModule"/>
+            <Button text="📈  Investissements" styleClass="sidebar-btn" onAction="#goInvestissements"/>
+            <Button text="💳  Transactions" styleClass="sidebar-btn" onAction="#goTransactions"/>
+
+
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <VBox styleClass="sidebar-footer">
-                <Button text="Logout" styleClass="sidebar-btn danger" onAction="#logout"/>
-            </VBox>
+            <Button text="⏻  Logout" styleClass="sidebar-btn danger" onAction="#logout"/>
         </VBox>
     </left>
 
     <!-- ===== TOP BAR ===== -->
     <top>
-        <HBox spacing="10" styleClass="content-top">
+        <HBox styleClass="topbar" spacing="12" alignment="CENTER_LEFT">
             <VBox spacing="2">
-                <Label text="Bienvenue Admin" styleClass="content-title"/>
-                <Label text="Vue globale du module Financement" styleClass="content-muted"/>
+                <Label text="Dashboard" styleClass="topbar-title"/>
+                <Label text="Vue globale • statistiques • alertes • dernières opérations" styleClass="topbar-subtitle"/>
             </VBox>
+
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblAdminEmail" text="admin@boostup.tn" styleClass="content-chip"/>
+
+            <Label fx:id="lblAdminEmail" text="admin@boostup.tn" styleClass="topbar-chip"/>
         </HBox>
     </top>
 
     <!-- ===== CONTENT ===== -->
     <center>
-        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
-            <VBox spacing="16" styleClass="content-area">
+        <ScrollPane fitToWidth="true" styleClass="content-scroll">
+            <content>
+                <VBox alignment="TOP_CENTER">
+                    <VBox maxWidth="1100" spacing="16" styleClass="content-area">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
 
-                <!-- ===== STATS CARDS ===== -->
-                <GridPane hgap="14" vgap="14">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="33.33"/>
-                        <ColumnConstraints percentWidth="33.33"/>
-                        <ColumnConstraints percentWidth="33.33"/>
-                    </columnConstraints>
+                        <!-- ===== STATS ===== -->
+                        <HBox spacing="14">
+                            <VBox styleClass="stat-card stat-1" HBox.hgrow="ALWAYS">
+                                <Label text="Projets" styleClass="stat-title"/>
+                                <Label fx:id="lblCountProjets" text="0" styleClass="stat-value"/>
+                                <Label text="Total projets enregistrés" styleClass="stat-sub"/>
+                            </VBox>
 
-                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="dash-card dash-card-blue">
-                        <Label text="Projets" styleClass="dash-label"/>
-                        <Label fx:id="lblCountProjets" text="0" styleClass="dash-number"/>
-                        <Label text="Total projets enregistrés" styleClass="muted"/>
-                    </VBox>
+                            <VBox styleClass="stat-card stat-2" HBox.hgrow="ALWAYS">
+                                <Label text="Investissements" styleClass="stat-title"/>
+                                <Label fx:id="lblCountInv" text="0" styleClass="stat-value"/>
+                                <Label text="Total investissements" styleClass="stat-sub"/>
+                            </VBox>
 
-                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="dash-card dash-card-green">
-                        <Label text="Investissements" styleClass="dash-label"/>
-                        <Label fx:id="lblCountInv" text="0" styleClass="dash-number"/>
-                        <Label text="Total investissements" styleClass="muted"/>
-                    </VBox>
+                            <VBox styleClass="stat-card stat-3" HBox.hgrow="ALWAYS">
+                                <Label text="Transactions" styleClass="stat-title"/>
+                                <Label fx:id="lblCountTx" text="0" styleClass="stat-value"/>
+                                <Label text="Transactions financières" styleClass="stat-sub"/>
+                            </VBox>
+                        </HBox>
 
-                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="dash-card dash-card-orange">
-                        <Label text="Transactions" styleClass="dash-label"/>
-                        <Label fx:id="lblCountTx" text="0" styleClass="dash-number"/>
-                        <Label text="Transactions financières" styleClass="muted"/>
-                    </VBox>
-                    <VBox spacing="10" styleClass="card">
-                        <Label text="Dernières transactions" styleClass="h2"/>
-
-                        <TableView fx:id="tableLastTx" prefHeight="220">
-                            <columns>
-                                <TableColumn fx:id="colLastTxId" text="ID" prefWidth="70"/>
-                                <TableColumn fx:id="colLastTxDate" text="Date" prefWidth="130"/>
-                                <TableColumn fx:id="colLastTxMontant" text="Montant" prefWidth="120"/>
-                                <TableColumn fx:id="colLastTxStatut" text="Statut" prefWidth="120"/>
-                            </columns>
-                        </TableView>
-                    </VBox>
-
-                </GridPane>
-
-                <!-- ===== QUICK ACTIONS ===== -->
-                <HBox spacing="12" styleClass="toolbar">
-                    <Button text="Aller au module Financement" styleClass="btnPrimary" onAction="#goFinancementModule"/>
-                    <Button text="Gérer les utilisateurs" styleClass="btn" onAction="#goUsers"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="Rafraîchir" styleClass="btn" onAction="#refreshStats"/>
-                </HBox>
-
-                <!-- ===== ROW 2: Last Transactions + Alerts ===== -->
-                <GridPane hgap="14" vgap="14">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="65"/>
-                        <ColumnConstraints percentWidth="35"/>
-                    </columnConstraints>
-
-                    <!-- Last transactions -->
-                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="card">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="Dernières transactions" styleClass="h2"/>
+                        <!-- ===== ACTIONS ===== -->
+                        <HBox spacing="10" styleClass="actions-bar" alignment="CENTER_LEFT">
+                            <Button text="Aller au module Financement" styleClass="btnPrimary" onAction="#goFinancementModule"/>
+                            <Button text="Gérer les utilisateurs" styleClass="btnSoft" onAction="#goUsers"/>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="lblLastTxCount" text="0 affichées" styleClass="muted"/>
+                            <Button text="Rafraîchir" styleClass="btnSoft" onAction="#refreshStats"/>
                         </HBox>
 
-                        <TableView fx:id="tableLastTx" VBox.vgrow="ALWAYS" styleClass="table">
-                            <columns>
-                                <TableColumn fx:id="colLastTxId" text="ID" prefWidth="70"/>
-                                <TableColumn fx:id="colLastTxMontant" text="Montant" prefWidth="120"/>
-                                <TableColumn fx:id="colLastTxDate" text="Date" prefWidth="140"/>
-                                <TableColumn fx:id="colLastTxMode" text="Mode" prefWidth="140"/>
-                                <TableColumn fx:id="colLastTxStatut" text="Statut" prefWidth="140"/>
-                            </columns>
-                        </TableView>
+                        <!-- ===== MAIN GRID ===== -->
+                        <GridPane hgap="14" vgap="14">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="68"/>
+                                <ColumnConstraints percentWidth="32"/>
+                            </columnConstraints>
 
-                        <HBox spacing="10" alignment="CENTER_RIGHT">
-                            <Button text="Voir tout (Transactions)" styleClass="btn" onAction="#goTransactions"/>
-                        </HBox>
+                            <!-- Last Tx -->
+                            <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="card">
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label text="Dernières transactions" styleClass="card-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="lblLastTxCount" text="0 affichées" styleClass="muted"/>
+                                </HBox>
+
+                                <TableView fx:id="tableLastTx" styleClass="tableModern" prefHeight="340">
+                                    <columns>
+                                        <TableColumn fx:id="colLastTxId" text="ID" prefWidth="70"/>
+                                        <TableColumn fx:id="colLastTxMontant" text="Montant" prefWidth="120"/>
+                                        <TableColumn fx:id="colLastTxDate" text="Date" prefWidth="140"/>
+                                        <TableColumn fx:id="colLastTxMode" text="Mode" prefWidth="140"/>
+                                        <TableColumn fx:id="colLastTxStatut" text="Statut" prefWidth="140"/>
+                                    </columns>
+                                </TableView>
+
+                                <HBox alignment="CENTER_RIGHT">
+                                    <Button text="Voir tout" styleClass="btnSoft" onAction="#goTransactions"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- Alerts -->
+                            <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="card">
+                                <Label text="Alertes Budget" styleClass="card-title"/>
+                                <Label text="Projets proches du dépassement" styleClass="muted"/>
+
+                                <ListView fx:id="listBudgetAlerts" VBox.vgrow="ALWAYS" styleClass="alertsList"/>
+                                <Label fx:id="lblAlertsHint" text="—" styleClass="muted"/>
+                            </VBox>
+                        </GridPane>
+
                     </VBox>
-
-                    <!-- Budget alerts -->
-                    <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="card">
-                        <Label text="Alertes Budget" styleClass="h2"/>
-                        <Label text="Projets proches du dépassement" styleClass="muted"/>
-
-                        <ListView fx:id="listBudgetAlerts" VBox.vgrow="ALWAYS" styleClass="list"/>
-                        <Label fx:id="lblAlertsHint" text="—" styleClass="muted"/>
-                    </VBox>
-                </GridPane>
-
-                <!-- ===== OVERVIEW ===== -->
-                <VBox spacing="10" styleClass="card">
-                    <Label text="Aperçu Admin" styleClass="h2"/>
-                    <Label text="• Actions rapides • Suivi global • Statistiques • Alertes • Dernières opérations"
-                           styleClass="muted"/>
                 </VBox>
-
-            </VBox>
+            </content>
         </ScrollPane>
     </center>
 
-    <padding>
-        <Insets top="0" right="0" bottom="0" left="0"/>
-    </padding>
 </BorderPane>

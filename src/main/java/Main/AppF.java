@@ -22,6 +22,7 @@ public class AppF extends Application {
         scene.getStylesheets().add(getClass().getResource("/css/sidebar.css").toExternalForm());
         scene.getStylesheets().add(getClass().getResource("/css/dashboard.css").toExternalForm());
         scene.getStylesheets().add(getClass().getResource("/css/financement.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/homestyle.css").toExternalForm());
 
         // Mettre la scène dans la fenêtre
         stage.setScene(scene);

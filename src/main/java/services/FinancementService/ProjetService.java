@@ -71,4 +71,8 @@ public class ProjetService implements IService<Projet> {
         }
         return projets;
     }
+
+    public List<Projet> recuperer() {
+        return List.of();
+    }
 }

@@ -19,7 +19,10 @@ import java.util.stream.Collectors;
 
 public class InvestissementController {
 
-    // ====== PSEUDO CLASSES CSS (pour .text-field:error etc.)
+    // ✅ USER STATIC (TEMPORAIRE) : change 1 -> id_user qui existe dans ta table user
+    private static final int STATIC_USER_ID = 8;
+
+    // ====== PSEUDO CLASSES CSS
     private static final PseudoClass PSEUDO_ERROR = PseudoClass.getPseudoClass("error");
 
     // ====== Statuts
@@ -30,7 +33,7 @@ public class InvestissementController {
     @FXML private DatePicker dpInvDate;
     @FXML private ComboBox<String> cbInvStatut;
     @FXML private ComboBox<ProjetItem> cbInvProjet;
-    @FXML private ComboBox<UserItem> cbInvUser;
+    @FXML private ComboBox<UserItem> cbInvUser; // on le garde mais on va le cacher
 
     @FXML private Label lblInvToast;
     @FXML private Label errInvMontant, errInvDate, errInvStatut, errInvProjet, errInvUser;
@@ -63,8 +66,11 @@ public class InvestissementController {
         setupSelection();
         setupSearchFilter();
 
-        setupInputGuards();     // ✅ (pro) filtre saisie montant
-        setupLiveValidation();  // ✅ validation live (4) et (5) + pseudoClass
+        setupInputGuards();
+        setupLiveValidation();
+
+        // ✅ cacher user (on ne le choisit plus)
+        disableUserSelection();
 
         refreshInvestissements();
         clearErrors();
@@ -80,47 +86,50 @@ public class InvestissementController {
         cbFilterInvStatut.getItems().addAll(STATUTS);
         cbFilterInvStatut.getSelectionModel().selectFirst();
 
-        // Projet combo (affiche titre, garde id)
         cbInvProjet.setConverter(new StringConverter<>() {
             @Override public String toString(ProjetItem p) { return p == null ? "" : p.titre; }
             @Override public ProjetItem fromString(String s) { return null; }
         });
 
-        // User combo (affiche label, garde id)
+        // on garde le converter mais il sera inutilisé car combo caché
         cbInvUser.setConverter(new StringConverter<>() {
             @Override public String toString(UserItem u) { return u == null ? "" : u.label; }
             @Override public UserItem fromString(String s) { return null; }
         });
 
         loadProjets();
-        loadUsers();
+        loadUsers(); // pas obligatoire, mais utile pour afficher "User label" dans la table
+    }
+
+    private void disableUserSelection() {
+        if (cbInvUser != null) {
+            cbInvUser.setDisable(true);
+            cbInvUser.setVisible(false);
+            cbInvUser.setManaged(false);
+        }
+        if (errInvUser != null) {
+            errInvUser.setVisible(false);
+            errInvUser.setManaged(false);
+        }
     }
 
     private void setupTable() {
-        // ID (si tu veux le cacher visuellement : prefWidth=0 + min/max=0 dans le FXML)
         colInvId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId_investissement()));
-
         colInvMontant.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getMontantInvestissement()));
         colInvStatut.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getStatut()));
         colInvDate.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getDate_investissement()));
-
-        // Afficher projet/user en libellé (pas l'id)
         colInvProjet.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(getProjetLabel(c.getValue().getId_projet())));
         colInvUser.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(getUserLabel(c.getValue().getId_user())));
 
-        // Statut coloré (utilise tes classes CSS)
         colInvStatut.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
                 super.updateItem(statut, empty);
 
                 getStyleClass().removeAll("statut-attente", "statut-finance", "statut-refuse");
-                if (empty || statut == null) {
-                    setText(null);
-                    return;
-                }
-                setText(statut);
+                if (empty || statut == null) { setText(null); return; }
 
+                setText(statut);
                 switch (statut) {
                     case "EN_ATTENTE" -> getStyleClass().add("statut-attente");
                     case "FINANCE" -> getStyleClass().add("statut-finance");
@@ -145,20 +154,14 @@ public class InvestissementController {
                 tfInvMontant.setText(String.valueOf(sel.getMontantInvestissement()));
                 cbInvStatut.getSelectionModel().select(sel.getStatut());
 
-                try {
-                    dpInvDate.setValue(LocalDate.parse(sel.getDate_investissement()));
-                } catch (Exception e) {
-                    dpInvDate.setValue(null);
-                }
+                try { dpInvDate.setValue(LocalDate.parse(sel.getDate_investissement())); }
+                catch (Exception e) { dpInvDate.setValue(null); }
 
                 cbInvProjet.getSelectionModel().select(
                         cbInvProjet.getItems().stream().filter(p -> p.id == sel.getId_projet()).findFirst().orElse(null)
                 );
-                cbInvUser.getSelectionModel().select(
-                        cbInvUser.getItems().stream().filter(u -> u.id == sel.getId_user()).findFirst().orElse(null)
-                );
 
-                // pro: quand on charge une ligne, on remet validation OK
+                // ✅ user auto => pas de sélection user
                 validateAllLive();
             }
         });
@@ -169,27 +172,24 @@ public class InvestissementController {
         cbFilterInvStatut.valueProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    // ===================== (PRO) SAISIE MONTANT : GARDES =====================
-
     private void setupInputGuards() {
-        // Autoriser uniquement digits + , .
         tfInvMontant.textProperty().addListener((obs, old, val) -> {
             if (val == null) return;
             String cleaned = val.replaceAll("[^0-9,\\.]", "");
-            if (!cleaned.equals(val)) {
-                tfInvMontant.setText(cleaned);
-            }
+            if (!cleaned.equals(val)) tfInvMontant.setText(cleaned);
         });
     }
 
-    // ===================== VALIDATION LIVE (4) & (5) =====================
+    // ===================== VALIDATION LIVE =====================
 
     private void setupLiveValidation() {
         tfInvMontant.textProperty().addListener((obs, o, n) -> validateMontantLive());
         dpInvDate.valueProperty().addListener((obs, o, n) -> validateDateLive());
         cbInvStatut.valueProperty().addListener((obs, o, n) -> validateStatutLive());
         cbInvProjet.valueProperty().addListener((obs, o, n) -> validateProjetLive());
-        cbInvUser.valueProperty().addListener((obs, o, n) -> validateUserLive());
+
+        // ✅ on ne valide plus l'utilisateur (auto)
+        // cbInvUser.valueProperty().addListener((obs, o, n) -> validateUserLive());
     }
 
     private void validateAllLive() {
@@ -197,7 +197,7 @@ public class InvestissementController {
         validateDateLive();
         validateStatutLive();
         validateProjetLive();
-        validateUserLive();
+        // ✅ pas user
     }
 
     private boolean validateMontantLive() {
@@ -209,11 +209,8 @@ public class InvestissementController {
             ok = montant > 0;
         } catch (Exception ignored) {}
 
-        if (!ok) {
-            showError(errInvMontant, "Montant invalide (doit être > 0).");
-        } else {
-            hideError(errInvMontant);
-        }
+        if (!ok) showError(errInvMontant, "Montant invalide (doit être > 0).");
+        else hideError(errInvMontant);
 
         tfInvMontant.pseudoClassStateChanged(PSEUDO_ERROR, !ok);
         return ok;
@@ -222,15 +219,10 @@ public class InvestissementController {
     private boolean validateDateLive() {
         LocalDate d = dpInvDate.getValue();
         boolean ok = (d != null);
-
-        // Option “pro”: refuser dates futures
         if (ok && d.isAfter(LocalDate.now())) ok = false;
 
-        if (!ok) {
-            showError(errInvDate, "Date obligatoire (et non future).");
-        } else {
-            hideError(errInvDate);
-        }
+        if (!ok) showError(errInvDate, "Date obligatoire (et non future).");
+        else hideError(errInvDate);
 
         dpInvDate.pseudoClassStateChanged(PSEUDO_ERROR, !ok);
         return ok;
@@ -238,7 +230,6 @@ public class InvestissementController {
 
     private boolean validateStatutLive() {
         boolean ok = cbInvStatut.getValue() != null && !cbInvStatut.getValue().isBlank();
-
         if (!ok) showError(errInvStatut, "Statut obligatoire.");
         else hideError(errInvStatut);
 
@@ -248,21 +239,10 @@ public class InvestissementController {
 
     private boolean validateProjetLive() {
         boolean ok = cbInvProjet.getValue() != null;
-
         if (!ok) showError(errInvProjet, "Projet obligatoire.");
         else hideError(errInvProjet);
 
         cbInvProjet.pseudoClassStateChanged(PSEUDO_ERROR, !ok);
-        return ok;
-    }
-
-    private boolean validateUserLive() {
-        boolean ok = cbInvUser.getValue() != null;
-
-        if (!ok) showError(errInvUser, "Utilisateur obligatoire.");
-        else hideError(errInvUser);
-
-        cbInvUser.pseudoClassStateChanged(PSEUDO_ERROR, !ok);
         return ok;
     }
 
@@ -343,15 +323,12 @@ public class InvestissementController {
         dpInvDate.setValue(null);
         cbInvStatut.getSelectionModel().clearSelection();
         cbInvProjet.getSelectionModel().clearSelection();
-        cbInvUser.getSelectionModel().clearSelection();
         tableInvestissements.getSelectionModel().clearSelection();
 
-        // reset pseudoClass
         tfInvMontant.pseudoClassStateChanged(PSEUDO_ERROR, false);
         dpInvDate.pseudoClassStateChanged(PSEUDO_ERROR, false);
         cbInvStatut.pseudoClassStateChanged(PSEUDO_ERROR, false);
         cbInvProjet.pseudoClassStateChanged(PSEUDO_ERROR, false);
-        cbInvUser.pseudoClassStateChanged(PSEUDO_ERROR, false);
 
         clearErrors();
     }
@@ -359,7 +336,7 @@ public class InvestissementController {
     @FXML
     private void clearSearchInv() {
         tfSearchInv.clear();
-        cbFilterInvStatut.getSelectionModel().selectFirst(); // TOUS
+        cbFilterInvStatut.getSelectionModel().selectFirst();
     }
 
     // ===================== VALIDATION (submit) =====================
@@ -367,7 +344,6 @@ public class InvestissementController {
     private boolean validateForm() {
         boolean ok = true;
 
-        // Montant
         String m = tfInvMontant.getText() == null ? "" : tfInvMontant.getText().trim();
         try {
             double montant = Double.parseDouble(m.replace(",", "."));
@@ -378,33 +354,25 @@ public class InvestissementController {
             ok = false;
         }
 
-        // Date
         if (dpInvDate.getValue() == null || dpInvDate.getValue().isAfter(LocalDate.now())) {
             showError(errInvDate, "Date obligatoire (et non future).");
             dpInvDate.pseudoClassStateChanged(PSEUDO_ERROR, true);
             ok = false;
         }
 
-        // Statut
         if (cbInvStatut.getValue() == null || cbInvStatut.getValue().isBlank()) {
             showError(errInvStatut, "Statut obligatoire.");
             cbInvStatut.pseudoClassStateChanged(PSEUDO_ERROR, true);
             ok = false;
         }
 
-        // Projet
         if (cbInvProjet.getValue() == null) {
             showError(errInvProjet, "Projet obligatoire.");
             cbInvProjet.pseudoClassStateChanged(PSEUDO_ERROR, true);
             ok = false;
         }
 
-        // User
-        if (cbInvUser.getValue() == null) {
-            showError(errInvUser, "Utilisateur obligatoire.");
-            cbInvUser.pseudoClassStateChanged(PSEUDO_ERROR, true);
-            ok = false;
-        }
+        // ✅ plus de validation user
 
         return ok;
     }
@@ -412,9 +380,11 @@ public class InvestissementController {
     private Investissement buildFromForm(int id) {
         double montant = Double.parseDouble(tfInvMontant.getText().trim().replace(",", "."));
         String statut = cbInvStatut.getValue();
-        String dateStr = dpInvDate.getValue().toString(); // yyyy-MM-dd
+        String dateStr = dpInvDate.getValue().toString();
         int idProjet = cbInvProjet.getValue().id;
-        int idUser = cbInvUser.getValue().id;
+
+        // ✅ user AUTO
+        int idUser = STATIC_USER_ID;
 
         return new Investissement(id, montant, statut, dateStr, idProjet, idUser);
     }
@@ -434,6 +404,7 @@ public class InvestissementController {
     private void clearErrors() {
         Label[] errs = {errInvMontant, errInvDate, errInvStatut, errInvProjet, errInvUser};
         for (Label l : errs) {
+            if (l == null) continue;
             l.setText("");
             l.setVisible(false);
             l.setManaged(false);
@@ -523,6 +494,7 @@ public class InvestissementController {
     }
 
     private String getUserLabel(int idUser) {
+        // si on ne charge pas users, affichage fallback
         UserItem u = cbInvUser.getItems().stream().filter(x -> x.id == idUser).findFirst().orElse(null);
         return u == null ? ("User #" + idUser) : u.label;
     }

@@ -76,4 +76,9 @@ public class InvestissementService implements IService<Investissement> {
         }
         return list;
     }
+
+    public List<Investissement> recuperer() {
+
+        return List.of();
+    }
 }

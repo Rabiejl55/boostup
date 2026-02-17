@@ -5,7 +5,6 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 
-
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="controller.FinancementController"
@@ -16,14 +15,15 @@
         <URL value="@/css/financement.css"/>
     </stylesheets>
 
+    <!-- ===== SIDEBAR ===== -->
     <left>
         <VBox styleClass="sidebar">
             <Label text="BoostUp" styleClass="sidebar-brand"/>
             <Label text="Admin Panel" styleClass="sidebar-subtitle"/>
             <Region styleClass="sidebar-sep"/>
 
-            <Button text="Dashboard" styleClass="sidebar-btn active" onAction="#goDashboard"/>
-            <Button text="Financement" styleClass="sidebar-btn" onAction="#goFinancement"/>
+            <Button text="Dashboard" styleClass="sidebar-btn" onAction="#goDashboard"/>
+            <Button text="Financement" styleClass="sidebar-btn active" onAction="#goFinancement"/>
             <Button text="Investissements" styleClass="sidebar-btn" onAction="#goInvestissements"/>
             <Button text="Transactions" styleClass="sidebar-btn" onAction="#goTransactions"/>
 
@@ -32,22 +32,18 @@
         </VBox>
     </left>
 
-
-
-
-
+    <!-- ===== CONTENT ===== -->
     <center>
-        <TabPane>
-
+        <TabPane fx:id="tabPaneFinancement">
 
             <!-- ===================== PROJETS ===================== -->
-            <Tab text="Projets" closable="false">
+            <Tab fx:id="tabProjets" text="Projets" closable="false">
                 <BorderPane styleClass="page">
 
                     <top>
                         <VBox spacing="10" styleClass="card">
                             <Label text="Gestion des Projets" styleClass="h2"/>
-                            <!-- Message global (succès/erreur) -->
+
                             <Label fx:id="lblProjetToast"
                                    text=""
                                    visible="false"
@@ -63,28 +59,24 @@
                                     <ColumnConstraints hgrow="ALWAYS"/>
                                 </columnConstraints>
 
-                                <!-- TITRE -->
                                 <Label text="Titre" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                                 <VBox spacing="3" GridPane.rowIndex="0" GridPane.columnIndex="1">
                                     <TextField fx:id="tfTitre" promptText="Titre du projet"/>
                                     <Label fx:id="errTitre" text="" visible="false" managed="false" styleClass="fieldError"/>
                                 </VBox>
 
-                                <!-- BUDGET -->
                                 <Label text="Budget" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
                                 <VBox spacing="3" GridPane.rowIndex="0" GridPane.columnIndex="3">
                                     <TextField fx:id="tfBudget" promptText="Ex: 1200.50"/>
                                     <Label fx:id="errBudget" text="" visible="false" managed="false" styleClass="fieldError"/>
                                 </VBox>
 
-                                <!-- STATUT -->
                                 <Label text="Statut" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                                 <VBox spacing="3" GridPane.rowIndex="1" GridPane.columnIndex="1">
                                     <ComboBox fx:id="cbStatutProjet"/>
                                     <Label fx:id="errStatut" text="" visible="false" managed="false" styleClass="fieldError"/>
                                 </VBox>
 
-                                <!-- DESCRIPTION -->
                                 <Label text="Description" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                                 <TextArea fx:id="taDescription" promptText="Description..."
                                           prefRowCount="3"
@@ -135,13 +127,16 @@
 
                 </BorderPane>
             </Tab>
-            <Tab text="Investissements" closable="false">
-                <fx:include source="investissement.fxml"/>
-            </Tab>
-            <Tab text="Transactions" closable="false">
-                <fx:include source="transaction.fxml"/>
+
+            <!-- ===================== INVESTISSEMENTS (LAZY) ===================== -->
+            <Tab fx:id="tabInvestissements" text="Investissements" closable="false">
+                <BorderPane fx:id="investissementsRoot"/>
             </Tab>
 
+            <!-- ===================== TRANSACTIONS (LAZY) ===================== -->
+            <Tab fx:id="tabTransactions" text="Transactions" closable="false">
+                <BorderPane fx:id="transactionsRoot"/>
+            </Tab>
 
         </TabPane>
     </center>

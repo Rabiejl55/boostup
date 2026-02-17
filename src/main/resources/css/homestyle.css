@@ -1,0 +1,839 @@
+/* STYLE GÉNÉRAL - Thème bleu #43A3DB */
+.root {
+    -fx-background-color: linear-gradient(to bottom right, #F8F0E7, #E8F0F0);
+    -fx-font-family: 'Poppins', 'Segoe UI', 'Arial', sans-serif;
+}
+
+/* ========== BARRE SUPERIEURE ========== */
+.top-bar {
+    -fx-background-color: #43A3DB;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 12 25;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 20, 0, 0, 5);
+}
+
+.greeting-label {
+    -fx-text-fill: #2D3E50;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.greeting-label .highlight {
+    -fx-text-fill: #E67E22;
+}
+
+.search-container {
+    -fx-background-color: white;
+    -fx-background-radius: 40px;
+    -fx-padding: 5 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 2);
+    -fx-border-color: #E0E7E9;
+    -fx-border-radius: 40px;
+    -fx-border-width: 1;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2D3E50;
+    -fx-prompt-text-fill: #8A9CA8;
+    -fx-font-size: 14px;
+    -fx-pref-width: 220px;
+}
+
+.search-button {
+    -fx-background-color: #43A3DB;
+    -fx-background-radius: 30px;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 8 18;
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.3), 10, 0, 0, 2);
+}
+
+.search-button:hover {
+    -fx-background-color: #D35400;
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.5), 15, 0, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== SIDEBAR GAUCHE ========== */
+.sidebar {
+    -fx-background-color: #43A3DB;
+    -fx-background-radius: 0;
+    -fx-pref-width: 260px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 20, 0, 0, 10);
+}
+
+.sidebar-header {
+    -fx-padding: 10 10 10 10;
+    -fx-alignment: center;
+    -fx-spacing: 15;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.logo-container {
+    -fx-alignment: center;
+    -fx-spacing: 15;
+    -fx-orientation: vertical;
+}
+
+.logo-image {
+    -fx-background-image: url('../images/logo.png');
+    -fx-background-size: contain;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-min-width: 100px;
+    -fx-min-height: 100px;
+    -fx-max-width: 100px;
+    -fx-max-height: 100px;
+}
+
+.sidebar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.accent {
+    -fx-text-fill: #DE2E4B;
+    -fx-font-size: 24px;
+    -fx-font-weight: 600;
+}
+
+.sidebar-subtitle {
+    -fx-text-fill: #FEECE6;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.menu-section {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 25 25 10 25;
+}
+
+.menu-item {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-padding: 12 25;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 15;
+    -fx-background-radius: 0 40px 40px 0;
+}
+
+.menu-item:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+    -fx-translate-x: 5px;
+}
+
+.menu-item-active {
+    -fx-background-color: #E67E22;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 25;
+    -fx-background-radius: 0 40px 40px 0;
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.5), 15, 0, 0, 4);
+}
+
+.menu-icon {
+    -fx-font-family: 'Segoe UI Symbol';
+    -fx-font-size: 20px;
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+}
+
+.menu-item-active .menu-icon {
+    -fx-text-fill: white;
+}
+
+.menu-item:hover .menu-icon {
+    -fx-text-fill: white;
+}
+
+.menu-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-font-size: 12px;
+}
+
+/* ========== CONTENU PRINCIPAL ========== */
+.main-content {
+    -fx-background-color: transparent;
+    -fx-padding: 20;
+}
+
+.section-title {
+    -fx-text-fill: #2D3E50;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.section-subtitle {
+    -fx-text-fill: #5F7A92;
+    -fx-font-size: 14px;
+}
+
+/* ========== STATS MINI CARTES ========== */
+.stats-mini-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20px;
+    -fx-padding: 15 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 5);
+    -fx-cursor: hand;
+}
+
+.stats-mini-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.2), 15, 0, 0, 8);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.stats-mini-icon {
+    -fx-background-color: #FFF1E6;
+    -fx-background-radius: 15px;
+    -fx-padding: 10;
+    -fx-font-size: 24px;
+}
+
+.stats-mini-value {
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.stats-mini-label {
+    -fx-text-fill: #5F7A92;
+    -fx-font-size: 12px;
+}
+
+/* ========== CARTES OBJECTIFS ========== */
+.objectifs-grid {
+    -fx-padding: 10 0 30 0;
+    -fx-hgap: 25;
+    -fx-vgap: 25;
+}
+
+.objectif-card {
+    -fx-background-radius: 30px;
+    -fx-padding: 25;
+    -fx-pref-width: 220px;
+    -fx-pref-height: 260px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 20, 0, 0, 5);
+    -fx-cursor: hand;
+    -fx-alignment: top-center;
+    -fx-border-color: transparent;
+    -fx-border-radius: 30px;
+}
+
+.objectif-card-1 {
+    -fx-background-color: linear-gradient(to bottom right, #FF6B6B, #FF8E8E);
+    -fx-rotate: -3deg;
+    -fx-translate-y: 12;
+}
+
+.objectif-card-2 {
+    -fx-background-color: linear-gradient(to bottom right, #4ECDC4, #6EE7E7);
+    -fx-rotate: 2deg;
+    -fx-translate-y: -8;
+}
+
+.objectif-card-3 {
+    -fx-background-color: linear-gradient(to bottom right, #A8E6CF, #C0F0E0);
+    -fx-rotate: 4deg;
+    -fx-translate-y: 15;
+}
+
+.objectif-card-4 {
+    -fx-background-color: linear-gradient(to bottom right, #FFD93D, #FFE570);
+    -fx-rotate: -4deg;
+    -fx-translate-y: -10;
+}
+
+.objectif-card-5 {
+    -fx-background-color: linear-gradient(to bottom right, #6C5CE7, #8A7CFF);
+    -fx-rotate: 1deg;
+    -fx-translate-y: 8;
+}
+
+.objectif-card-6 {
+    -fx-background-color: linear-gradient(to bottom right, #FF9F1C, #FFB347);
+    -fx-rotate: -2deg;
+    -fx-translate-y: -12;
+}
+
+.objectif-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.4), 25, 0, 0, 10);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-rotate: 0deg;
+    -fx-translate-y: -15;
+}
+
+.objectif-icon {
+    -fx-font-family: 'Segoe UI Symbol';
+    -fx-font-size: 48px;
+    -fx-text-fill: white;
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-background-radius: 50%;
+    -fx-padding: 15;
+}
+
+.objectif-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 15 0 5 0;
+}
+
+.objectif-desc {
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-font-size: 13px;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-radius: 20px;
+    -fx-padding: 8 15;
+    -fx-wrap-text: true;
+}
+
+.objectif-stats {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-radius: 20px;
+    -fx-padding: 5 15;
+}
+
+/* ========== STYLES POUR LES IMAGES ========== */
+/* Styles communs pour les ImageView */
+.coach-profile-card ImageView,
+.domain-card ImageView,
+.session-card ImageView {
+    -fx-fit-height: 140px;
+    -fx-fit-width: 260px;
+    -fx-preserve-ratio: false;
+    -fx-background-radius: 30px 30px 0 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-smooth: true;
+    -fx-cache: true;
+}
+
+/* Ajustement pour les domaines (plus larges) */
+.domain-card ImageView {
+    -fx-fit-width: 280px;
+}
+
+/* Image par défaut */
+.default-image-bg {
+    -fx-background-color: linear-gradient(to bottom right, #43A3DB, #2D3E50);
+    -fx-background-radius: 30px 30px 0 0;
+}
+
+/* ========== CARTES DOMAINES ========== */
+.domain-card {
+    -fx-background-color: white;
+    -fx-background-radius: 30px;
+    -fx-pref-width: 280px;
+    -fx-pref-height: 320px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 15, 0, 0, 5);
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.domain-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.3), 25, 0, 0, 10);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-translate-y: -5;
+}
+
+.domain-content {
+    -fx-padding: 20;
+    -fx-spacing: 10;
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 30px 30px;
+}
+
+.domain-name {
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.domain-description {
+    -fx-text-fill: #5F7A92;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}
+
+/* ========== SESSIONS - STYLE CALENDRIER CRÉATIF ========== */
+.sessions-title {
+    -fx-text-fill: #2D3E50;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.sessions-count {
+    -fx-text-fill: #E67E22;
+    -fx-font-size: 16px;
+    -fx-background-color: #FFF1E6;
+    -fx-background-radius: 30px;
+    -fx-padding: 5 15;
+}
+
+.planning-section {
+    -fx-background-color: #FCF6F3;
+    -fx-background-radius: 30px;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 20, 0, 0, 8);
+}
+
+.planning-header {
+    -fx-background-color: #43A3DB;
+    -fx-background-radius: 20px;
+    -fx-padding: 15 20;
+    -fx-spacing: 20;
+}
+
+.planning-header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.planning-header-date {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255,255,255,0.2);
+    -fx-background-radius: 20px;
+    -fx-padding: 5 15;
+}
+
+.filter-chip {
+    -fx-background-color: white;
+    -fx-background-radius: 30px;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.filter-chip:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.filter-chip Label {
+    -fx-text-fill: #2D3E50;
+    -fx-font-weight: bold;
+}
+
+/* STYLE DES CARTES DE SESSIONS */
+.session-card {
+    -fx-background-color: white;
+    -fx-background-radius: 25px;
+    -fx-padding: 20;
+    -fx-pref-width: 320px;
+    -fx-pref-height: 350px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 15, 0, 0, 5);
+    -fx-cursor: hand;
+    -fx-border-color: #f0f2f5;
+    -fx-border-width: 1;
+    -fx-border-radius: 25px;
+    -fx-transition: all 0.3s ease;
+}
+
+.session-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.4), 20, 0, 0, 10);
+    -fx-translate-y: -5;
+    -fx-border-color: #43A3DB;
+}
+
+/* Badge de type de session */
+.session-type-badge {
+    -fx-background-color: linear-gradient(to right, #43A3DB, #5fb0e0);
+    -fx-background-radius: 30px;
+    -fx-padding: 6 15;
+    -fx-max-width: 120px;
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.3), 8, 0, 0, 2);
+}
+
+.session-type-badge .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+/* Badge pour différents types */
+.session-type-badge.online {
+    -fx-background-color: linear-gradient(to right, #10B981, #34D399);
+}
+
+.session-type-badge.presentiel {
+    -fx-background-color: linear-gradient(to right, #F59E0B, #FBBF24);
+}
+
+.session-type-badge.mixte {
+    -fx-background-color: linear-gradient(to right, #8B5CF6, #A78BFA);
+}
+
+/* Date et durée */
+.session-date-box {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 15px;
+    -fx-padding: 8 12;
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.session-date {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.session-duree {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 15px;
+    -fx-padding: 3 10;
+}
+
+/* Objectif */
+.session-objectif {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+    -fx-wrap-text: true;
+    -fx-padding: 5 0;
+}
+
+/* Lieu */
+.session-lieu {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 12px;
+    -fx-padding: 6 10;
+    -fx-spacing: 5;
+    -fx-alignment: center-left;
+}
+
+.session-lieu .label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+}
+
+/* SECTION COACH AMÉLIORÉE */
+.session-coach-section {
+    -fx-background-color: linear-gradient(to right, #f8fafc, #f1f5f9);
+    -fx-background-radius: 18px;
+    -fx-padding: 15;
+    -fx-spacing: 10;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 18px;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.02), 5, 0, 0, 2);
+}
+
+.coach-section-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #43A3DB;
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 4 12;
+    -fx-max-width: 100px;
+}
+
+.coach-info-box {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.coach-avatar-placeholder {
+    -fx-font-size: 30px;
+    -fx-background-color: linear-gradient(to bottom right, #43A3DB, #2D3E50);
+    -fx-background-radius: 20px;
+    -fx-padding: 8;
+    -fx-text-fill: white;
+    -fx-min-width: 45px;
+    -fx-min-height: 45px;
+    -fx-alignment: center;
+}
+
+.coach-details {
+    -fx-spacing: 3;
+}
+
+.coach-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.coach-email {
+    -fx-font-size: 12px;
+    -fx-text-fill: #43A3DB;
+    -fx-font-weight: 500;
+}
+
+.coach-phone {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 2 8;
+    -fx-max-width: 120px;
+}
+
+.no-coach-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #ef4444;
+    -fx-font-style: italic;
+    -fx-background-color: #fee2e2;
+    -fx-background-radius: 15px;
+    -fx-padding: 8 15;
+}
+
+/* Bouton d'inscription */
+.inscription-button {
+    -fx-background-color: linear-gradient(to right, #43A3DB, #2D3E50);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 20;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.3), 10, 0, 0, 2);
+}
+
+.inscription-button:hover {
+    -fx-background-color: linear-gradient(to right, #2D3E50, #43A3DB);
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.5), 15, 0, 0, 5);
+    -fx-scale-y: 1.02;
+}
+
+/* INDICATEUR DE CALENDRIER */
+.calendar-indicator {
+    -fx-background-color: white;
+    -fx-background-radius: 15px;
+    -fx-padding: 3 10;
+    -fx-spacing: 5;
+    -fx-alignment: center;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 15px;
+}
+
+.calendar-indicator .day-number {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #43A3DB;
+}
+
+.calendar-indicator .month-name {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+/* GRILLE DE PLANNING EN STYLE CALENDRIER */
+.planning-grid {
+    -fx-padding: 20 0;
+    -fx-hgap: 20;
+    -fx-vgap: 20;
+    -fx-alignment: center;
+}
+
+/* CARTES JOURS DU CALENDRIER */
+.planning-day-card {
+    -fx-background-color: white;
+    -fx-background-radius: 25px;
+    -fx-padding: 15;
+    -fx-pref-width: 200px;
+    -fx-min-height: 150px;
+    -fx-spacing: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-border-radius: 25px;
+}
+
+.planning-day-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(67, 163, 219, 0.2), 15, 0, 0, 8);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-border-color: #43A3DB;
+}
+
+.planning-day-name {
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.planning-day-number {
+    -fx-text-fill: #43A3DB;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.planning-session-count {
+    -fx-text-fill: #5F7A92;
+    -fx-font-size: 12px;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 20px;
+    -fx-padding: 3 10;
+}
+
+/* ========== CARTES COACHS ========== */
+.coach-showcase {
+    -fx-background-color: #FFFAF1;
+    -fx-background-radius: 40px;
+    -fx-padding: 25;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 30, 0, 0, 10);
+}
+
+.coach-showcase-title {
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.coach-showcase-subtitle {
+    -fx-text-fill: #E67E22;
+    -fx-font-size: 14px;
+    -fx-background-color: #FFF1E6;
+    -fx-background-radius: 20px;
+    -fx-padding: 5 15;
+}
+
+.coach-grid {
+    -fx-hgap: 20;
+    -fx-vgap: 20;
+    -fx-padding: 10;
+}
+
+.coach-profile-card {
+    -fx-background-color: white;
+    -fx-background-radius: 30px;
+    -fx-pref-width: 260px;
+    -fx-pref-height: 340px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 25, 0, 0, 10);
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.coach-profile-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.5), 35, 0, 0, 18);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-translate-y: -8;
+}
+
+.coach-profile-image {
+    -fx-fit-height: 140px;
+    -fx-fit-width: 260px;
+    -fx-preserve-ratio: false;
+    -fx-background-radius: 30px 30px 0 0;
+}
+
+.coach-profile-content {
+    -fx-padding: 20;
+    -fx-spacing: 12;
+}
+
+.coach-profile-name {
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.coach-profile-email {
+    -fx-text-fill: #5F7A92;
+    -fx-font-size: 12px;
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 15px;
+    -fx-padding: 5 10;
+}
+
+.coach-stat-badge {
+    -fx-background-color: #FFF1E6;
+    -fx-background-radius: 12px;
+    -fx-padding: 5 10;
+}
+
+.coach-stat-badge .text {
+    -fx-text-fill: #E67E22;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.availability-badge {
+    -fx-background-color: #10B981;
+    -fx-background-radius: 20px;
+    -fx-padding: 3 10;
+}
+
+.availability-badge .text {
+    -fx-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Bouton Voir profil */
+.profile-button {
+    -fx-background-color: #43A3DB;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-background-radius: 12px;
+    -fx-cursor: hand;
+}
+
+.profile-button:hover {
+    -fx-background-color: #2D3E50;
+}
+
+/* Bouton Explorer */
+.explorer-button {
+    -fx-background-color: #43A3DB;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+}
+
+.explorer-button:hover {
+    -fx-background-color: #E67E22;
+    -fx-effect: dropshadow(gaussian, rgba(230, 126, 34, 0.3), 10, 0, 0, 2);
+}
+
+/* ========== SCROLL BAR ========== */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #43A3DB;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #E67E22;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 4px;
+}
+
+/* ========== ANIMATIONS ========== */
+.button, .filter-chip, .menu-item, .stats-mini-card,
+.domain-card, .coach-profile-card, .session-card,
+.planning-day-card, .objectif-card {
+    -fx-transition: all 0.3s ease;
+}
