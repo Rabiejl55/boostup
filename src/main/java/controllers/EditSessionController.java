@@ -26,7 +26,7 @@ public class EditSessionController {
     @FXML private TextField typeField;
     @FXML private TextField objectifField;
     @FXML private ComboBox<Coach> coachComboBox;
-    @FXML private ComboBox<Domaine> domaineComboBox; // <-- ComboBox pour domaine
+    @FXML private ComboBox<Domaine> domaineComboBox;
 
     @FXML private Label dateError;
     @FXML private Label dureeError;
@@ -63,6 +63,15 @@ public class EditSessionController {
                 protected void updateItem(Domaine item, boolean empty) {
                     super.updateItem(item, empty);
                     setText(empty || item == null ? null : item.getNom());
+                }
+            });
+
+            // Désactiver les dates passées dans le DatePicker
+            dateSessionPicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(LocalDate.now()));
                 }
             });
 
@@ -119,8 +128,16 @@ public class EditSessionController {
         domaineError.setText("");
         if (errorLabel != null) errorLabel.setText("");
 
-        if(date == null) { dateError.setText("Date requise"); valid = false; }
+        // Date obligatoire et pas dans le passé
+        if(date == null) {
+            dateError.setText("Date requise");
+            valid = false;
+        } else if(date.isBefore(LocalDate.now())) {
+            dateError.setText("La date ne peut pas être passée");
+            valid = false;
+        }
 
+        // Durée
         int duree = 0;
         try {
             duree = Integer.parseInt(dureeStr);
@@ -129,6 +146,7 @@ public class EditSessionController {
             dureeError.setText("Nombre uniquement"); valid = false;
         }
 
+        // Autres champs
         if(lieu.isEmpty()) { lieuError.setText("Lieu requis"); valid = false; }
         if(type.isEmpty()) { typeError.setText("Type requis"); valid = false; }
         if(objectif.isEmpty()) { objectifError.setText("Objectif requis"); valid = false; }

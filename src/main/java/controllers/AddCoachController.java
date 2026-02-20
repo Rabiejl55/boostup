@@ -27,7 +27,6 @@ public class AddCoachController {
 
     private File selectedImageFile;
 
-    // ===== CHOISIR IMAGE =====
     @FXML
     private void chooseImage() {
         FileChooser fileChooser = new FileChooser();
@@ -43,18 +42,15 @@ public class AddCoachController {
         }
     }
 
-    // ===== FERMER =====
     @FXML
     private void closeForm() {
         Stage stage = (Stage) nomField.getScene().getWindow();
         stage.close();
     }
 
-    // ===== AJOUTER =====
     @FXML
     private void submitForm() {
 
-        // ===== RÉINITIALISER LES MESSAGES D'ERREUR =====
         nomError.setText("");
         prenomError.setText("");
         emailError.setText("");
@@ -68,7 +64,6 @@ public class AddCoachController {
 
         boolean valid = true;
 
-        // ===== VALIDATION NOM =====
         if (nom.isEmpty()) {
             nomError.setText("Nom requis");
             valid = false;
@@ -77,7 +72,6 @@ public class AddCoachController {
             valid = false;
         }
 
-        // ===== VALIDATION PRÉNOM =====
         if (prenom.isEmpty()) {
             prenomError.setText("Prénom requis");
             valid = false;
@@ -86,7 +80,6 @@ public class AddCoachController {
             valid = false;
         }
 
-        // ===== VALIDATION EMAIL =====
         if (email.isEmpty()) {
             emailError.setText("Email requis");
             valid = false;
@@ -94,8 +87,6 @@ public class AddCoachController {
             emailError.setText("Email invalide");
             valid = false;
         }
-
-        // ===== VALIDATION TÉLÉPHONE =====
         if (telephone.isEmpty()) {
             telephoneError.setText("Téléphone requis");
             valid = false;
@@ -104,7 +95,6 @@ public class AddCoachController {
             valid = false;
         }
 
-        // ===== VALIDATION IMAGE =====
         if (selectedImageFile == null) {
             errorLabel.setText("Image obligatoire");
             valid = false;

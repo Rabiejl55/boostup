@@ -80,25 +80,21 @@ public class AddDomaineController {
             valid = false;
         }
 
-        // DESCRIPTION
         if (description.isEmpty()) {
             descriptionError.setText("Description requise");
             valid = false;
         }
 
-        // NIVEAU
         if (niveau.isEmpty()) {
             niveauError.setText("Niveau requis");
             valid = false;
         }
 
-        // STATUT
         if (statut == null) {
             statutError.setText("Statut requis");
             valid = false;
         }
 
-        // IMAGE
         if (selectedImageFile == null) {
             errorLabel.setText("Image obligatoire");
             valid = false;
@@ -120,7 +116,7 @@ public class AddDomaineController {
 
         } catch (Exception e) {
             errorLabel.setText("Erreur lors de l'ajout du domaine");
-            e.printStackTrace(); // temporaire, remplacer par un logger si nécessaire
+            e.printStackTrace();
         }
     }
 }

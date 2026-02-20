@@ -39,7 +39,6 @@ public class EditCoachController {
         }
     }
 
-    // ===== CHOISIR IMAGE =====
     @FXML
     private void chooseImage() {
         FileChooser fileChooser = new FileChooser();
@@ -54,14 +53,12 @@ public class EditCoachController {
         }
     }
 
-    // ===== FERMER =====
     @FXML
     private void closeForm() {
         Stage stage = (Stage) nomField.getScene().getWindow();
         stage.close();
     }
 
-    // ===== MODIFIER =====
     @FXML
     private void submitForm() {
         System.out.println("coach = " + coachToEdit);

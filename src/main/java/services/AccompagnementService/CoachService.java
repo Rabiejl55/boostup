@@ -15,7 +15,6 @@ public class CoachService {
         conn = MyDatabase.getInstance().getConnection();
     }
 
-    // Ajouter un coach avec imagecoach
     public void ajouter(Coach coach) throws SQLException {
         String sql = "INSERT INTO Coach(nom, prenom, email, telephone, imagecoach) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

@@ -25,7 +25,7 @@ public class AddSessionController {
     @FXML private TextField typeField;
     @FXML private TextField objectifField;
     @FXML private ComboBox<Coach> coachComboBox;
-    @FXML private ComboBox<Domaine> domaineComboBox; // <-- ComboBox pour domaine
+    @FXML private ComboBox<Domaine> domaineComboBox;
 
     @FXML private Label dateError;
     @FXML private Label dureeError;
@@ -35,21 +35,18 @@ public class AddSessionController {
     @FXML private Label domaineError;
     @FXML private Label errorLabel;
 
-    // ================= INITIALIZE =================
     @FXML
     public void initialize() {
         try {
-            // Charger les coachs
+            // Remplissage des ComboBox
             coachComboBox.setItems(FXCollections.observableArrayList(
                     new CoachService().afficherAll()
             ));
-
-            // Charger les domaines (juste le nom sera affiché)
             domaineComboBox.setItems(FXCollections.observableArrayList(
                     domaineService.afficherAll()
             ));
 
-            // Afficher seulement le nom du domaine dans le ComboBox
+            // Affichage personnalisé pour Domaine
             domaineComboBox.setCellFactory(cb -> new ListCell<>() {
                 @Override
                 protected void updateItem(Domaine item, boolean empty) {
@@ -65,6 +62,15 @@ public class AddSessionController {
                 }
             });
 
+            // Désactiver les dates passées dans le DatePicker
+            dateSessionPicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(LocalDate.now()));
+                }
+            });
+
         } catch (SQLException e) {
             e.printStackTrace();
             if (errorLabel != null) errorLabel.setText("Impossible de charger les coachs ou domaines");
@@ -77,11 +83,11 @@ public class AddSessionController {
         ((Stage) dateSessionPicker.getScene().getWindow()).close();
     }
 
-    // ================= AJOUTER =================
+    // ================= SOUMETTRE =================
     @FXML
     private void submitForm() {
 
-        // Réinitialiser les messages
+        // Réinitialisation des messages d'erreur
         dateError.setText("");
         dureeError.setText("");
         lieuError.setText("");
@@ -100,9 +106,16 @@ public class AddSessionController {
 
         boolean valid = true;
 
-        // ===== VALIDATION =====
-        if (date == null) { dateError.setText("Date requise"); valid = false; }
+        // ====== Contrôle de la date ======
+        if (date == null) {
+            dateError.setText("Date requise");
+            valid = false;
+        } else if (date.isBefore(LocalDate.now())) {
+            dateError.setText("La date ne peut pas être passée");
+            valid = false;
+        }
 
+        // ====== Contrôle de la durée ======
         int duree = 0;
         try {
             duree = Integer.parseInt(dureeStr);
@@ -111,6 +124,7 @@ public class AddSessionController {
             dureeError.setText("Nombre uniquement"); valid = false;
         }
 
+        // ====== Autres contrôles ======
         if (lieu.isEmpty()) { lieuError.setText("Lieu requis"); valid = false; }
         if (type.isEmpty()) { typeError.setText("Type requis"); valid = false; }
         if (objectif.isEmpty()) { objectifError.setText("Objectif requis"); valid = false; }
@@ -119,7 +133,7 @@ public class AddSessionController {
 
         if (!valid) return;
 
-        // ===== AJOUT =====
+        // ====== Ajout de la session ======
         try {
             Session s = new Session(date, duree, lieu, type, objectif, coach, domaine);
             sessionService.ajouter(s);

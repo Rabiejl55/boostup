@@ -87,15 +87,11 @@ public class SessionService {
                             null, null, null
                     );
                 }
-
-                // Domaine (juste le nom)
                 Domaine domaine = null;
                 if (rs.getString("nom_domaine") != null) {
                     domaine = new Domaine();
                     domaine.setNom(rs.getString("nom_domaine"));
                 }
-
-                // Session
                 Session s = new Session(
                         rs.getInt("id_session"),
                         rs.getDate("date_session").toLocalDate(),

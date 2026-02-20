@@ -1,274 +1,275 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
 
-<HBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controllers.HomeController"
-      stylesheets="@../css/homestyle.css"
-      styleClass="root"
-      prefHeight="1200.0" prefWidth="1800.0">
-    <BorderPane HBox.hgrow="ALWAYS">
-        <top>
-            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="top-bar">
-                <padding>
-                    <Insets bottom="12.0" left="25.0" right="25.0" top="12.0" />
-                </padding>
-                <Label styleClass="greeting-label" text="BoostUP : Votre succès commence ici. Bienvenue ! ">
-                    <graphic>
-                        <Label styleClass="highlight" text="👋" />
-                    </graphic>
-                </Label>
-                <Region HBox.hgrow="ALWAYS" />
-                <HBox styleClass="search-container" spacing="5">
-                    <TextField promptText="Rechercher un accompagnement..." styleClass="search-field" />
-                    <Button styleClass="search-button" text="🔍" />
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.HomeController"
+            stylesheets="@../css/homestyle.css"
+            style="-fx-background-color: #f0f2f5;">
+
+    <!-- ═════════════════ SIDEBAR MODERNE ═════════════════ -->
+    <!-- ═════════════════ SIDEBAR MODERNE VERSION PROFIL ═════════════════ -->
+    <left>
+        <VBox prefWidth="280" spacing="10"
+              style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+
+            <padding>
+                <Insets top="25" right="18" bottom="20" left="18"/>
+            </padding>
+
+            <!-- Logo -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 5;">
+                <Label text="⚡"
+                       style="-fx-font-size: 28px; -fx-text-fill: #e63956;
+                          -fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 6, 0, 0, 0);" />
+                <VBox spacing="0">
+                    <Label text="BoostUp"
+                           style="-fx-text-fill: white; -fx-font-size: 22px;
+                              -fx-font-weight: 800;" />
+                    <Label text="Startup Platform"
+                           style="-fx-text-fill: rgba(255,255,255,0.6);
+                              -fx-font-size: 11px;" />
+                </VBox>
+            </HBox>
+
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15);" />
+
+            <!-- PROFIL UTILISATEUR -->
+            <VBox spacing="12" alignment="CENTER" style="-fx-padding: 15 10;">
+
+                <StackPane>
+                    <Circle radius="42"
+                            style="-fx-fill: rgba(255,255,255,0.15);
+                               -fx-stroke: rgba(255,255,255,0.3);
+                               -fx-stroke-width: 2;" />
+
+                    <ImageView fx:id="sidebarAvatarView"
+                               fitHeight="72"
+                               fitWidth="72"
+                               preserveRatio="true" />
+
+                    <Circle radius="8"
+                            style="-fx-fill: #2ecc71;
+                               -fx-stroke: #1b2a4a;
+                               -fx-stroke-width: 3;"
+                            StackPane.alignment="BOTTOM_RIGHT"
+                            translateX="-8"
+                            translateY="-5" />
+                </StackPane>
+
+                <VBox alignment="CENTER" spacing="4">
+                    <Label fx:id="welcomeLabel"
+                           text="Bienvenue"
+                           style="-fx-text-fill: white;
+                              -fx-font-size: 16px;
+                              -fx-font-weight: 700;" />
+
+                    <Label text="Administrateur"
+                           style="-fx-text-fill: white;
+                              -fx-font-size: 12px;
+                              -fx-background-color: rgba(255,255,255,0.2);
+                              -fx-padding: 4 14;
+                              -fx-background-radius: 20;" />
+                </VBox>
+            </VBox>
+
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15);" />
+
+            <!-- NAVIGATION -->
+            <VBox spacing="3" style="-fx-padding: 5 0;">
+
+                <Label text="NAVIGATION"
+                       style="-fx-text-fill: rgba(255,255,255,0.5);
+                          -fx-font-size: 10px;
+                          -fx-font-weight: 700;
+                          -fx-padding: 5 12 8 12;" />
+
+                <Button text="🏠  Dashboard"
+                        onAction="#handleDashboardClick"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.8);
+                           -fx-background-radius: 10;
+                           -fx-padding: 12 18;
+                           -fx-alignment: CENTER_LEFT;
+                           -fx-cursor: hand;" />
+
+                <Button text="🎯  Domaines"
+                        onAction="#handleAccompagnementsClick"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.2);
+                           -fx-text-fill: white;
+                           -fx-background-radius: 10;
+                           -fx-padding: 12 18;
+                           -fx-alignment: CENTER_LEFT;
+                           -fx-font-weight: 600;" />
+
+                <Button text="📅  Sessions"
+                        onAction="#handleEventsClick"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.8);
+                           -fx-background-radius: 10;
+                           -fx-padding: 12 18;
+                           -fx-alignment: CENTER_LEFT;
+                           -fx-cursor: hand;" />
+
+                <Button text="👥  Coachs"
+                        onAction="#handleCandidaturesClick"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.8);
+                           -fx-background-radius: 10;
+                           -fx-padding: 12 18;
+                           -fx-alignment: CENTER_LEFT;
+                           -fx-cursor: hand;" />
+
+                <Button text="💰  Financement"
+                        onAction="#handleFinancementClick"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.8);
+                           -fx-background-radius: 10;
+                           -fx-padding: 12 18;
+                           -fx-alignment: CENTER_LEFT;
+                           -fx-cursor: hand;" />
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- DECONNEXION -->
+            <VBox spacing="10">
+                <Separator style="-fx-background-color: rgba(255,255,255,0.15);" />
+
+                <Button text="🚪  Déconnexion"
+                        onAction="#handleLogout"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: rgba(239,68,68,0.15);
+                           -fx-text-fill: #fca5a5;
+                           -fx-background-radius: 10;
+                           -fx-padding: 12 18;
+                           -fx-alignment: CENTER_LEFT;
+                           -fx-cursor: hand;
+                           -fx-border-color: rgba(239,68,68,0.3);
+                           -fx-border-radius: 10;" />
+
+                <HBox alignment="CENTER" spacing="5">
+                    <Label text="BoostUp v3.0"
+                           style="-fx-text-fill: rgba(255,255,255,0.4);
+                              -fx-font-size: 10px;" />
+                    <Label text="•"
+                           style="-fx-text-fill: rgba(255,255,255,0.3);
+                              -fx-font-size: 10px;" />
+                    <Label text="© 2026"
+                           style="-fx-text-fill: rgba(255,255,255,0.4);
+                              -fx-font-size: 10px;" />
                 </HBox>
-            </HBox>
-        </top>
+            </VBox>
 
-        <center>
-            <HBox spacing="0">
-                <children>
-                    <!-- SIDEBAR GAUCHE -->
-                    <VBox styleClass="sidebar" minWidth="260" maxWidth="260">
-                        <VBox styleClass="sidebar-header">
-                            <HBox styleClass="logo-container" alignment="CENTER_LEFT" spacing="12">
-                                <Region styleClass="logo-image" prefWidth="100" prefHeight="100" />
-                                <Label styleClass="sidebar-title" text=" ">
-                                </Label>
-                            </HBox>
-                            <Label styleClass="sidebar-subtitle" text="Votre accélérateur de réussite" />
-                        </VBox>
+        </VBox>
+    </left>
 
-                        <Region prefHeight="10.0" />
+    <!-- ═════════════════ CONTENU PRINCIPAL (INCHANGÉ) ═════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent;">
 
-                        <VBox styleClass="sidebar-menu">
-                            <Label styleClass="menu-section" text="MENU PRINCIPAL" />
+            <VBox spacing="40"
+                  style="-fx-padding: 30 40 50 40;">
 
-                            <HBox fx:id="tableauDeBordItem" styleClass="menu-item" alignment="CENTER_LEFT" spacing="15" onMouseClicked="#handleTableauDeBordClick">
-                                <Label styleClass="menu-icon" text="📊" />
-                                <Label text="Tableau de bord" />
-                            </HBox>
+                <!-- HERO SECTION -->
+                <VBox spacing="15">
+                    <Label text="Bienvenue sur le Front Office"
+                           style="-fx-font-size: 28px;
+                                  -fx-font-weight: 800;
+                                  -fx-text-fill: #1a1a2e;" />
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="💰" />
-                                <Label text="Financement" />
-                            </HBox>
+                    <Label text="Explorez tous les services, domaines, sessions et nos meilleurs coachs"
+                           style="-fx-text-fill: #6c757d;
+                                  -fx-font-size: 14px;" />
+                </VBox>
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="📅" />
-                                <Label text="Événements" />
-                            </HBox>
+                <!-- DOMAINES -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 16;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
 
-                            <HBox styleClass="menu-item-active" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="🤝" />
-                                <Label text="Accompagnements" />
-                            </HBox>
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="🎯 Domaines d'Expertise"
+                               style="-fx-font-size: 18px;
+                                      -fx-font-weight: 700;
+                                      -fx-text-fill: #1a1a2e;" />
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="domainesCount"
+                               style="-fx-text-fill: #6c757d;" />
+                    </HBox>
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="📝" />
-                                <Label text="Candidature" />
-                            </HBox>
+                    <!-- IMPORTATION DYNAMIQUE CONSERVÉE -->
+                    <FlowPane fx:id="domainesContainer"
+                              hgap="20"
+                              vgap="20"
+                              prefWrapLength="1200"/>
+                </VBox>
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="👤" />
-                                <Label text="Profile" />
-                            </HBox>
+                <!-- SESSIONS -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 16;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
 
-                            <Label styleClass="menu-section" text="RESSOURCES" />
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="📅 Planning des Sessions"
+                               style="-fx-font-size: 18px;
+                                      -fx-font-weight: 700;
+                                      -fx-text-fill: #1a1a2e;" />
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="sessionsCount"
+                               style="-fx-text-fill: #6c757d;" />
+                    </HBox>
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="❓" />
-                                <Label text="Centre d'aide" />
-                            </HBox>
+                    <!-- IMPORTATION DYNAMIQUE CONSERVÉE -->
+                    <TilePane fx:id="sessionsGrid"
+                              prefColumns="3"
+                              hgap="25"
+                              vgap="25"
+                              prefTileWidth="320"/>
+                </VBox>
 
-                            <HBox styleClass="menu-item" alignment="CENTER_LEFT" spacing="15">
-                                <Label styleClass="menu-icon" text="⚙️" />
-                                <Label text="Paramètres" />
-                            </HBox>
-                        </VBox>
+                <!-- COACHS -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 16;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
 
-                        <Region VBox.vgrow="ALWAYS" />
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="👥 Nos Coachs Experts"
+                               style="-fx-font-size: 18px;
+                                      -fx-font-weight: 700;
+                                      -fx-text-fill: #1a1a2e;" />
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="coachsCount"
+                               style="-fx-text-fill: #6c757d;" />
+                    </HBox>
 
-                        <HBox alignment="CENTER" spacing="5">
-                            <padding>
-                                <Insets bottom="25.0" left="20.0" right="20.0" top="20.0" />
-                            </padding>
-                            <Label styleClass="menu-subtitle" text="Version 2.0 • Accompagnement" />
-                        </HBox>
-                    </VBox>
+                    <!-- IMPORTATION DYNAMIQUE CONSERVÉE -->
+                    <FlowPane fx:id="coachesContainer"
+                              hgap="20"
+                              vgap="20"
+                              prefWrapLength="1200"/>
+                </VBox>
 
-                    <!-- CONTENU PRINCIPAL -->
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent;">
-                        <VBox styleClass="main-content" spacing="30">
-                            <padding>
-                                <Insets top="20" left="20" right="20" bottom="30" />
-                            </padding>
+            </VBox>
+        </ScrollPane>
+    </center>
 
-                            <!-- Header avec statistiques -->
-                            <HBox alignment="CENTER_LEFT" spacing="20">
-                                <VBox>
-                                    <Label styleClass="section-title" text="Accompagnements" />
-                                    <Label styleClass="section-subtitle" text="Trouvez le programme qui vous correspond" />
-                                </VBox>
-                                <Region HBox.hgrow="ALWAYS" />
-
-                                <HBox spacing="15">
-                                    <HBox styleClass="stats-mini-card" alignment="CENTER_LEFT" spacing="10">
-                                        <VBox styleClass="stats-mini-icon" alignment="CENTER">
-                                            <Label text="🚀" />
-                                        </VBox>
-                                        <VBox>
-                                            <Label styleClass="stats-mini-value" text="24" />
-                                            <Label styleClass="stats-mini-label" text="Programmes" />
-                                        </VBox>
-                                    </HBox>
-
-                                    <HBox styleClass="stats-mini-card" alignment="CENTER_LEFT" spacing="10">
-                                        <VBox styleClass="stats-mini-icon" alignment="CENTER">
-                                            <Label text="👥" />
-                                        </VBox>
-                                        <VBox>
-                                            <Label styleClass="stats-mini-value" text="156" />
-                                            <Label styleClass="stats-mini-label" text="Participants" />
-                                        </VBox>
-                                    </HBox>
-
-                                    <HBox styleClass="stats-mini-card" alignment="CENTER_LEFT" spacing="10">
-                                        <VBox styleClass="stats-mini-icon" alignment="CENTER">
-                                            <Label text="👥" />
-                                        </VBox>
-                                        <VBox>
-                                            <Label styleClass="stats-mini-value" text="12" />
-                                            <Label styleClass="stats-mini-label" text="Coachs" />
-                                        </VBox>
-                                    </HBox>
-                                </HBox>
-                            </HBox>
-
-                            <!-- SECTION OBJECTIFS -->
-                            <VBox spacing="15">
-                                <HBox alignment="CENTER_LEFT" spacing="15">
-                                    <Label styleClass="sessions-title" text="✨ Nos objectifs" />
-                                    <Label styleClass="sessions-count" text="6 engagements" />
-                                </HBox>
-
-                                <FlowPane styleClass="objectifs-grid" hgap="25" vgap="25" prefWrapLength="1400">
-                                    <!-- Objectif 1 - Excellence -->
-                                    <VBox styleClass="objectif-card, objectif-card-1" alignment="TOP_CENTER">
-                                        <Label styleClass="objectif-icon" text="🏆" />
-                                        <Label styleClass="objectif-title" text="Excellence" />
-                                        <Label styleClass="objectif-desc" text="Accompagnement par des experts" wrapText="true" />
-                                        <Region VBox.vgrow="ALWAYS" />
-                                        <Label styleClass="objectif-stats" text="98% réussite" />
-                                    </VBox>
-
-                                    <!-- Objectif 2 - Innovation -->
-                                    <VBox styleClass="objectif-card, objectif-card-2" alignment="TOP_CENTER">
-                                        <Label styleClass="objectif-icon" text="💡" />
-                                        <Label styleClass="objectif-title" text="Innovation" />
-                                        <Label styleClass="objectif-desc" text="Méthodes avant-gardistes" wrapText="true" />
-                                        <Region VBox.vgrow="ALWAYS" />
-                                        <Label styleClass="objectif-stats" text="+150 startups" />
-                                    </VBox>
-
-                                    <!-- Objectif 3 - Accompagnement -->
-                                    <VBox styleClass="objectif-card, objectif-card-3" alignment="TOP_CENTER">
-                                        <Label styleClass="objectif-icon" text="🤝" />
-                                        <Label styleClass="objectif-title" text="Accompagnement" />
-                                        <Label styleClass="objectif-desc" text="Suivi personnalisé" wrapText="true" />
-                                        <Region VBox.vgrow="ALWAYS" />
-                                        <Label styleClass="objectif-stats" text="24/7 support" />
-                                    </VBox>
-
-                                    <!-- Objectif 4 - Réseau -->
-                                    <VBox styleClass="objectif-card, objectif-card-4" alignment="TOP_CENTER">
-                                        <Label styleClass="objectif-icon" text="🌐" />
-                                        <Label styleClass="objectif-title" text="Réseau" />
-                                        <Label styleClass="objectif-desc" text="+500 partenaires" wrapText="true" />
-                                        <Region VBox.vgrow="ALWAYS" />
-                                        <Label styleClass="objectif-stats" text="+500" />
-                                    </VBox>
-
-                                    <!-- Objectif 5 - Impact -->
-                                    <VBox styleClass="objectif-card, objectif-card-5" alignment="TOP_CENTER">
-                                        <Label styleClass="objectif-icon" text="📈" />
-                                        <Label styleClass="objectif-title" text="Impact" />
-                                        <Label styleClass="objectif-desc" text="Mesure de progression" wrapText="true" />
-                                        <Region VBox.vgrow="ALWAYS" />
-                                        <Label styleClass="objectif-stats" text="+200%" />
-                                    </VBox>
-
-                                    <!-- Objectif 6 - Communauté -->
-                                    <VBox styleClass="objectif-card, objectif-card-6" alignment="TOP_CENTER">
-                                        <Label styleClass="objectif-icon" text="👥" />
-                                        <Label styleClass="objectif-title" text="Communauté" />
-                                        <Label styleClass="objectif-desc" text="Membres actifs" wrapText="true" />
-                                        <Region VBox.vgrow="ALWAYS" />
-                                        <Label styleClass="objectif-stats" text="+1000" />
-                                    </VBox>
-                                </FlowPane>
-                            </VBox>
-
-                            <!-- DOMAINES DYNAMIQUES -->
-                            <VBox styleClass="coach-showcase" spacing="20">
-                                <HBox spacing="15">
-                                    <Label styleClass="coach-showcase-title"
-                                           text="🚀 Domaines d'expertise"/>
-                                    <Label styleClass="coach-showcase-subtitle"
-                                           text="6 spécialisations disponibles"/>
-                                </HBox>
-                                <FlowPane fx:id="domainesContainer" styleClass="coach-grid" hgap="25" vgap="25" prefWrapLength="1400"/>
-                            </VBox>
-
-                            <!-- SECTION PLANNING DES SESSIONS -->
-                            <VBox styleClass="planning-section" spacing="20">
-                                <HBox styleClass="planning-header" alignment="CENTER_LEFT">
-                                    <Label styleClass="planning-header-title" text="📅 Planning des sessions" />
-                                    <Label styleClass="planning-header-date" text="Semaine du 14 au 20 Mars" />
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <HBox styleClass="filter-chip">
-                                        <Label text="Voir tout →" />
-                                    </HBox>
-                                </HBox>
-
-                                <TilePane fx:id="planningGrid"
-                                          styleClass="planning-grid"
-                                          prefColumns="3"
-                                          hgap="15"
-                                          vgap="15">
-                                    <!-- Les cartes de sessions seront générées dynamiquement ici -->
-                                </TilePane>
-                            </VBox>
-
-                            <!-- SECTION UNIQUE DES COACHS - CORRIGÉE -->
-                            <VBox styleClass="coach-showcase" spacing="20">
-                                <HBox alignment="CENTER_LEFT" spacing="15">
-                                    <Label styleClass="coach-showcase-title" text="👥 Nos coachs experts" />
-                                    <Label styleClass="coach-showcase-subtitle" text="12 coachs disponibles" />
-                                </HBox>
-
-                                <FlowPane fx:id="coachesContainer"
-                                          styleClass="coach-grid"
-                                          hgap="25"
-                                          vgap="25"
-                                          prefWrapLength="1400">
-                                </FlowPane>
-                            </VBox>
-                        </VBox>
-                    </ScrollPane>
-                </children>
-            </HBox>
-        </center>
-    </BorderPane>
-</HBox>
+</BorderPane>
