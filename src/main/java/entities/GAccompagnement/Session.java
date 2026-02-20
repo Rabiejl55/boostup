@@ -1,5 +1,5 @@
 package entities.GAccompagnement;
-
+import java.util.List;
 import java.time.LocalDate;
 
 public class Session {
@@ -101,4 +101,24 @@ public class Session {
                 ", domaine=" + (domaine != null ? domaine.getNom() : "Aucun") +
                 '}';
     }
+    public void checkNotifications(List<Session> sessions) {
+        LocalDate today = LocalDate.now();
+        for (Session session : sessions) {
+            LocalDate dateSession = session.getDateSession();
+            if (dateSession != null && !dateSession.isBefore(today)) {
+                // Vérifie si la session est dans 3 jours
+                if (today.plusDays(3).equals(dateSession)) {
+                    sendNotification(session);
+                }
+            }
+        }
+    }
+
+    private void sendNotification(Session session) {
+        // Ici tu peux personnaliser le message
+        System.out.println("🔔 Rappel : La session '" + session.getTypeSession() +
+                "' aura lieu le " + session.getDateSession() +
+                " au lieu : " + session.getLieu());
+    }
+
 }

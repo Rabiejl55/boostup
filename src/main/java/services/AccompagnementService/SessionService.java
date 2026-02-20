@@ -1,10 +1,10 @@
 package services.AccompagnementService;
-
+import java.time.LocalDate;
 import entities.GAccompagnement.Coach;
 import entities.GAccompagnement.Domaine;
 import entities.GAccompagnement.Session;
 import utils.MyDatabase;
-
+import java.util.stream.Collectors;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,4 +109,5 @@ public class SessionService {
 
         return liste;
     }
+
 }

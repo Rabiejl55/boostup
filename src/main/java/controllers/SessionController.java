@@ -1,18 +1,30 @@
 package controllers;
-
+import services.AccompagnementService.SessionNotificationService;
+import services.AccompagnementService.NotificationScheduler;
 import entities.GAccompagnement.Session;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import services.AccompagnementService.SessionService;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.control.Label;
+import java.sql.SQLException;
+
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 public class SessionController {
@@ -46,41 +58,51 @@ public class SessionController {
     // ================= INITIALIZE =================
     @FXML
     public void initialize() {
-        // Vérification injection FXML
-
-        // Initialisation des colonnes (conversion int/date en String)
-        dateColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getDateSession().toString()));
-        dureeColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(String.valueOf(cell.getValue().getDuree())));
-        lieuColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getLieu()));
-        typeColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getTypeSession()));
-        objectifColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getObjectif()));
-        coachColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getCoach() != null
-                        ? cell.getValue().getCoach().getNom() + " " + cell.getValue().getCoach().getPrenom()
-                        : "Aucun"));
-        domaineColumn.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getDomaine() != null
-                        ? cell.getValue().getDomaine().getNom()
-                        : "Aucun"));
-
-        // Chargement des sessions dans le tableau
-        loadSessionsTable();
-
-        // Avatar par défaut
         try {
-            FileInputStream fis = new FileInputStream("src/images/default_avatar.png");
-            avatarImageView.setImage(new Image(fis));
-        } catch (FileNotFoundException e) {
-            System.out.println("Avatar par défaut non trouvé");
-        }
+            // =================== Notifications ===================
+            List<Session> allSessions = sessionService.afficherAll();
+            SessionNotificationService notificationService = new SessionNotificationService(allSessions);
+            NotificationScheduler scheduler = new NotificationScheduler(notificationService);
+            scheduler.start();
 
-        // Nom du profil
-        welcomeLabel.setText("Administrateur");
+            // =================== Initialisation TableView ===================
+            dateColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(cell.getValue().getDateSession().toString()));
+            dureeColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(String.valueOf(cell.getValue().getDuree())));
+            lieuColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(cell.getValue().getLieu()));
+            typeColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(cell.getValue().getTypeSession()));
+            objectifColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(cell.getValue().getObjectif()));
+            coachColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(cell.getValue().getCoach() != null
+                            ? cell.getValue().getCoach().getNom() + " " + cell.getValue().getCoach().getPrenom()
+                            : "Aucun"));
+            domaineColumn.setCellValueFactory(cell ->
+                    new SimpleStringProperty(cell.getValue().getDomaine() != null
+                            ? cell.getValue().getDomaine().getNom()
+                            : "Aucun"));
+
+            // Chargement des sessions
+            loadSessionsTable();
+
+            // Avatar par défaut
+            try {
+                FileInputStream fis = new FileInputStream("src/images/default_avatar.png");
+                avatarImageView.setImage(new Image(fis));
+            } catch (FileNotFoundException e) {
+                System.out.println("Avatar par défaut non trouvé");
+            }
+
+            // Nom du profil
+            welcomeLabel.setText("Administrateur");
+
+        } catch (SQLException e) {
+            feedbackLabel.setText("Erreur lors du chargement des sessions : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // ================= LOAD SESSIONS =================
@@ -98,20 +120,65 @@ public class SessionController {
     // ================= ACTIONS =================
     @FXML
     private void ajouterSession() {
-        // TODO: ouverture formulaire AddSessionForm
-        loadSessionsTable();
-    }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddSessionForm.fxml"));
+            Parent root = loader.load();
 
+            Stage stage = new Stage();
+            stage.setTitle("Ajouter Session");
+            stage.setScene(new Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            loadSessionsTable();
+        } catch (Exception e) {
+            feedbackLabel.setText("Erreur ouverture formulaire : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private Label feedbackLabel;
     @FXML
     private void modifierSession() {
-        // TODO: modification depuis TableView
+        Session selected = sessionsTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditSessionForm.fxml"));
+                Parent root = loader.load();
+
+                EditSessionController controller = loader.getController();
+                controller.setSession(selected);
+
+                Stage stage = new Stage();
+                stage.setTitle("Modifier Session");
+                stage.setScene(new Scene(root));
+                stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+                stage.showAndWait();
+
+                loadSessionsTable();            } catch (Exception e) {
+                feedbackLabel.setText("Erreur ouverture formulaire : " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            feedbackLabel.setText("Veuillez sélectionner une session à modifier.");
+        }
     }
 
     @FXML
     private void supprimerSession() {
-        // TODO: suppression depuis TableView
+        Session selected = sessionsTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            try {
+                sessionService.supprimer(selected.getIdSession());
+                loadSessionsTable();                feedbackLabel.setText("Session supprimée avec succès.");
+            } catch (Exception e) {
+                feedbackLabel.setText("Erreur suppression : " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            feedbackLabel.setText("Veuillez sélectionner une session à supprimer.");
+        }
     }
-
     @FXML
     private void handleLogout() {
         System.out.println("Déconnexion !");
@@ -127,19 +194,23 @@ public class SessionController {
     private void goToHome() {
         // TODO: navigation vers tableau de bord
     }
-
+    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 1200, 800));
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @FXML
     private void viewSessions() {
         // TODO: rester sur cette page
     }
+    @FXML private void goToDomaine(ActionEvent event) { navigateTo(event, "/fxml/Domaine.fxml", "Gestion Domaines"); }
+    @FXML private void goToCoach(ActionEvent event) { navigateTo(event, "/fxml/accompagnement.fxml", "Gestion Domaines"); }
+    @FXML private void goToHome(ActionEvent event) { navigateTo(event, "/fxml/home.fxml", "Gestion Domaines"); }
 
-    @FXML
-    private void goToCoach() {
-        // TODO: navigation vers gestion coach
-    }
-
-    @FXML
-    private void goToDomaine() {
-        // TODO: navigation vers gestion domaine
-    }
 }
