@@ -87,19 +87,11 @@ public class Session {
 
     public Domaine getDomaine() { return domaine; }
     public void setDomaine(Domaine domaine) { this.domaine = domaine; }
-
+    public Session() {
+    }
     @Override
     public String toString() {
-        return "Session{" +
-                "idSession=" + idSession +
-                ", dateSession=" + dateSession +
-                ", duree=" + duree +
-                ", lieu='" + lieu + '\'' +
-                ", typeSession='" + typeSession + '\'' +
-                ", objectif='" + objectif + '\'' +
-                ", coach=" + (coach != null ? coach.getNom() + " " + coach.getPrenom() : "Aucun") +
-                ", domaine=" + (domaine != null ? domaine.getNom() : "Aucun") +
-                '}';
+        return objectif; // ou typeSession + " - " + dateSession si tu veux un peu plus d'info
     }
     public void checkNotifications(List<Session> sessions) {
         LocalDate today = LocalDate.now();

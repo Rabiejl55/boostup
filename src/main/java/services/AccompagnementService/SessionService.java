@@ -109,5 +109,27 @@ public class SessionService {
 
         return liste;
     }
+    public List<Session> rechercherParNom(String motCle) throws SQLException {
+        List<Session> liste = new ArrayList<>();
 
+        String req = "SELECT * FROM session WHERE LOWER(objectif) LIKE LOWER(?)";
+
+        PreparedStatement ps = conn.prepareStatement(req);
+        ps.setString(1, "%" + motCle + "%");
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Session s = new Session();
+            s.setIdSession(rs.getInt("id_session"));
+            s.setObjectif(rs.getString("objectif"));
+            s.setLieu(rs.getString("lieu"));
+            s.setDuree(rs.getInt("duree"));
+            s.setDateSession(rs.getDate("date_session").toLocalDate());
+
+            liste.add(s);
+        }
+
+        return liste;
+    }
 }

@@ -183,7 +183,7 @@
             <VBox spacing="40"
                   style="-fx-padding: 30 40 50 40;">
 
-                <!-- HERO SECTION -->
+                <!-- HERO -->
                 <VBox spacing="15">
                     <Label text="Bienvenue sur le Front Office"
                            style="-fx-font-size: 28px;
@@ -195,77 +195,256 @@
                                   -fx-font-size: 14px;" />
                 </VBox>
 
-                <!-- DOMAINES -->
+                <!-- ================= DOMAINES ================= -->
                 <VBox spacing="20"
                       style="-fx-background-color: white;
                              -fx-background-radius: 16;
                              -fx-padding: 25;
                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
 
-                    <HBox alignment="CENTER_LEFT">
+                    <HBox alignment="CENTER_LEFT" spacing="15">
                         <Label text="🎯 Domaines d'Expertise"
                                style="-fx-font-size: 18px;
                                       -fx-font-weight: 700;
                                       -fx-text-fill: #1a1a2e;" />
+
                         <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- BARRE RECHERCHE DOMAINES -->
+                        <HBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: #f8f9fa;
+                                     -fx-background-radius: 30;
+                                     -fx-padding: 6 15;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                            <Label text="🔍" style="-fx-font-size: 14px;"/>
+                            <TextField fx:id="searchDomainesField"
+                                       promptText="Rechercher un domaine..."
+                                       style="-fx-background-color: transparent;
+                                              -fx-border-color: transparent;
+                                              -fx-focus-color: transparent;"
+                                       prefWidth="220"/>
+                        </HBox>
+
                         <Label fx:id="domainesCount"
                                style="-fx-text-fill: #6c757d;" />
                     </HBox>
 
-                    <!-- IMPORTATION DYNAMIQUE CONSERVÉE -->
                     <FlowPane fx:id="domainesContainer"
                               hgap="20"
                               vgap="20"
                               prefWrapLength="1200"/>
+                    <!-- ================= QR CODE POUR DOMAINES ================= -->
+                    <VBox spacing="20"
+                          style="-fx-background-color: white;
+             -fx-background-radius: 16;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📱 QR Code du Domaine"
+                                   style="-fx-font-size: 18px;
+                      -fx-font-weight: 700;
+                      -fx-text-fill: #1a1a2e;" />
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <!-- ComboBox pour choisir le domaine -->
+                            <ComboBox fx:id="domaineComboBox"
+                                      promptText="Sélectionner un domaine"
+                                      style="-fx-background-radius: 30;
+                         -fx-padding: 6 15;" />
+
+                            <!-- Bouton générer QR Code -->
+                            <Button text="Générer QR Code"
+                                    onAction="#handleGenerateQRCode"
+                                    style="-fx-background-color: #1b2a4a;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 30;
+                       -fx-padding: 8 20;
+                       -fx-cursor: hand;" />
+                        </HBox>
+
+                        <!-- ImageView pour afficher le QR Code -->
+                        <StackPane alignment="CENTER"
+                                   style="-fx-background-color: #f8f9fa;
+                      -fx-background-radius: 16;
+                      -fx-padding: 20;">
+                            <ImageView fx:id="qrCodeImageView"
+                                       fitWidth="200"
+                                       fitHeight="200"
+                                       preserveRatio="true"
+                                       style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);" />
+                        </StackPane>
+
+                    </VBox>
                 </VBox>
 
-                <!-- SESSIONS -->
+                <!-- ================= SESSIONS ================= -->
                 <VBox spacing="20"
                       style="-fx-background-color: white;
                              -fx-background-radius: 16;
                              -fx-padding: 25;
                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
 
-                    <HBox alignment="CENTER_LEFT">
+                    <HBox alignment="CENTER_LEFT" spacing="15">
                         <Label text="📅 Planning des Sessions"
                                style="-fx-font-size: 18px;
                                       -fx-font-weight: 700;
                                       -fx-text-fill: #1a1a2e;" />
+
                         <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- BARRE RECHERCHE SESSIONS -->
+                        <HBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: #f8f9fa;
+                                     -fx-background-radius: 30;
+                                     -fx-padding: 6 15;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                            <Label text="🔍" style="-fx-font-size: 14px;"/>
+                            <TextField fx:id="searchSessionsField"
+                                       promptText="Rechercher une session..."
+                                       style="-fx-background-color: transparent;
+                                              -fx-border-color: transparent;
+                                              -fx-focus-color: transparent;"
+                                       prefWidth="220"/>
+                        </HBox>
+
                         <Label fx:id="sessionsCount"
                                style="-fx-text-fill: #6c757d;" />
                     </HBox>
 
-                    <!-- IMPORTATION DYNAMIQUE CONSERVÉE -->
                     <TilePane fx:id="sessionsGrid"
                               prefColumns="3"
                               hgap="25"
                               vgap="25"
                               prefTileWidth="320"/>
+                    <!-- ================= QR CODE POUR SESSIONS ================= -->
+                    <VBox spacing="20"
+                          style="-fx-background-color: white;
+             -fx-background-radius: 16;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📱 QR Code de la Session"
+                                   style="-fx-font-size: 18px;
+                      -fx-font-weight: 700;
+                      -fx-text-fill: #1a1a2e;" />
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <ComboBox fx:id="sessionComboBox"
+                                      promptText="Sélectionner une session"
+                                      style="-fx-background-radius: 30;
+                         -fx-padding: 6 15;" />
+
+                            <Button text="Générer QR Code"
+                                    onAction="#handleGenerateQRCodeSession"
+                                    style="-fx-background-color: #1b2a4a;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 30;
+                       -fx-padding: 8 20;
+                       -fx-cursor: hand;" />
+                        </HBox>
+
+                        <StackPane alignment="CENTER"
+                                   style="-fx-background-color: #f8f9fa;
+                      -fx-background-radius: 16;
+                      -fx-padding: 20;">
+                            <ImageView fx:id="qrCodeImageViewSession"
+                                       fitWidth="200"
+                                       fitHeight="200"
+                                       preserveRatio="true"
+                                       style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);" />
+                        </StackPane>
+                    </VBox>
                 </VBox>
 
-                <!-- COACHS -->
+                <!-- ================= COACHS ================= -->
                 <VBox spacing="20"
                       style="-fx-background-color: white;
                              -fx-background-radius: 16;
                              -fx-padding: 25;
                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
 
-                    <HBox alignment="CENTER_LEFT">
+                    <HBox alignment="CENTER_LEFT" spacing="15">
                         <Label text="👥 Nos Coachs Experts"
                                style="-fx-font-size: 18px;
                                       -fx-font-weight: 700;
                                       -fx-text-fill: #1a1a2e;" />
+
                         <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- BARRE RECHERCHE COACHS -->
+                        <HBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: #f8f9fa;
+                                     -fx-background-radius: 30;
+                                     -fx-padding: 6 15;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                            <Label text="🔍" style="-fx-font-size: 14px;"/>
+                            <TextField fx:id="searchCoachsField"
+                                       promptText="Rechercher un coach..."
+                                       style="-fx-background-color: transparent;
+                                              -fx-border-color: transparent;
+                                              -fx-focus-color: transparent;"
+                                       prefWidth="220"/>
+                        </HBox>
+
                         <Label fx:id="coachsCount"
                                style="-fx-text-fill: #6c757d;" />
                     </HBox>
 
-                    <!-- IMPORTATION DYNAMIQUE CONSERVÉE -->
                     <FlowPane fx:id="coachesContainer"
                               hgap="20"
                               vgap="20"
                               prefWrapLength="1200"/>
+                    <!-- ================= QR CODE POUR COACHS ================= -->
+                    <VBox spacing="20"
+                          style="-fx-background-color: white;
+             -fx-background-radius: 16;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📱 QR Code du Coach"
+                                   style="-fx-font-size: 18px;
+                      -fx-font-weight: 700;
+                      -fx-text-fill: #1a1a2e;" />
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <!-- ComboBox pour choisir le coach -->
+                            <ComboBox fx:id="coachComboBox"
+                                      promptText="Sélectionner un coach"
+                                      style="-fx-background-radius: 30;
+                         -fx-padding: 6 15;" />
+
+                            <!-- Bouton générer QR Code -->
+                            <Button text="Générer QR Code"
+                                    onAction="#handleGenerateQRCodeCoach"
+                                    style="-fx-background-color: #1b2a4a;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 30;
+                       -fx-padding: 8 20;
+                       -fx-cursor: hand;" />
+                        </HBox>
+
+                        <!-- ImageView pour afficher le QR Code -->
+                        <StackPane alignment="CENTER"
+                                   style="-fx-background-color: #f8f9fa;
+                      -fx-background-radius: 16;
+                      -fx-padding: 20;">
+                            <ImageView fx:id="qrCodeImageViewCoach"
+                                       fitWidth="200"
+                                       fitHeight="200"
+                                       preserveRatio="true"
+                                       style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);" />
+                        </StackPane>
+                    </VBox>
+
                 </VBox>
 
             </VBox>

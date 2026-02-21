@@ -1,15 +1,28 @@
 package entities.GAccompagnement;
 
 public class Domaine {
+
     private int id;
     private String nom;
     private String description;
     private String niveau;
     private String statut;
-    private String image; // nouvel attribut
+    private String image;
 
+    // Constructeur vide
     public Domaine() {}
 
+    // Constructeur complet avec id
+    public Domaine(int id, String nom, String description, String niveau, String statut, String image) {
+        this.id = id;
+        this.nom = nom;
+        this.description = description;
+        this.niveau = niveau;
+        this.statut = statut;
+        this.image = image;
+    }
+
+    // Constructeur sans id
     public Domaine(String nom, String description, String niveau, String statut, String image) {
         this.nom = nom;
         this.description = description;
@@ -18,12 +31,11 @@ public class Domaine {
         this.image = image;
     }
 
-    public Domaine(int id, String nom, String description, String niveau, String statut, String image) {
+    // Constructeur simplifié pour recherche
+    public Domaine(int id, String nom, String description, String image) {
         this.id = id;
         this.nom = nom;
         this.description = description;
-        this.niveau = niveau;
-        this.statut = statut;
         this.image = image;
     }
 
@@ -45,4 +57,8 @@ public class Domaine {
 
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+    @Override
+    public String toString() {
+        return nom; // affichage dans la ComboBox
+    }
 }

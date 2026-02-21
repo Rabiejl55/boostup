@@ -82,14 +82,6 @@ public class Coach {
 
     @Override
     public String toString() {
-        return "Coach{" +
-                "idCoach=" + idCoach +
-                ", nom='" + nom + '\'' +
-                ", prenom='" + prenom + '\'' +
-                ", email='" + email + '\'' +
-                ", telephone='" + telephone + '\'' +
-                ", imagecoach='" + imagecoach + '\'' +
-                '}';
+        return nom + " " + prenom; // Affiche "Nom Prénom"
     }
-
 }

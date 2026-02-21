@@ -100,5 +100,30 @@ public class CoachService {
         }
         return false;
     }
+    public List<Coach> rechercherParNom(String nom) throws SQLException {
+        List<Coach> liste = new ArrayList<>();
 
+        String sql = "SELECT * FROM Coach WHERE LOWER(nom) LIKE ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + nom.toLowerCase() + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Coach c = new Coach(
+                            rs.getInt("id_coach"),
+                            rs.getString("nom"),
+                            rs.getString("prenom"),
+                            rs.getString("email"),
+                            rs.getString("telephone"),
+                            rs.getString("imagecoach")
+                    );
+                    liste.add(c);
+                }
+            }
+        }
+
+        return liste;
+    }
 }

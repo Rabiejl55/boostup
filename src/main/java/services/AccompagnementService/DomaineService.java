@@ -70,4 +70,23 @@ public class DomaineService {
         st.close();
         return liste;
     }
+    public List<Domaine> rechercherParNom(String motCle) throws SQLException {
+        List<Domaine> result = new ArrayList<>();
+        String sql = "SELECT * FROM domaine WHERE LOWER(nom) LIKE ?";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setString(1, "%" + motCle.toLowerCase() + "%");
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            Domaine d = new Domaine(
+                    rs.getInt("id"),
+                    rs.getString("nom"),
+                    rs.getString("description"),
+                    rs.getString("image")
+            );
+            result.add(d);
+        }
+        return result;
+    }
+
 }
