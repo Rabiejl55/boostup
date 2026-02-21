@@ -1,332 +1,310 @@
 package controller;
 
-import entities.GFinancement.Investissement;
-import entities.GFinancement.Projet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import services.FinancementService.InvestissementService;
-import services.FinancementService.ProjetService;
+import javafx.scene.text.Text;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class FinancementFrontController {
 
-    // ===== SIDEBAR =====
-    @FXML private HBox financementItem;
-    @FXML private HBox accompagnementsItem;
-
-    // ===== SECTIONS =====
-    @FXML private VBox sectionFinancement;
-    @FXML private VBox sectionAccompagnements;
-    @FXML private VBox sectionObjectifs;
-    @FXML private VBox sectionMesInvestissements;
-
-    // ===== FINANCEMENT UI =====
+    // ===== Top bar =====
     @FXML private TextField tfSearch;
-    @FXML private ComboBox<String> cbStatut;
+    @FXML private Label lbUserName;
+    @FXML private Label lbUserRole;
 
-    @FXML private Label lblNbProjets;
-    @FXML private Label lblNbInvestissements;
-    @FXML private Label lblNbEnAttente;
-    @FXML private Label lblNbAffiches;
+    // ===== Quick stats =====
+    @FXML private Label lbActiveRequests;
+    @FXML private Label lbAvailableOffers;
+    @FXML private Label lbTotalAmount;
 
-    @FXML private FlowPane fpProjets;
-    @FXML private Label lblProjetSelected;
+    // ===== Role switch =====
+    @FXML private ToggleGroup roleGroup;
+    @FXML private RadioButton rbStartup;
+    @FXML private RadioButton rbInvestor;
 
-    @FXML private TextField tfMontant;
-    @FXML private ComboBox<String> cbModePaiement;
-    @FXML private Label lblFeedback;
+    // ===== Panels to show/hide =====
+    @FXML private VBox startupPanel;
+    @FXML private VBox investorPanel;
 
-    @FXML private FlowPane fpInvestissements;
+    // ===== Actions =====
+    @FXML private Button btnNewRequest;
+    @FXML private Button btnNewOffer;
 
-    private final ProjetService projetService = new ProjetService();
-    private final InvestissementService investissementService = new InvestissementService();
+    // ===== Filters =====
+    @FXML private ComboBox<String> cbSector;
+    @FXML private ComboBox<String> cbStage;
+    @FXML private ComboBox<String> cbRange;
+    @FXML private ComboBox<String> cbType;
 
-    private final ObservableList<Projet> projetsAll = FXCollections.observableArrayList();
+    // ===== Lists =====
+    @FXML private ListView<FinItem> lvStartupItems;
+    @FXML private ListView<FinItem> lvInvestorItems;
 
-    // TODO: remplacer par l'id réel du user connecté
-    private final int CURRENT_USER_ID = 1;
-
-    private Projet selectedProjet = null;
+    // ===== Data =====
+    private final ObservableList<FinItem> startupAll = FXCollections.observableArrayList();
+    private final ObservableList<FinItem> investorAll = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        // ---- Combo statut
-        cbStatut.setItems(FXCollections.observableArrayList("Tous", "Ouvert", "Fermé", "En cours"));
-        cbStatut.setValue("Tous");
+        // ---- Fake user (remplace par session user) ----
+        lbUserName.setText("Utilisateur");
+        setRoleLabel("Startup");
 
-        // ---- Paiement
-        cbModePaiement.setItems(FXCollections.observableArrayList("Carte", "Virement", "Cash"));
-        cbModePaiement.getSelectionModel().selectFirst();
+        // ---- Stats (remplace par tes services) ----
+        lbActiveRequests.setText("12");
+        lbAvailableOffers.setText("7");
+        lbTotalAmount.setText("240,000 DT");
 
-        // ---- listeners filtres
-        tfSearch.textProperty().addListener((o, a, b) -> renderProjetsCards());
-        cbStatut.valueProperty().addListener((o, a, b) -> renderProjetsCards());
+        // ---- Filters ----
+        cbSector.setItems(FXCollections.observableArrayList("FinTech", "HealthTech", "EdTech", "AgriTech", "SaaS", "E-commerce"));
+        cbStage.setItems(FXCollections.observableArrayList("Idea", "Pre-seed", "Seed", "Series A"));
+        cbRange.setItems(FXCollections.observableArrayList("0–10k", "10k–50k", "50k–100k", "100k+"));
+        cbType.setItems(FXCollections.observableArrayList("Equity", "Loan", "Grant", "Convertible"));
 
-        // ---- afficher par défaut : financement
-        showFinancement();
+        // ---- ListView look as cards ----
+        lvStartupItems.setCellFactory(lv -> new FinItemCardCell());
+        lvInvestorItems.setCellFactory(lv -> new FinItemCardCell());
 
-        // ---- load data
-        refreshProjets(null);
-        refreshMesInvestissements(null);
-    }
+        // ---- Seed data demo ----
+        seedDemoData();
 
-    // ===================== NAVIGATION (SIDEBAR) =====================
+        // ---- Default mode ----
+        rbStartup.setSelected(true);
+        applyRoleUI(true);
 
-    @FXML
-    private void handleTableauDeBordClick(MouseEvent e) {
-        System.out.println("Tableau de bord clicked");
-        // TODO: navigation vers dashboard
-    }
-
-    @FXML
-    private void handleFinancementClick(MouseEvent e) {
-        showFinancement();
-    }
-
-    @FXML
-    private void handleAccompagnementsClick(MouseEvent e) {
-        showAccompagnements();
-    }
-
-    private void showFinancement() {
-        if (sectionFinancement != null) sectionFinancement.setManaged(true);
-        if (sectionFinancement != null) sectionFinancement.setVisible(true);
-
-        if (sectionMesInvestissements != null) sectionMesInvestissements.setManaged(true);
-        if (sectionMesInvestissements != null) sectionMesInvestissements.setVisible(true);
-
-        if (sectionAccompagnements != null) sectionAccompagnements.setManaged(false);
-        if (sectionAccompagnements != null) sectionAccompagnements.setVisible(false);
-
-        if (sectionObjectifs != null) sectionObjectifs.setManaged(false);
-        if (sectionObjectifs != null) sectionObjectifs.setVisible(false);
-    }
-
-    private void showAccompagnements() {
-        if (sectionAccompagnements != null) sectionAccompagnements.setManaged(true);
-        if (sectionAccompagnements != null) sectionAccompagnements.setVisible(true);
-
-        if (sectionObjectifs != null) sectionObjectifs.setManaged(true);
-        if (sectionObjectifs != null) sectionObjectifs.setVisible(true);
-
-        if (sectionFinancement != null) sectionFinancement.setManaged(false);
-        if (sectionFinancement != null) sectionFinancement.setVisible(false);
-
-        if (sectionMesInvestissements != null) sectionMesInvestissements.setManaged(false);
-        if (sectionMesInvestissements != null) sectionMesInvestissements.setVisible(false);
-    }
-
-    // ===================== DATA LOAD =====================
-
-    @FXML
-    private void refreshProjets(ActionEvent e) {
-        try {
-            List<Projet> list = projetService.recuperer(); // <== tu as demandé "recuperer seulement"
-            projetsAll.setAll(list);
-            lblNbProjets.setText(String.valueOf(projetsAll.size()));
-            renderProjetsCards();
-        } catch (Exception ex) {
-            showError("Erreur chargement projets : " + ex.getMessage());
-        }
-    }
-
-    @FXML
-    private void refreshMesInvestissements(ActionEvent e) {
-        try {
-            fpInvestissements.getChildren().clear();
-
-            // ⚠️ adapte si ton service a une méthode différente
-            // Idéal: investissementService.recupererParUser(CURRENT_USER_ID)
-            List<Investissement> list;
-            try {
-                list = investissementService.recuperer(); // si tu n'as que recuperer()
-                // filtre côté front si nécessaire
-                list = list.stream()
-                        .filter(inv -> inv.getId_user() == CURRENT_USER_ID)
-                        .collect(Collectors.toList());
-            } catch (Exception ignore) {
-                // si recuperer() n'existe pas chez toi, garde juste une liste vide
-                list = List.of();
-            }
-
-            lblNbInvestissements.setText(String.valueOf(list.size()));
-            long enAttente = list.stream().filter(inv -> "EN_ATTENTE".equalsIgnoreCase(inv.getStatut())).count();
-            lblNbEnAttente.setText(String.valueOf(enAttente));
-
-            for (Investissement inv : list) {
-                fpInvestissements.getChildren().add(buildInvestissementCard(inv));
-            }
-
-        } catch (Exception ex) {
-            showError("Erreur chargement investissements : " + ex.getMessage());
-        }
-    }
-
-    // ===================== FILTER + RENDER =====================
-
-    private void renderProjetsCards() {
-        fpProjets.getChildren().clear();
-
-        String q = tfSearch.getText() == null ? "" : tfSearch.getText().trim().toLowerCase();
-        String statut = cbStatut.getValue();
-
-        List<Projet> filtered = projetsAll.stream().filter(p -> {
-            boolean okSearch = q.isEmpty() || (p.getTitre() != null && p.getTitre().toLowerCase().contains(q));
-            boolean okStatut = (statut == null || "Tous".equals(statut)) ||
-                    (p.getStatut() != null && p.getStatut().equalsIgnoreCase(statut));
-            return okSearch && okStatut;
-        }).toList();
-
-        if (lblNbAffiches != null) lblNbAffiches.setText(filtered.size() + " affichés");
-
-        for (Projet p : filtered) {
-            fpProjets.getChildren().add(buildProjetCard(p));
-        }
-
-        // reset selection si elle n'est plus visible
-        if (selectedProjet != null && !filtered.contains(selectedProjet)) {
-            selectedProjet = null;
-            lblProjetSelected.setText("Sélectionne un projet pour investir.");
-        }
-    }
-
-    @FXML
-    private void clearFilters(ActionEvent e) {
-        tfSearch.clear();
-        cbStatut.setValue("Tous");
-        renderProjetsCards();
-    }
-
-    // ===================== INVEST ACTION =====================
-
-    @FXML
-    private void investir(ActionEvent e) {
-        if (selectedProjet == null) {
-            showError("Veuillez sélectionner un projet.");
-            return;
-        }
-
-        String montantStr = tfMontant.getText() == null ? "" : tfMontant.getText().trim();
-        if (montantStr.isEmpty()) {
-            showError("Veuillez saisir un montant.");
-            return;
-        }
-
-        double montant;
-        try {
-            montant = Double.parseDouble(montantStr);
-        } catch (NumberFormatException ex) {
-            showError("Montant invalide (ex: 500).");
-            return;
-        }
-
-        if (montant <= 0) {
-            showError("Le montant doit être > 0.");
-            return;
-        }
-
-        if (montant > selectedProjet.getBudget()) {
-            showError("Le montant dépasse le budget du projet.");
-            return;
-        }
-
-        String mode = cbModePaiement.getValue();
-        if (mode == null || mode.isBlank()) {
-            showError("Veuillez choisir un mode de paiement.");
-            return;
-        }
-
-        Investissement inv = new Investissement();
-        inv.setMontantInvestissement(montant);
-        inv.setStatut("EN_ATTENTE");
-        inv.setDate_investissement(LocalDate.now().toString());
-        inv.setId_projet(selectedProjet.getId_projet());
-        inv.setId_user(CURRENT_USER_ID);
-
-        try {
-            investissementService.ajouter(inv);
-            showSuccess("✅ Investissement enregistré ! Statut: EN_ATTENTE");
-            tfMontant.clear();
-            refreshMesInvestissements(null);
-        } catch (Exception ex) {
-            showError("Erreur lors de l'investissement : " + ex.getMessage());
-        }
-    }
-
-    // ===================== UI HELPERS (CARDS) =====================
-
-    private VBox buildProjetCard(Projet p) {
-        VBox card = new VBox(8);
-        card.getStyleClass().addAll("stats-mini-card"); // réutilise ton style existant
-        card.setPadding(new Insets(12));
-        card.setPrefWidth(280);
-
-        Label titre = new Label(p.getTitre() == null ? "(Sans titre)" : p.getTitre());
-        titre.getStyleClass().add("section-subtitle");
-
-        Label id = new Label("ID: " + p.getId_projet());
-        Label budget = new Label("Budget: " + p.getBudget());
-        Label statut = new Label("Statut: " + (p.getStatut() == null ? "-" : p.getStatut()));
-
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-
-        Button select = new Button("Sélectionner");
-        select.getStyleClass().add("search-button");
-        select.setOnAction(e -> {
-            selectedProjet = p;
-            lblProjetSelected.setText("Projet sélectionné : " + p.getTitre()
-                    + " | Budget: " + p.getBudget()
-                    + " | Statut: " + p.getStatut());
-            lblFeedback.setText("");
-            lblFeedback.getStyleClass().setAll();
+        // ---- Listeners (role switch & search) ----
+        roleGroup.selectedToggleProperty().addListener((obs, oldT, newT) -> {
+            boolean isStartup = newT == rbStartup;
+            applyRoleUI(isStartup);
         });
 
-        card.getChildren().addAll(titre, id, budget, statut, spacer, select);
-
-        // click sur la carte = sélectionner aussi
-        card.setOnMouseClicked(e -> select.fire());
-
-        return card;
+        tfSearch.textProperty().addListener((obs, oldV, newV) -> applySearchAndFilters());
     }
 
-    private VBox buildInvestissementCard(Investissement inv) {
-        VBox card = new VBox(8);
-        card.getStyleClass().add("stats-mini-card");
-        card.setPadding(new Insets(12));
-        card.setPrefWidth(320);
+    // ===============================
+    // UI behavior
+    // ===============================
 
-        Label head = new Label("Investissement");
-        head.getStyleClass().add("section-subtitle");
+    private void applyRoleUI(boolean isStartupMode) {
+        // show/hide panels
+        startupPanel.setManaged(isStartupMode);
+        startupPanel.setVisible(isStartupMode);
 
-        Label montant = new Label("Montant: " + inv.getMontantInvestissement());
-        Label date = new Label("Date: " + inv.getDate_investissement());
-        Label statut = new Label("Statut: " + inv.getStatut());
-        Label projet = new Label("Projet ID: " + inv.getId_projet());
+        investorPanel.setManaged(!isStartupMode);
+        investorPanel.setVisible(!isStartupMode);
 
-        card.getChildren().addAll(head, projet, montant, date, statut);
-        return card;
+        // enable the right action button
+        btnNewRequest.setManaged(isStartupMode);
+        btnNewRequest.setVisible(isStartupMode);
+
+        btnNewOffer.setManaged(!isStartupMode);
+        btnNewOffer.setVisible(!isStartupMode);
+
+        setRoleLabel(isStartupMode ? "Startup" : "Investisseur");
+        applySearchAndFilters();
     }
 
-    private void showError(String msg) {
-        lblFeedback.setText(msg);
-        lblFeedback.getStyleClass().setAll("error");
+    private void setRoleLabel(String role) {
+        lbUserRole.setText(role);
     }
 
-    private void showSuccess(String msg) {
-        lblFeedback.setText(msg);
-        lblFeedback.getStyleClass().setAll("success");
+    private void applySearchAndFilters() {
+        String q = safeLower(tfSearch.getText());
+
+        String sector = cbSector.getValue();
+        String stage = cbStage.getValue();
+        String range = cbRange.getValue();
+        String type  = cbType.getValue();
+
+        // Startup
+        ObservableList<FinItem> startupFiltered = startupAll.stream()
+                .filter(it -> matches(it, q, sector, stage, range, type))
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+        lvStartupItems.setItems(startupFiltered);
+
+        // Investor
+        ObservableList<FinItem> investorFiltered = investorAll.stream()
+                .filter(it -> matches(it, q, sector, stage, range, type))
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+        lvInvestorItems.setItems(investorFiltered);
+    }
+
+    private boolean matches(FinItem it, String q, String sector, String stage, String range, String type) {
+        boolean ok = true;
+
+        if (q != null && !q.isBlank()) {
+            String hay = (it.title + " " + it.subtitle + " " + it.meta).toLowerCase(Locale.ROOT);
+            ok = ok && hay.contains(q);
+        }
+        if (sector != null && !sector.isBlank()) ok = ok && it.meta.contains(sector);
+        if (stage != null && !stage.isBlank()) ok = ok && it.meta.contains(stage);
+        if (range != null && !range.isBlank()) ok = ok && it.meta.contains(range);
+        if (type != null && !type.isBlank()) ok = ok && it.meta.contains(type);
+
+        return ok;
+    }
+
+    private String safeLower(String s) {
+        return (s == null) ? "" : s.toLowerCase(Locale.ROOT).trim();
+    }
+
+    // ===============================
+    // Demo data (remplace par DB)
+    // ===============================
+
+    private void seedDemoData() {
+        startupAll.clear();
+        investorAll.clear();
+
+        // Startup items (demandes)
+        startupAll.addAll(
+                new FinItem("FIN-203 • Demande", "50,000 DT", "HealthTech • Seed • Equity", "Plateforme de suivi patient pour cliniques privées."),
+                new FinItem("FIN-217 • Demande", "120,000 DT", "SaaS • Pre-seed • Convertible", "Outil B2B d’automatisation facturation + relances."),
+                new FinItem("FIN-221 • Demande", "20,000 DT", "EdTech • Idea • Grant", "MVP mobile pour micro-learning en langues.")
+        );
+
+        // Investor items (offres)
+        investorAll.addAll(
+                new FinItem("INV-88 • Offre", "Ticket 20k–100k", "FinTech/SaaS • Seed • Equity", "Mentoring inclus, suivi 6–12 mois."),
+                new FinItem("INV-91 • Offre", "Ticket 10k–50k", "AgriTech • Pre-seed • Loan", "Priorité régions, traction minimale requise."),
+                new FinItem("INV-104 • Offre", "Ticket 50k–200k", "E-commerce • Series A • Equity", "Recherche équipe solide + croissance.")
+        );
+
+        lvStartupItems.setItems(startupAll);
+        lvInvestorItems.setItems(investorAll);
+    }
+
+    // ===============================
+    // Sidebar navigation (à brancher)
+    // ===============================
+
+    @FXML private void goDashboard() { toast("Navigation : Dashboard"); }
+    @FXML private void goFinancement() { toast("Vous êtes déjà sur Financement"); }
+    @FXML private void goAccompagnement() { toast("Navigation: Accompagnement"); }
+    @FXML private void goEvenements() { toast("Navigation: Événements"); }
+    @FXML private void goCandidature() { toast("Navigation: Candidature"); }
+
+    @FXML private void logout() { toast("Déconnexion..."); }
+
+    // ===============================
+    // Actions Financement
+    // ===============================
+
+    @FXML private void newRequest() { toast("Créer une nouvelle demande (Startup)"); }
+    @FXML private void newOffer() { toast("Créer une nouvelle offre (Investisseur)"); }
+
+    @FXML private void applyFilters() { applySearchAndFilters(); toast("Filtres appliqués"); }
+    @FXML private void resetFilters() {
+        cbSector.setValue(null);
+        cbStage.setValue(null);
+        cbRange.setValue(null);
+        cbType.setValue(null);
+        tfSearch.clear();
+        applySearchAndFilters();
+        toast("Filtres réinitialisés");
+    }
+
+    // Cards buttons from FXML (tu les branches à ta logique)
+    @FXML private void openRequestDetails() { toast("Détails demande"); }
+    @FXML private void editRequest() { toast("Modifier demande"); }
+    @FXML private void cancelRequest() { toast("Annuler demande"); }
+
+    @FXML private void contactInvestor() { toast("Contacter investisseur"); }
+    @FXML private void openInvestorProfile() { toast("Profil investisseur"); }
+
+    @FXML private void openOfferDetails() { toast("Détails offre"); }
+    @FXML private void editOffer() { toast("Modifier offre"); }
+    @FXML private void disableOffer() { toast("Désactiver offre"); }
+
+    @FXML private void openStartupDeck() { toast("Voir dossier startup"); }
+    @FXML private void scheduleCall() { toast("Planifier un call"); }
+
+    // ===============================
+    // Mini helper
+    // ===============================
+    private void toast(String msg) {
+        // simple feedback (tu peux remplacer par Notifications/Toast)
+        System.out.println("[FinancementFront] " + msg);
+    }
+
+    // ===============================
+    // Inner model + cell
+    // ===============================
+
+    public static class FinItem {
+        public final String title;
+        public final String subtitle;
+        public final String meta;
+        public final String description;
+
+        public FinItem(String title, String subtitle, String meta, String description) {
+            this.title = title;
+            this.subtitle = subtitle;
+            this.meta = meta;
+            this.description = description;
+        }
+    }
+
+    private static class FinItemCardCell extends ListCell<FinItem> {
+        private final VBox root = new VBox(6);
+        private final Label title = new Label();
+        private final Label subtitle = new Label();
+        private final Text meta = new Text();
+        private final Text desc = new Text();
+        private final HBox actions = new HBox(8);
+
+        private final Button btnView = new Button("Voir");
+        private final Button btnAction = new Button("Action");
+
+        FinItemCardCell() {
+            root.getStyleClass().add("card");
+            title.getStyleClass().add("card-title");
+            subtitle.getStyleClass().add("muted");
+            meta.getStyleClass().add("card-meta");
+            desc.getStyleClass().add("card-desc");
+
+            desc.wrappingWidthProperty().bind(root.widthProperty().subtract(24));
+            meta.wrappingWidthProperty().bind(root.widthProperty().subtract(24));
+
+            btnView.getStyleClass().add("secondary-btn");
+            btnAction.getStyleClass().add("primary-btn");
+            actions.getChildren().addAll(btnView, btnAction);
+
+            root.getChildren().addAll(title, subtitle, meta, desc, actions);
+
+            btnView.setOnAction(e -> {
+                FinItem item = getItem();
+                if (item != null) System.out.println("Voir: " + item.title);
+            });
+
+            btnAction.setOnAction(e -> {
+                FinItem item = getItem();
+                if (item != null) System.out.println("Action sur: " + item.title);
+            });
+        }
+
+        @Override
+        protected void updateItem(FinItem item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+                return;
+            }
+
+            title.setText(item.title);
+            subtitle.setText(item.subtitle);
+            meta.setText(item.meta);
+            desc.setText(item.description);
+
+            setGraphic(root);
+        }
     }
 }

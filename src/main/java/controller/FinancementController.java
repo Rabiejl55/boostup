@@ -13,10 +13,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.converter.DoubleStringConverter;
 import services.FinancementService.ProjetService;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ public class FinancementController {
     @FXML private Tab tabProjets;
     @FXML private Tab tabInvestissements;
     @FXML private Tab tabTransactions;
+    @FXML private BorderPane root;
 
     // ===== Lazy roots =====
     @FXML private BorderPane investissementsRoot;
@@ -37,7 +41,7 @@ public class FinancementController {
     private boolean invLoaded = false;
     private boolean txLoaded = false;
 
-    // ===== Form Projet =====
+    // ===== Form Projet (sert pour AJOUT uniquement) =====
     @FXML private TextField tfTitre;
     @FXML private TextArea taDescription;
     @FXML private TextField tfBudget;
@@ -49,7 +53,7 @@ public class FinancementController {
     @FXML private Label errStatut;
 
     // Buttons
-    @FXML private Button btnModifierProjet;
+    @FXML private Button btnModifierProjet;   // sera caché/désactivé
     @FXML private Button btnSupprimerProjet;
 
     // Table
@@ -83,13 +87,70 @@ public class FinancementController {
         cbStatutProjet.setItems(FXCollections.observableArrayList("EN_ATTENTE", "FINANCE", "REFUSE"));
         cbStatutProjet.setValue("EN_ATTENTE");
 
-        // Colonnes
-        colProjetId.setVisible(false);
+        // Colonnes (✅ ID correct)
+        colProjetId.setCellValueFactory(new PropertyValueFactory<>("id_projet")); // IMPORTANT
         colProjetTitre.setCellValueFactory(new PropertyValueFactory<>("titre"));
         colProjetBudget.setCellValueFactory(new PropertyValueFactory<>("budget"));
         colProjetStatut.setCellValueFactory(new PropertyValueFactory<>("statut"));
 
-        // Badge statut
+        // Si tu veux cacher l'ID :
+        colProjetId.setVisible(false);
+
+        tableProjets.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // ✅ Activer édition inline
+        tableProjets.setEditable(true);
+
+        // ✅ Inline edit: TITRE
+        colProjetTitre.setCellFactory(TextFieldTableCell.forTableColumn());
+        colProjetTitre.setOnEditCommit(ev -> {
+            Projet p = ev.getRowValue();
+            String newVal = ev.getNewValue() != null ? ev.getNewValue().trim() : "";
+
+            if (!isValidTitre(newVal)) {
+                showToastError("Titre invalide (min " + TITRE_MIN + ", max " + TITRE_MAX + ")");
+                tableProjets.refresh();
+                return;
+            }
+
+            p.setTitre(newVal);
+            saveProjetInline(p, "Titre modifié.");
+        });
+
+        // ✅ Inline edit: BUDGET
+        colProjetBudget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        colProjetBudget.setOnEditCommit(ev -> {
+            Projet p = ev.getRowValue();
+            Double newVal = ev.getNewValue();
+
+            if (newVal == null || newVal <= 0) {
+                showToastError("Budget invalide (> 0).");
+                tableProjets.refresh();
+                return;
+            }
+
+            p.setBudget(newVal);
+            saveProjetInline(p, "Budget modifié.");
+        });
+
+        // ✅ Inline edit: STATUT (ComboBox)
+        colProjetStatut.setCellFactory(ComboBoxTableCell.forTableColumn(
+                FXCollections.observableArrayList("EN_ATTENTE", "FINANCE", "REFUSE")
+        ));
+        colProjetStatut.setOnEditCommit(ev -> {
+            Projet p = ev.getRowValue();
+            String newVal = ev.getNewValue();
+
+            if (newVal == null || newVal.trim().isEmpty()) {
+                tableProjets.refresh();
+                return;
+            }
+
+            p.setStatut(newVal);
+            saveProjetInline(p, "Statut modifié.");
+        });
+
+        // ✅ Style du badge statut (on garde ton design)
         colProjetStatut.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
@@ -105,9 +166,13 @@ public class FinancementController {
                     case "REFUSE" -> getStyleClass().add("statut-refuse");
                 }
             }
-        });
 
-        tableProjets.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            @Override
+            public void startEdit() {
+                // Autorise l'édition par double-clic même si on a un badge cell
+                super.startEdit();
+            }
+        });
 
         // Filtre statut
         cbFilterStatutProjet.setItems(FXCollections.observableArrayList("TOUS", "EN_ATTENTE", "FINANCE", "REFUSE"));
@@ -127,32 +192,32 @@ public class FinancementController {
         tfSearchProjet.textProperty().addListener((obs, o, n) -> applyProjetFilters());
         cbFilterStatutProjet.valueProperty().addListener((obs, o, n) -> applyProjetFilters());
 
-        // Budget caractères
+        // Budget caractères dans form (ajout)
         tfBudget.textProperty().addListener((obs, old, nv) -> {
             if (nv == null) return;
             if (!nv.matches("[0-9]*([\\.,][0-9]*)?")) tfBudget.setText(old);
         });
 
-        setEditButtonsDisabled(true);
+        // ✅ Le formulaire ne sert plus à modifier => on désactive le bouton modifier
+        if (btnModifierProjet != null) {
+            btnModifierProjet.setDisable(true);
+            btnModifierProjet.setVisible(false);
+            btnModifierProjet.setManaged(false);
+        }
 
+        // ✅ Sélection : on ne remplit plus le formulaire (optionnel)
         tableProjets.getSelectionModel().selectedItemProperty().addListener((obs, old, p) -> {
             clearFieldErrors();
-            if (p == null) {
-                setEditButtonsDisabled(true);
-                return;
-            }
-            setEditButtonsDisabled(false);
-            tfTitre.setText(p.getTitre());
-            taDescription.setText(p.getDescription());
-            tfBudget.setText(String.valueOf(p.getBudget()));
-            cbStatutProjet.setValue(p.getStatut());
+            // si tu veux garder “Supprimer” activé seulement si sélection:
+            btnSupprimerProjet.setDisable(p == null);
         });
+        btnSupprimerProjet.setDisable(true);
 
         initLiveValidation();
         refreshProjets();
         tableProjets.sort();
 
-        // ✅ Lazy load onglets (évite crash DB au chargement de financement.fxml)
+        // ✅ Lazy load onglets
         tabPaneFinancement.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             if (newTab == tabInvestissements && !invLoaded) {
                 loadInto(investissementsRoot, "/fxml/investissement.fxml");
@@ -162,6 +227,24 @@ public class FinancementController {
                 txLoaded = true;
             }
         });
+    }
+
+    // ===== Inline save helper =====
+    private void saveProjetInline(Projet p, String successMsg) {
+        try {
+            projetService.update(p);
+            showToastSuccess(successMsg);
+            refreshProjets(); // pour garder filtrage/tri cohérent
+        } catch (Exception e) {
+            showToastError("Erreur update : " + e.getMessage());
+            tableProjets.refresh();
+        }
+    }
+
+    private boolean isValidTitre(String t) {
+        if (t == null) return false;
+        t = t.trim();
+        return !t.isEmpty() && t.length() >= TITRE_MIN && t.length() <= TITRE_MAX;
     }
 
     // Utilisé par DashboardController
@@ -193,14 +276,18 @@ public class FinancementController {
     private void switchScene(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Stage stage = (Stage) tabPaneFinancement.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            Parent newRoot = loader.load();
+
+            // ✅ On garde la même scene (donc même CSS)
+            Scene scene = root.getScene();
+            scene.setRoot(newRoot);
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
+
+
 
     // ===== CRUD =====
     @FXML private void refreshProjets() {
@@ -234,25 +321,9 @@ public class FinancementController {
         }
     }
 
+    // ✅ plus utilisé (garde-le si tu veux éviter erreurs FXML)
     @FXML private void modifierProjet() {
-        clearFieldErrors();
-        Projet selected = tableProjets.getSelectionModel().getSelectedItem();
-        if (selected == null) { showInlineError(errTitre, "Sélectionne un projet."); return; }
-        if (!validateProjetForm()) return;
-
-        try {
-            selected.setTitre(tfTitre.getText().trim());
-            selected.setDescription(taDescription.getText().trim());
-            selected.setBudget(parseBudget(tfBudget.getText().trim()));
-            selected.setStatut(cbStatutProjet.getValue());
-
-            projetService.update(selected);
-            refreshProjets();
-            clearProjetForm();
-            showToastSuccess("Projet modifié avec succès.");
-        } catch (Exception e) {
-            showErrorDialog("Erreur modification projet", e);
-        }
+        showToastError("La modification se fait directement dans le tableau (double-clic).");
     }
 
     @FXML private void supprimerProjet() {
@@ -282,9 +353,7 @@ public class FinancementController {
         taDescription.clear();
         tfBudget.clear();
         cbStatutProjet.setValue("EN_ATTENTE");
-        tableProjets.getSelectionModel().clearSelection();
         clearFieldErrors();
-        setEditButtonsDisabled(true);
     }
 
     // ===== Filter + count =====
@@ -317,7 +386,7 @@ public class FinancementController {
         applyProjetFilters();
     }
 
-    // ===== Validation =====
+    // ===== Validation (pour AJOUT) =====
     private boolean validateProjetForm() {
         boolean ok = true;
 
@@ -418,11 +487,6 @@ public class FinancementController {
         errLabel.setManaged(true);
     }
 
-    private void setEditButtonsDisabled(boolean disabled) {
-        btnModifierProjet.setDisable(disabled);
-        btnSupprimerProjet.setDisable(disabled);
-    }
-
     private double parseBudget(String s) { return Double.parseDouble(s.replace(",", ".")); }
 
     private int statutRank(String statut) {
@@ -463,4 +527,5 @@ public class FinancementController {
         });
         pause.play();
     }
+
 }

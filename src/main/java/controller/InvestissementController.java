@@ -1,13 +1,18 @@
 package controller;
 
 import entities.GFinancement.Investissement;
+import javafx.animation.PauseTransition;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
+import javafx.util.converter.DoubleStringConverter;
 import services.FinancementService.InvestissementService;
 import utils.MyDatabase;
 
@@ -19,21 +24,17 @@ import java.util.stream.Collectors;
 
 public class InvestissementController {
 
-    // ✅ USER STATIC (TEMPORAIRE) : change 1 -> id_user qui existe dans ta table user
     private static final int STATIC_USER_ID = 8;
 
-    // ====== PSEUDO CLASSES CSS
     private static final PseudoClass PSEUDO_ERROR = PseudoClass.getPseudoClass("error");
-
-    // ====== Statuts
     private static final String[] STATUTS = {"EN_ATTENTE", "FINANCE", "REFUSE"};
 
-    // ====== UI Form
+    // ====== UI Form (sert pour AJOUT uniquement)
     @FXML private TextField tfInvMontant;
     @FXML private DatePicker dpInvDate;
     @FXML private ComboBox<String> cbInvStatut;
     @FXML private ComboBox<ProjetItem> cbInvProjet;
-    @FXML private ComboBox<UserItem> cbInvUser; // on le garde mais on va le cacher
+    @FXML private ComboBox<UserItem> cbInvUser; // caché
 
     @FXML private Label lblInvToast;
     @FXML private Label errInvMontant, errInvDate, errInvStatut, errInvProjet, errInvUser;
@@ -63,17 +64,23 @@ public class InvestissementController {
     public void initialize() {
         setupCombos();
         setupTable();
-        setupSelection();
+        setupInlineEditing();     // ✅ NEW
+        setupSelection();         // ✅ modifié
         setupSearchFilter();
 
         setupInputGuards();
         setupLiveValidation();
 
-        // ✅ cacher user (on ne le choisit plus)
         disableUserSelection();
 
         refreshInvestissements();
         clearErrors();
+
+        if (btnModifierInv != null) {
+            btnModifierInv.setDisable(true);
+            btnModifierInv.setVisible(false);
+            btnModifierInv.setManaged(false);
+        }
     }
 
     // ===================== SETUP =====================
@@ -91,14 +98,13 @@ public class InvestissementController {
             @Override public ProjetItem fromString(String s) { return null; }
         });
 
-        // on garde le converter mais il sera inutilisé car combo caché
         cbInvUser.setConverter(new StringConverter<>() {
             @Override public String toString(UserItem u) { return u == null ? "" : u.label; }
             @Override public UserItem fromString(String s) { return null; }
         });
 
         loadProjets();
-        loadUsers(); // pas obligatoire, mais utile pour afficher "User label" dans la table
+        loadUsers();
     }
 
     private void disableUserSelection() {
@@ -121,11 +127,11 @@ public class InvestissementController {
         colInvProjet.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(getProjetLabel(c.getValue().getId_projet())));
         colInvUser.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(getUserLabel(c.getValue().getId_user())));
 
+        // Badge style statut (display)
         colInvStatut.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
                 super.updateItem(statut, empty);
-
                 getStyleClass().removeAll("statut-attente", "statut-finance", "statut-refuse");
                 if (empty || statut == null) { setText(null); return; }
 
@@ -139,31 +145,112 @@ public class InvestissementController {
         });
 
         tableInvestissements.setItems(filtered);
+        tableInvestissements.setEditable(true); // ✅ IMPORTANT
     }
 
+    // ===================== INLINE EDITING (✅ NEW) =====================
+
+    private void setupInlineEditing() {
+
+        // 1) Montant (double-clic)
+        colInvMontant.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        colInvMontant.setOnEditCommit(ev -> {
+            Investissement inv = ev.getRowValue();
+            Double nv = ev.getNewValue();
+
+            if (nv == null || nv <= 0) {
+                showToast("❌ Montant invalide (>0).", "toastError");
+                tableInvestissements.refresh();
+                return;
+            }
+
+            inv.setMontantInvestissement(nv);
+            saveInline(inv, "✅ Montant modifié.");
+        });
+
+        // 2) Statut (combo)
+        colInvStatut.setCellFactory(ComboBoxTableCell.forTableColumn(
+                FXCollections.observableArrayList(STATUTS)
+        ));
+        colInvStatut.setOnEditCommit(ev -> {
+            Investissement inv = ev.getRowValue();
+            String nv = ev.getNewValue();
+
+            if (nv == null || nv.isBlank()) {
+                tableInvestissements.refresh();
+                return;
+            }
+
+            inv.setStatut(nv);
+            saveInline(inv, "✅ Statut modifié.");
+        });
+
+        // 3) Date (édition texte)
+        colInvDate.setCellFactory(TextFieldTableCell.forTableColumn());
+        colInvDate.setOnEditCommit(ev -> {
+            Investissement inv = ev.getRowValue();
+            String nv = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+
+            // format attendu: yyyy-MM-dd
+            try {
+                LocalDate d = LocalDate.parse(nv);
+                if (d.isAfter(LocalDate.now())) {
+                    showToast("❌ Date future interdite.", "toastError");
+                    tableInvestissements.refresh();
+                    return;
+                }
+                inv.setDate_investissement(d.toString());
+                saveInline(inv, "✅ Date modifiée.");
+            } catch (Exception ex) {
+                showToast("❌ Date invalide (yyyy-MM-dd).", "toastError");
+                tableInvestissements.refresh();
+            }
+        });
+
+        // 4) Projet (édition texte -> choisir parmi la liste)
+        // Ici on laisse colInvProjet affichée en String, mais on autorise la saisie d'un titre existant.
+        // (si tu préfères un vrai ComboBox dans la cellule, je te donne la version juste après)
+        colInvProjet.setCellFactory(TextFieldTableCell.forTableColumn());
+        colInvProjet.setOnEditCommit(ev -> {
+            Investissement inv = ev.getRowValue();
+            String nvTitre = ev.getNewValue() == null ? "" : ev.getNewValue().trim().toLowerCase(Locale.ROOT);
+
+            ProjetItem match = cbInvProjet.getItems().stream()
+                    .filter(p -> p.titre != null && p.titre.toLowerCase(Locale.ROOT).equals(nvTitre))
+                    .findFirst().orElse(null);
+
+            if (match == null) {
+                showToast("❌ Projet introuvable (saisir le titre exact).", "toastError");
+                tableInvestissements.refresh();
+                return;
+            }
+
+            inv.setId_projet(match.id);
+            saveInline(inv, "✅ Projet modifié.");
+        });
+
+        // User colonne: pas éditable (user auto)
+        colInvUser.setEditable(false);
+    }
+
+    private void saveInline(Investissement inv, String okMsg) {
+        try {
+            invService.update(inv);
+            showToast(okMsg, "toastSuccess");
+            refreshInvestissements();
+        } catch (SQLException e) {
+            showToast("❌ Erreur update: " + e.getMessage(), "toastError");
+            tableInvestissements.refresh();
+        }
+    }
+
+    // ===================== SELECTION (✅ modifié: plus de remplissage form) =====================
+
     private void setupSelection() {
-        btnModifierInv.setDisable(true);
         btnSupprimerInv.setDisable(true);
 
         tableInvestissements.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
-            boolean has = sel != null;
-            btnModifierInv.setDisable(!has);
-            btnSupprimerInv.setDisable(!has);
-
-            if (has) {
-                tfInvMontant.setText(String.valueOf(sel.getMontantInvestissement()));
-                cbInvStatut.getSelectionModel().select(sel.getStatut());
-
-                try { dpInvDate.setValue(LocalDate.parse(sel.getDate_investissement())); }
-                catch (Exception e) { dpInvDate.setValue(null); }
-
-                cbInvProjet.getSelectionModel().select(
-                        cbInvProjet.getItems().stream().filter(p -> p.id == sel.getId_projet()).findFirst().orElse(null)
-                );
-
-                // ✅ user auto => pas de sélection user
-                validateAllLive();
-            }
+            btnSupprimerInv.setDisable(sel == null);
         });
     }
 
@@ -180,16 +267,13 @@ public class InvestissementController {
         });
     }
 
-    // ===================== VALIDATION LIVE =====================
+    // ===================== LIVE VALIDATION (form add) =====================
 
     private void setupLiveValidation() {
         tfInvMontant.textProperty().addListener((obs, o, n) -> validateMontantLive());
         dpInvDate.valueProperty().addListener((obs, o, n) -> validateDateLive());
         cbInvStatut.valueProperty().addListener((obs, o, n) -> validateStatutLive());
         cbInvProjet.valueProperty().addListener((obs, o, n) -> validateProjetLive());
-
-        // ✅ on ne valide plus l'utilisateur (auto)
-        // cbInvUser.valueProperty().addListener((obs, o, n) -> validateUserLive());
     }
 
     private void validateAllLive() {
@@ -197,7 +281,6 @@ public class InvestissementController {
         validateDateLive();
         validateStatutLive();
         validateProjetLive();
-        // ✅ pas user
     }
 
     private boolean validateMontantLive() {
@@ -265,23 +348,10 @@ public class InvestissementController {
         }
     }
 
+    // ✅ plus utilisé
     @FXML
     private void modifierInvestissement() {
-        Investissement selected = tableInvestissements.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-
-        clearErrors();
-        validateAllLive();
-        if (!validateForm()) return;
-
-        try {
-            Investissement inv = buildFromForm(selected.getId_investissement());
-            invService.update(inv);
-            showToast("✅ Investissement modifié.", "toastSuccess");
-            refreshInvestissements();
-        } catch (SQLException e) {
-            showToast("❌ Erreur modification: " + e.getMessage(), "toastError");
-        }
+        showToast("ℹ️ Modification via la table (double-clic).", "toastInfo");
     }
 
     @FXML
@@ -339,7 +409,7 @@ public class InvestissementController {
         cbFilterInvStatut.getSelectionModel().selectFirst();
     }
 
-    // ===================== VALIDATION (submit) =====================
+    // ===================== VALIDATION submit (form add) =====================
 
     private boolean validateForm() {
         boolean ok = true;
@@ -372,8 +442,6 @@ public class InvestissementController {
             ok = false;
         }
 
-        // ✅ plus de validation user
-
         return ok;
     }
 
@@ -382,8 +450,6 @@ public class InvestissementController {
         String statut = cbInvStatut.getValue();
         String dateStr = dpInvDate.getValue().toString();
         int idProjet = cbInvProjet.getValue().id;
-
-        // ✅ user AUTO
         int idUser = STATIC_USER_ID;
 
         return new Investissement(id, montant, statut, dateStr, idProjet, idUser);
@@ -441,7 +507,7 @@ public class InvestissementController {
         lblInvCount.setText("Résultats: " + filtered.size() + " / Total: " + master.size());
     }
 
-    // ===================== TOAST =====================
+    // ===================== TOAST (avec auto hide) =====================
 
     private void showToast(String msg, String cssClass) {
         lblInvToast.getStyleClass().removeAll("toastInfo", "toastSuccess", "toastError");
@@ -450,9 +516,17 @@ public class InvestissementController {
         lblInvToast.setText(msg);
         lblInvToast.setVisible(true);
         lblInvToast.setManaged(true);
+
+        PauseTransition p = new PauseTransition(Duration.seconds(3));
+        p.setOnFinished(e -> {
+            lblInvToast.setText("");
+            lblInvToast.setVisible(false);
+            lblInvToast.setManaged(false);
+        });
+        p.play();
     }
 
-    // ===================== DATA LOADING (DB) =====================
+    // ===================== DATA LOADING =====================
 
     private void loadProjets() {
         String sql = "SELECT id_projet, titre FROM projet ORDER BY id_projet DESC";
@@ -494,12 +568,11 @@ public class InvestissementController {
     }
 
     private String getUserLabel(int idUser) {
-        // si on ne charge pas users, affichage fallback
         UserItem u = cbInvUser.getItems().stream().filter(x -> x.id == idUser).findFirst().orElse(null);
         return u == null ? ("User #" + idUser) : u.label;
     }
 
-    // ===================== SMALL DTOs =====================
+    // ===================== DTOs =====================
 
     public static class ProjetItem {
         public final int id;

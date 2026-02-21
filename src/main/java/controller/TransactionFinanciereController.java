@@ -1,13 +1,18 @@
 package controller;
 
 import entities.GFinancement.Transaction_Financiere;
+import javafx.animation.PauseTransition;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
+import javafx.util.converter.DoubleStringConverter;
 import services.FinancementService.TransactionFinanciereService;
 import utils.MyDatabase;
 
@@ -19,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class TransactionFinanciereController {
 
-    // ===================== UI FORM =====================
+    // ===================== UI FORM (sert pour AJOUT)
     @FXML private TextField tfTxMontant;
     @FXML private DatePicker dpTxDate;
     @FXML private ComboBox<String> cbTxMode;
@@ -31,12 +36,12 @@ public class TransactionFinanciereController {
 
     @FXML private Button btnModifierTx, btnSupprimerTx;
 
-    // ===================== SEARCH / FILTER =====================
+    // ===================== SEARCH / FILTER
     @FXML private TextField tfSearchTx;
     @FXML private ComboBox<String> cbFilterTxStatut;
     @FXML private Label lblTxCount;
 
-    // ===================== TABLE =====================
+    // ===================== TABLE
     @FXML private TableView<Transaction_Financiere> tableTransactions;
     @FXML private TableColumn<Transaction_Financiere, Integer> colTxId;
     @FXML private TableColumn<Transaction_Financiere, Double> colTxMontant;
@@ -53,36 +58,31 @@ public class TransactionFinanciereController {
     // ✅ adapte si tes valeurs DB sont différentes
     private static final String[] TX_STATUTS = {"EN_ATTENTE", "VALIDEE", "REFUSEE"};
     private static final String[] TX_MODES   = {"CARTE", "VIREMENT", "ESPECES", "CHEQUE"};
+
     private static final PseudoClass ERROR = PseudoClass.getPseudoClass("error");
 
-    private void setError(Control field, Label errLabel, String msg) {
-        field.pseudoClassStateChanged(ERROR, true);
-        errLabel.setText(msg);
-        errLabel.setVisible(true);
-        errLabel.setManaged(true);
-    }
-
-    private void clearError(Control field, Label errLabel) {
-        field.pseudoClassStateChanged(ERROR, false);
-        errLabel.setText("");
-        errLabel.setVisible(false);
-        errLabel.setManaged(false);
-    }
-
-    // ===================== INIT =====================
+    // ===================== INIT
     @FXML
     public void initialize() {
         setupCombos();
         setupTable();
-        setupSelection();
+        setupInlineEditing();   // ✅ NEW
+        setupSelection();       // ✅ modifié
         setupSearchFilter();
-        setupLiveValidation();
+        setupLiveValidation();  // pour AJOUT
 
         loadInvestissements();
         refreshTransactions();
+
+        // ✅ cacher bouton modifier (modif = table)
+        if (btnModifierTx != null) {
+            btnModifierTx.setDisable(true);
+            btnModifierTx.setVisible(false);
+            btnModifierTx.setManaged(false);
+        }
     }
 
-    // ===================== SETUP =====================
+    // ===================== SETUP
     private void setupCombos() {
         cbTxMode.setItems(FXCollections.observableArrayList(TX_MODES));
         cbTxStatut.setItems(FXCollections.observableArrayList(TX_STATUTS));
@@ -99,7 +99,6 @@ public class TransactionFinanciereController {
     }
 
     private void setupTable() {
-        // ID (tu l’as mis prefWidth=0 dans FXML, c’est OK)
         colTxId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId_transaction()));
 
         colTxMontant.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getMontantTransaction()));
@@ -111,19 +110,16 @@ public class TransactionFinanciereController {
                 new ReadOnlyObjectWrapper<>(getInvLabel(c.getValue().getId_investissement()))
         );
 
-        // Statut coloré (réutilise tes classes CSS)
+        // Statut coloré (display)
         colTxStatut.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
                 super.updateItem(statut, empty);
 
                 getStyleClass().removeAll("statut-attente", "statut-finance", "statut-refuse");
-                if (empty || statut == null) {
-                    setText(null);
-                    return;
-                }
-                setText(statut);
+                if (empty || statut == null) { setText(null); return; }
 
+                setText(statut);
                 switch (statut) {
                     case "EN_ATTENTE" -> getStyleClass().add("statut-attente");
                     case "VALIDEE"    -> getStyleClass().add("statut-finance");
@@ -133,34 +129,122 @@ public class TransactionFinanciereController {
         });
 
         tableTransactions.setItems(filtered);
+        tableTransactions.setEditable(true); // ✅ IMPORTANT
     }
 
-    private void setupSelection() {
-        btnModifierTx.setDisable(true);
-        btnSupprimerTx.setDisable(true);
+    // ===================== INLINE EDITING (✅ NEW)
+    private void setupInlineEditing() {
 
-        tableTransactions.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
-            boolean has = sel != null;
-            btnModifierTx.setDisable(!has);
-            btnSupprimerTx.setDisable(!has);
+        // 1) Montant
+        colTxMontant.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        colTxMontant.setOnEditCommit(ev -> {
+            Transaction_Financiere tx = ev.getRowValue();
+            Double nv = ev.getNewValue();
 
-            if (!has) return;
-
-            tfTxMontant.setText(String.valueOf(sel.getMontantTransaction()));
-            cbTxMode.getSelectionModel().select(sel.getMode_paiement());
-            cbTxStatut.getSelectionModel().select(sel.getStatut_transaction());
-
-            try {
-                dpTxDate.setValue(LocalDate.parse(sel.getDate_transaction()));
-            } catch (Exception e) {
-                dpTxDate.setValue(null);
+            if (nv == null || nv <= 0) {
+                showToast("❌ Montant invalide (>0).", "toastError");
+                tableTransactions.refresh();
+                return;
             }
 
-            cbTxInvestissement.getSelectionModel().select(
-                    cbTxInvestissement.getItems().stream()
-                            .filter(i -> i.id == sel.getId_investissement())
-                            .findFirst().orElse(null)
-            );
+            tx.setMontantTransaction(nv);
+            saveInline(tx, "✅ Montant modifié.");
+        });
+
+        // 2) Date (édition texte yyyy-MM-dd)
+        colTxDate.setCellFactory(TextFieldTableCell.forTableColumn());
+        colTxDate.setOnEditCommit(ev -> {
+            Transaction_Financiere tx = ev.getRowValue();
+            String nv = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+
+            try {
+                LocalDate d = LocalDate.parse(nv);
+                if (d.isAfter(LocalDate.now())) {
+                    showToast("❌ Date future interdite.", "toastError");
+                    tableTransactions.refresh();
+                    return;
+                }
+
+                tx.setDate_transaction(d.toString());
+                saveInline(tx, "✅ Date modifiée.");
+            } catch (Exception ex) {
+                showToast("❌ Date invalide (yyyy-MM-dd).", "toastError");
+                tableTransactions.refresh();
+            }
+        });
+
+        // 3) Mode paiement (combo)
+        colTxMode.setCellFactory(ComboBoxTableCell.forTableColumn(
+                FXCollections.observableArrayList(TX_MODES)
+        ));
+        colTxMode.setOnEditCommit(ev -> {
+            Transaction_Financiere tx = ev.getRowValue();
+            String nv = ev.getNewValue();
+
+            if (nv == null || nv.isBlank()) {
+                tableTransactions.refresh();
+                return;
+            }
+
+            tx.setMode_paiement(nv);
+            saveInline(tx, "✅ Mode modifié.");
+        });
+
+        // 4) Statut (combo)
+        colTxStatut.setCellFactory(ComboBoxTableCell.forTableColumn(
+                FXCollections.observableArrayList(TX_STATUTS)
+        ));
+        colTxStatut.setOnEditCommit(ev -> {
+            Transaction_Financiere tx = ev.getRowValue();
+            String nv = ev.getNewValue();
+
+            if (nv == null || nv.isBlank()) {
+                tableTransactions.refresh();
+                return;
+            }
+
+            tx.setStatut_transaction(nv);
+            saveInline(tx, "✅ Statut modifié.");
+        });
+
+        // 5) Investissement : on laisse affiché en String (saisie label exact)
+        // Tu peux écrire : "Invest #12 - 500.0" (exact)
+        colTxInvestissement.setCellFactory(TextFieldTableCell.forTableColumn());
+        colTxInvestissement.setOnEditCommit(ev -> {
+            Transaction_Financiere tx = ev.getRowValue();
+            String nv = ev.getNewValue() == null ? "" : ev.getNewValue().trim().toLowerCase(Locale.ROOT);
+
+            InvItem match = cbTxInvestissement.getItems().stream()
+                    .filter(i -> i.label != null && i.label.toLowerCase(Locale.ROOT).equals(nv))
+                    .findFirst().orElse(null);
+
+            if (match == null) {
+                showToast("❌ Investissement introuvable (saisir le label exact).", "toastError");
+                tableTransactions.refresh();
+                return;
+            }
+
+            tx.setId_investissement(match.id);
+            saveInline(tx, "✅ Investissement modifié.");
+        });
+    }
+
+    private void saveInline(Transaction_Financiere tx, String okMsg) {
+        try {
+            txService.update(tx);
+            showToast(okMsg, "toastSuccess");
+            refreshTransactions();
+        } catch (SQLException e) {
+            showToast("❌ Erreur update: " + e.getMessage(), "toastError");
+            tableTransactions.refresh();
+        }
+    }
+
+    // ===================== SELECTION (✅ modifié)
+    private void setupSelection() {
+        btnSupprimerTx.setDisable(true);
+        tableTransactions.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
+            btnSupprimerTx.setDisable(sel == null);
         });
     }
 
@@ -169,6 +253,7 @@ public class TransactionFinanciereController {
         cbFilterTxStatut.valueProperty().addListener((obs, o, n) -> applyFilters());
     }
 
+    // ===================== VALIDATION (form add)
     private void setupLiveValidation() {
         tfTxMontant.textProperty().addListener((obs, o, n) -> validateMontantLive());
         dpTxDate.valueProperty().addListener((obs, o, n) -> validateDateLive());
@@ -177,8 +262,7 @@ public class TransactionFinanciereController {
         cbTxInvestissement.valueProperty().addListener((obs, o, n) -> validateInvestissementLive());
     }
 
-    // ===================== ACTIONS (NOMS = FXML) =====================
-
+    // ===================== ACTIONS
     @FXML
     private void ajouterTransaction() {
         clearErrors();
@@ -195,22 +279,10 @@ public class TransactionFinanciereController {
         }
     }
 
+    // ✅ plus utilisé (modif = table)
     @FXML
     private void modifierTransaction() {
-        Transaction_Financiere selected = tableTransactions.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-
-        clearErrors();
-        if (!validateForm()) return;
-
-        try {
-            Transaction_Financiere tx = buildFromForm(selected.getId_transaction());
-            txService.update(tx);
-            showToast("✅ Transaction modifiée.", "toastSuccess");
-            refreshTransactions();
-        } catch (SQLException e) {
-            showToast("❌ Erreur modification: " + e.getMessage(), "toastError");
-        }
+        showToast("ℹ️ Modification via la table (double-clic).", "toastInfo");
     }
 
     @FXML
@@ -261,11 +333,10 @@ public class TransactionFinanciereController {
     @FXML
     private void clearSearchTx() {
         tfSearchTx.clear();
-        cbFilterTxStatut.getSelectionModel().selectFirst(); // TOUS
+        cbFilterTxStatut.getSelectionModel().selectFirst();
     }
 
-    // ===================== FILTER =====================
-
+    // ===================== FILTER
     private void applyFilters() {
         String q = tfSearchTx.getText() == null ? "" : tfSearchTx.getText().trim().toLowerCase(Locale.ROOT);
         String statutFilter = cbFilterTxStatut.getValue();
@@ -283,6 +354,7 @@ public class TransactionFinanciereController {
 
             return okStatut && okQuery;
         }).collect(Collectors.toList()));
+
         updateCount();
     }
 
@@ -290,8 +362,7 @@ public class TransactionFinanciereController {
         lblTxCount.setText("Résultats: " + filtered.size() + " / Total: " + master.size());
     }
 
-    // ===================== VALIDATION =====================
-
+    // ===================== VALIDATION (form add)
     private boolean validateForm() {
         boolean ok = true;
         if (!validateMontantLive()) ok = false;
@@ -307,79 +378,96 @@ public class TransactionFinanciereController {
         try {
             double montant = Double.parseDouble(m.replace(",", "."));
             if (montant <= 0) throw new NumberFormatException();
-            hideError(errTxMontant);
+            clearError(tfTxMontant, errTxMontant);
             return true;
         } catch (Exception e) {
-            showError(errTxMontant, "Montant invalide (doit être > 0).");
+            setError(tfTxMontant, errTxMontant, "Montant invalide (doit être > 0).");
             return false;
         }
     }
 
     private boolean validateDateLive() {
-        if (dpTxDate.getValue() == null) {
-            showError(errTxDate, "Date obligatoire.");
+        if (dpTxDate.getValue() == null || dpTxDate.getValue().isAfter(LocalDate.now())) {
+            setError(dpTxDate, errTxDate, "Date obligatoire (et non future).");
             return false;
         }
-        hideError(errTxDate);
+        clearError(dpTxDate, errTxDate);
         return true;
     }
 
     private boolean validateModeLive() {
         if (cbTxMode.getValue() == null || cbTxMode.getValue().isBlank()) {
-            showError(errTxMode, "Mode obligatoire.");
+            setError(cbTxMode, errTxMode, "Mode obligatoire.");
             return false;
         }
-        hideError(errTxMode);
+        clearError(cbTxMode, errTxMode);
         return true;
     }
 
     private boolean validateStatutLive() {
         if (cbTxStatut.getValue() == null || cbTxStatut.getValue().isBlank()) {
-            showError(errTxStatut, "Statut obligatoire.");
+            setError(cbTxStatut, errTxStatut, "Statut obligatoire.");
             return false;
         }
-        hideError(errTxStatut);
+        clearError(cbTxStatut, errTxStatut);
         return true;
     }
 
     private boolean validateInvestissementLive() {
         if (cbTxInvestissement.getValue() == null) {
-            showError(errTxInvestissement, "Investissement obligatoire.");
+            setError(cbTxInvestissement, errTxInvestissement, "Investissement obligatoire.");
             return false;
         }
-        hideError(errTxInvestissement);
+        clearError(cbTxInvestissement, errTxInvestissement);
         return true;
     }
 
     private Transaction_Financiere buildFromForm(int id) {
         double montant = Double.parseDouble(tfTxMontant.getText().trim().replace(",", "."));
-        String dateStr = dpTxDate.getValue().toString(); // yyyy-MM-dd
+        String dateStr = dpTxDate.getValue().toString();
         String mode = cbTxMode.getValue();
         String statut = cbTxStatut.getValue();
         int idInv = cbTxInvestissement.getValue().id;
-
         return new Transaction_Financiere(id, montant, dateStr, mode, statut, idInv);
     }
 
-    private void showError(Label label, String msg) {
-        label.setText(msg);
-        label.setVisible(true);
-        label.setManaged(true);
+    private void setError(Control field, Label errLabel, String msg) {
+        field.pseudoClassStateChanged(ERROR, true);
+        errLabel.setText(msg);
+        errLabel.setVisible(true);
+        errLabel.setManaged(true);
     }
 
-    private void hideError(Label label) {
-        label.setText("");
-        label.setVisible(false);
-        label.setManaged(false);
+    private void clearError(Control field, Label errLabel) {
+        field.pseudoClassStateChanged(ERROR, false);
+        errLabel.setText("");
+        errLabel.setVisible(false);
+        errLabel.setManaged(false);
+    }
+
+    private void showOnlyLabel(Label l, String msg) {
+        l.setText(msg);
+        l.setVisible(true);
+        l.setManaged(true);
     }
 
     private void clearErrors() {
         Label[] errs = {errTxMontant, errTxDate, errTxMode, errTxStatut, errTxInvestissement};
-        for (Label l : errs) hideError(l);
+        for (Label l : errs) {
+            if (l == null) continue;
+            l.setText("");
+            l.setVisible(false);
+            l.setManaged(false);
+        }
+
+        tfTxMontant.pseudoClassStateChanged(ERROR, false);
+        dpTxDate.pseudoClassStateChanged(ERROR, false);
+        cbTxMode.pseudoClassStateChanged(ERROR, false);
+        cbTxStatut.pseudoClassStateChanged(ERROR, false);
+        cbTxInvestissement.pseudoClassStateChanged(ERROR, false);
     }
 
-    // ===================== TOAST =====================
-
+    // ===================== TOAST
     private void showToast(String msg, String cssClass) {
         lblTxToast.getStyleClass().removeAll("toastInfo", "toastSuccess", "toastError");
         lblTxToast.getStyleClass().add(cssClass);
@@ -387,10 +475,17 @@ public class TransactionFinanciereController {
         lblTxToast.setText(msg);
         lblTxToast.setVisible(true);
         lblTxToast.setManaged(true);
+
+        PauseTransition p = new PauseTransition(Duration.seconds(3));
+        p.setOnFinished(e -> {
+            lblTxToast.setText("");
+            lblTxToast.setVisible(false);
+            lblTxToast.setManaged(false);
+        });
+        p.play();
     }
 
-    // ===================== INVESTISSEMENTS COMBO (DB) =====================
-
+    // ===================== INVESTISSEMENTS COMBO (DB)
     private void loadInvestissements() {
         String sql = "SELECT id_investissement, montantInvestissement FROM investissement ORDER BY id_investissement DESC";
 
@@ -404,9 +499,7 @@ public class TransactionFinanciereController {
                 double montant = rs.getDouble("montantInvestissement");
                 invs.add(new InvItem(id, "Invest #" + id + " - " + montant));
             }
-        } catch (Exception e) {
-            // fallback si table pas prête
-        }
+        } catch (Exception ignored) {}
 
         cbTxInvestissement.setItems(invs);
     }
@@ -416,7 +509,7 @@ public class TransactionFinanciereController {
         return i == null ? ("Invest #" + idInv) : i.label;
     }
 
-    // ===================== SMALL DTO =====================
+    // ===================== SMALL DTO
     public static class InvItem {
         public final int id;
         public final String label;
