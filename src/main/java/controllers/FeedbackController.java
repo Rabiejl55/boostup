@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.IntegerStringConverter;
 
 public class FeedbackController implements Initializable {
 
@@ -101,6 +103,9 @@ public class FeedbackController implements Initializable {
         // Mini-stats: se met à jour quand la liste visible change
         hookStatsRefresh();
         refreshStats();
+
+        // Option A: édition inline + sauvegarde immédiate
+        setupInlineEditing();
     }
 
     private void setupNoteBadges() {
@@ -362,24 +367,8 @@ public class FeedbackController implements Initializable {
 
     @FXML
     private void handleModifier() {
-        FeedbackFX selected = tableFeedbacks.getSelectionModel().getSelectedItem();
-        if (selected != null && validateForm()) {
-            try {
-                ParticipationOption selectedPart = cbParticipation.getSelectionModel().getSelectedItem();
-
-                selected.setCommentaire(taCommentaire.getText());
-                selected.setNote((int) sliderNote.getValue());
-                selected.setDateFeedback(Date.valueOf(dpDateFeedback.getValue()));
-                selected.setIdParticipation(selectedPart.getIdParticipation());
-
-                fs.update(selected.toFeedback());
-                refreshTable();
-                showAlert("Succès", "Feedback modifié!");
-
-            } catch (SQLException e) {
-                showAlert("Erreur", "Erreur SQL: " + e.getMessage());
-            }
-        }
+        // Option A: édition inline
+        showAlert("Modification", "La modification se fait directement dans le tableau (double-clic sur une cellule). ");
     }
 
     @FXML
@@ -566,6 +555,151 @@ public class FeedbackController implements Initializable {
             refreshStats();
         } catch (SQLException e) {
             showAlert("Erreur", "Erreur lors du chargement: " + e.getMessage());
+        }
+    }
+
+    private void setupInlineEditing() {
+        if (tableFeedbacks == null) return;
+        tableFeedbacks.setEditable(true);
+
+        // Commentaire
+        if (colCommentaire != null) {
+            colCommentaire.setEditable(true);
+            colCommentaire.setCellFactory(TextFieldTableCell.forTableColumn());
+            colCommentaire.setOnEditCommit(ev -> {
+                FeedbackFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+                if (newV.isEmpty()) {
+                    showAlert("Validation", "Le commentaire est obligatoire");
+                    tableFeedbacks.refresh();
+                    return;
+                }
+                String old = row.getCommentaire();
+                row.setCommentaire(newV);
+                try {
+                    fs.update(row.toFeedback());
+                } catch (SQLException ex) {
+                    row.setCommentaire(old);
+                    tableFeedbacks.refresh();
+                    showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Note
+        if (colNote != null) {
+            colNote.setEditable(true);
+            IntegerStringConverter intConv = new IntegerStringConverter();
+            colNote.setCellFactory(TextFieldTableCell.forTableColumn(intConv));
+            colNote.setOnEditCommit(ev -> {
+                FeedbackFX row = ev.getRowValue();
+                if (row == null) return;
+                Integer newV = ev.getNewValue();
+                if (newV == null || newV < 1 || newV > 5) {
+                    showAlert("Validation", "La note doit être entre 1 et 5");
+                    tableFeedbacks.refresh();
+                    return;
+                }
+                int old = row.getNote();
+                row.setNote(newV);
+                try {
+                    fs.update(row.toFeedback());
+                    refreshStats();
+                } catch (SQLException ex) {
+                    row.setNote(old);
+                    tableFeedbacks.refresh();
+                    showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Date feedback (DatePicker)
+        if (colDateFeedback != null) {
+            colDateFeedback.setEditable(true);
+            colDateFeedback.setCellFactory(column -> new DateEditingCell());
+        }
+
+        // Participation label: non editable
+        if (colParticipation != null) {
+            colParticipation.setEditable(false);
+        }
+    }
+
+    /** Cellule DatePicker pour colDateFeedback : commit + update DB */
+    private class DateEditingCell extends TableCell<FeedbackFX, Date> {
+        private final DatePicker picker = new DatePicker();
+
+        DateEditingCell() {
+            picker.setOnAction(e -> commitFromPicker());
+            picker.focusedProperty().addListener((obs, old, foc) -> {
+                if (!foc && isEditing()) commitFromPicker();
+            });
+        }
+
+        private void commitFromPicker() {
+            java.time.LocalDate ld = picker.getValue();
+            if (ld == null) {
+                cancelEdit();
+                return;
+            }
+            commitEdit(Date.valueOf(ld));
+        }
+
+        @Override
+        public void startEdit() {
+            super.startEdit();
+            if (!isEmpty()) {
+                Date d = getItem();
+                picker.setValue(d == null ? null : d.toLocalDate());
+                setGraphic(picker);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+
+        @Override
+        public void commitEdit(Date newValue) {
+            FeedbackFX row = getTableRow() == null ? null : getTableRow().getItem();
+            if (row == null || newValue == null) {
+                super.commitEdit(newValue);
+                return;
+            }
+
+            Date old = row.getDateFeedback();
+            row.setDateFeedback(newValue);
+            try {
+                fs.update(row.toFeedback());
+                super.commitEdit(newValue);
+            } catch (SQLException ex) {
+                row.setDateFeedback(old);
+                tableFeedbacks.refresh();
+                showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                super.cancelEdit();
+            }
+
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+
+        @Override
+        protected void updateItem(Date item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
+                return;
+            }
+            setText(item == null ? "" : item.toLocalDate().toString());
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
         }
     }
 }

@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -15,7 +17,27 @@ public class LoginController {
 
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
-    @FXML private Label errorLabel;
+
+    // Dans le FXML: fx:id="messageLabel"
+    @FXML private Label messageLabel;
+
+    // Dans le FXML: fx:id="logoImageView" (optionnel)
+    @FXML private ImageView logoImageView;
+
+    @FXML
+    private void initialize() {
+        // Charge le logo si présent dans resources/images/logo.png (safe: si absent, pas d'erreur)
+        if (logoImageView != null) {
+            try {
+                URL url = getClass().getResource("/images/logo.png");
+                if (url != null) {
+                    logoImageView.setImage(new Image(url.toExternalForm(), true));
+                }
+            } catch (Exception ignored) {
+                // Ne pas bloquer l'écran de login si l'image manque
+            }
+        }
+    }
 
     @FXML
     private void handleLogin() {
@@ -24,28 +46,39 @@ public class LoginController {
 
         // Admin (back-office)
         if ("admin".equals(email) && "admin".equals(password)) {
-            openScene("/EvenementView.fxml", "Gestion des Événements - BoostUp");
+            openScene("/views/AdminDashboardView.fxml", "BoostUp Admin - Dashboard");
             return;
         }
 
-        // User (front-office)
+        // User (front-office) -> HomePage
         if ("admin".equals(email) && "user".equals(password)) {
-            openScene("/FrontEvenementsView.fxml", "BoostUp - Événements");
+            openScene("/HomePageView.fxml", "BoostUp - Accueil");
             return;
         }
 
-        // Identifiants incorrects
-        showError("Identifiants incorrects. Réessaie.");
+        showMessage("Identifiants incorrects. Réessaie.", true);
         if (emailField != null) emailField.clear();
         if (passwordField != null) passwordField.clear();
         if (emailField != null) emailField.requestFocus();
+    }
+
+    @FXML
+    private void goToForgotPassword() {
+        // Pas encore implémenté: message UX propre sans casser l'app
+        showMessage("Fonctionnalité 'Mot de passe oublié' bientôt disponible.", false);
+    }
+
+    @FXML
+    private void goToSignup() {
+        // Pas encore implémenté: message UX propre sans casser l'app
+        showMessage("Inscription bientôt disponible.", false);
     }
 
     private void openScene(String fxmlPath, String title) {
         try {
             URL fxml = getClass().getResource(fxmlPath);
             if (fxml == null) {
-                showError("FXML introuvable: " + fxmlPath);
+                showMessage("FXML introuvable: " + fxmlPath, true);
                 return;
             }
 
@@ -62,13 +95,16 @@ public class LoginController {
             stage.setTitle(title);
         } catch (Exception e) {
             e.printStackTrace();
-            showError("Impossible d'ouvrir l'écran: " + e.getMessage());
+            showMessage("Impossible d'ouvrir l'écran: " + e.getMessage(), true);
         }
     }
 
-    private void showError(String msg) {
-        if (errorLabel != null) {
-            errorLabel.setText(msg);
+    private void showMessage(String msg, boolean isError) {
+        if (messageLabel != null) {
+            messageLabel.setText(msg);
+            messageLabel.setStyle(isError
+                    ? "-fx-text-fill: #dc3545; -fx-font-weight: 600;"
+                    : "-fx-text-fill: #0d6efd; -fx-font-weight: 600;");
         }
     }
 }

@@ -399,11 +399,17 @@ public class EventDetailPremiumController implements Initializable {
     }
 
     private void openLatLon(double lat, double lon, String subtitle) {
-        String html = MapHtmlBuilder.buildLeafletHtml(lat, lon,
-                nvl(current == null ? null : current.getTitre(), "Événement"), subtitle);
-        String dataUrl = MapHtmlBuilder.toDataUrl(html);
+        // On passe directement une URL d'image (plus fiable que WebView).
+        int zoom = 15;
+        int w = 980;
+        int h = 520;
+        String staticImgUrl = "https://staticmap.openstreetmap.de/staticmap.php?center=" + lat + "," + lon
+                + "&zoom=" + zoom
+                + "&size=" + w + "x" + h
+                + "&markers=" + lat + "," + lon + ",red-pushpin";
+
         String external = "https://www.openstreetmap.org/?mlat=" + lat + "&mlon=" + lon + "#map=16/" + lat + "/" + lon;
-        openMapModal(dataUrl, external, subtitle);
+        openMapModal(staticImgUrl, external, subtitle);
     }
 
     private void openMapModal(String urlToLoad, String externalUrl, String subtitle) {

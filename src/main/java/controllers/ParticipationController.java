@@ -15,6 +15,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import java.time.LocalDate;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -76,6 +78,12 @@ public class ParticipationController implements Initializable {
                 }
             });
         }
+
+        // Option A: édition inline + sauvegarde immédiate
+        setupInlineEditing();
+
+        // Option A: désactiver le bouton Modifier (évite d'écraser via le formulaire)
+        // Le FXML garde onAction="#handleModifier" mais ce handler devient informatif.
 
         // Remplir formulaire quand on sélectionne une ligne
         tableParticipations.getSelectionModel().selectedItemProperty().addListener((obs, oldV, selected) -> {
@@ -292,26 +300,8 @@ public class ParticipationController implements Initializable {
 
     @FXML
     private void handleModifier() {
-        ParticipationFX selected = tableParticipations.getSelectionModel().getSelectedItem();
-        if (selected != null && validateForm()) {
-            try {
-                EvenementOption selectedEv = cbEvenement.getSelectionModel().getSelectedItem();
-                int idEvenement = selectedEv.getId();
-
-                selected.setNomStartup(tfNomStartup.getText());
-                selected.setNomInvestisseur(tfNomInvestisseur.getText());
-                selected.setPresence(cbPresence.isSelected());
-                selected.setDateInscription(Date.valueOf(dpDateInscription.getValue()));
-                selected.setIdEvenement(idEvenement);
-
-                ps.update(selected.toParticipation());
-                refreshTable();
-                showAlert("Succès", "Participation modifiée!");
-
-            } catch (SQLException e) {
-                showAlert("Erreur", "Erreur SQL: " + e.getMessage());
-            }
-        }
+        // Option A: édition inline
+        showAlert("Modification", "La modification se fait directement dans le tableau (double-clic sur une cellule). ");
     }
 
     @FXML
@@ -340,6 +330,173 @@ public class ParticipationController implements Initializable {
             showAlert("Succès", "Participation supprimée!");
         } catch (SQLException e) {
             showAlert("Erreur", "Erreur SQL: " + e.getMessage());
+        }
+    }
+
+    private void setupInlineEditing() {
+        if (tableParticipations == null) return;
+        tableParticipations.setEditable(true);
+
+        // Startup
+        if (colStartup != null) {
+            colStartup.setEditable(true);
+            colStartup.setCellFactory(TextFieldTableCell.forTableColumn());
+            colStartup.setOnEditCommit(ev -> {
+                ParticipationFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+                if (newV.isEmpty() || newV.matches("\\d+")) {
+                    showAlert("Validation", "Nom startup invalide (obligatoire, pas uniquement des chiffres).");
+                    tableParticipations.refresh();
+                    return;
+                }
+                String old = row.getNomStartup();
+                row.setNomStartup(newV);
+                try {
+                    ps.update(row.toParticipation());
+                } catch (SQLException ex) {
+                    row.setNomStartup(old);
+                    tableParticipations.refresh();
+                    showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Investisseur
+        if (colInvestisseur != null) {
+            colInvestisseur.setEditable(true);
+            colInvestisseur.setCellFactory(TextFieldTableCell.forTableColumn());
+            colInvestisseur.setOnEditCommit(ev -> {
+                ParticipationFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+                if (newV.isEmpty() || newV.matches("\\d+")) {
+                    showAlert("Validation", "Nom investisseur invalide (obligatoire, pas uniquement des chiffres).");
+                    tableParticipations.refresh();
+                    return;
+                }
+                String old = row.getNomInvestisseur();
+                row.setNomInvestisseur(newV);
+                try {
+                    ps.update(row.toParticipation());
+                } catch (SQLException ex) {
+                    row.setNomInvestisseur(old);
+                    tableParticipations.refresh();
+                    showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Présence (toggle au double clic)
+        if (colPresence != null) {
+            colPresence.setEditable(true);
+            colPresence.setOnEditStart(ev -> {
+                ParticipationFX row = ev.getRowValue();
+                if (row == null) return;
+                boolean old = row.isPresence();
+                row.setPresence(!old);
+                try {
+                    ps.update(row.toParticipation());
+                } catch (SQLException ex) {
+                    row.setPresence(old);
+                    tableParticipations.refresh();
+                    showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Date inscription (DatePicker)
+        if (colDateInscription != null) {
+            colDateInscription.setEditable(true);
+            colDateInscription.setCellFactory(column -> new DateEditingCell());
+        }
+
+        // Événement affiché (titre) : non editable (car il dépend de la jointure)
+        if (colEvenement != null) {
+            colEvenement.setEditable(false);
+        }
+    }
+
+    /** Cellule DatePicker pour colDateInscription : commit + update DB */
+    private class DateEditingCell extends TableCell<ParticipationFX, Date> {
+        private final DatePicker picker = new DatePicker();
+
+        DateEditingCell() {
+            picker.setOnAction(e -> commitFromPicker());
+            picker.focusedProperty().addListener((obs, old, foc) -> {
+                if (!foc && isEditing()) commitFromPicker();
+            });
+        }
+
+        private void commitFromPicker() {
+            LocalDate ld = picker.getValue();
+            if (ld == null) {
+                cancelEdit();
+                return;
+            }
+            // règle existante: date <= aujourd'hui
+            if (ld.isAfter(LocalDate.now())) {
+                showAlert("Validation", "La date d'inscription doit être ≤ à aujourd'hui.");
+                cancelEdit();
+                return;
+            }
+            commitEdit(Date.valueOf(ld));
+        }
+
+        @Override
+        public void startEdit() {
+            super.startEdit();
+            if (!isEmpty()) {
+                Date d = getItem();
+                picker.setValue(d == null ? null : d.toLocalDate());
+                setGraphic(picker);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+
+        @Override
+        public void commitEdit(Date newValue) {
+            ParticipationFX row = getTableRow() == null ? null : getTableRow().getItem();
+            if (row == null || newValue == null) {
+                super.commitEdit(newValue);
+                return;
+            }
+
+            Date old = row.getDateInscription();
+            row.setDateInscription(newValue);
+            try {
+                ps.update(row.toParticipation());
+                super.commitEdit(newValue);
+            } catch (SQLException ex) {
+                row.setDateInscription(old);
+                tableParticipations.refresh();
+                showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
+                super.cancelEdit();
+            }
+
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+
+        @Override
+        protected void updateItem(Date item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
+                return;
+            }
+            setText(item == null ? "" : item.toLocalDate().toString());
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
         }
     }
 

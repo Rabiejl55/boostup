@@ -29,6 +29,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.StringConverter;
+import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.LocalDateStringConverter;
 
 public class EvenementController implements Initializable {
 
@@ -84,6 +88,9 @@ public class EvenementController implements Initializable {
         // Configuration des colonnes
         configureColumns();
 
+        // NEW: édition directe (double-clic) dans la TableView
+        setupInlineEditing();
+
         // Charger les données
         refreshTable();
 
@@ -94,20 +101,30 @@ public class EvenementController implements Initializable {
         setupTriChoiceBox();
 
         // Désactiver boutons modification/suppression initialement
-        btnModifier.setDisable(true);
+        // Option A: on désactive "Modifier" car l’édition se fait directement dans la TableView.
+        if (btnModifier != null) {
+            btnModifier.setDisable(true);
+            btnModifier.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION,
+                    "Modification",
+                    "La modification se fait directement dans le tableau (double-clic sur une cellule)."));
+        }
         btnSupprimer.setDisable(true);
 
         // Écouteur de sélection dans la table
         tableEvenements.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     boolean itemSelected = (newValue != null);
-                    btnModifier.setDisable(!itemSelected);
+
+                    // Option A: ne jamais réactiver le bouton Modifier
+                    if (btnModifier != null) {
+                        btnModifier.setDisable(true);
+                    }
                     btnSupprimer.setDisable(!itemSelected);
 
                     if (itemSelected) {
                         fillFormWithEvenement(newValue);
                         if (statusLabel != null) {
-                            statusLabel.setText("Sélection: " + newValue.getTitre());
+                            statusLabel.setText("Sélection: " + newValue.getTitre() + " (modifiez via le tableau)");
                         }
                     }
                 }
@@ -286,37 +303,11 @@ public class EvenementController implements Initializable {
 
     @FXML
     private void handleModifier() {
-        System.out.println("✏️ Bouton Modifier cliqué");
-        EvenementFX selected = tableEvenements.getSelectionModel().getSelectedItem();
-        if (selected != null && validateForm()) {
-            try {
-                // Mettre à jour l'EvenementFX sélectionné
-                updateEvenementFXFromForm(selected);
-
-                // Convertir en Evenement pour le service
-                Evenement evenementModifie = selected.toEvenement();
-
-                // Mettre à jour dans la base
-                es.update(evenementModifie);
-
-                // Actualiser la table
-                refreshTable();
-
-                if (statusLabel != null) {
-                    statusLabel.setText("✓ Événement modifié");
-                }
-
-                showAlert(Alert.AlertType.INFORMATION, "Succès",
-                        "Événement modifié avec succès!");
-
-            } catch (SQLException e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur SQL",
-                        "Erreur lors de la modification: " + e.getMessage());
-            } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur de format",
-                        "La capacité doit être un nombre entier!");
-            }
-        }
+        // Option A: la modification se fait inline dans la TableView.
+        showAlert(Alert.AlertType.INFORMATION,
+                "Modification",
+                "La modification se fait directement dans le tableau (double-clic sur une cellule).\n\n" +
+                        "Astuce: double-cliquez sur Titre/Type/Lieu/Capacité/Image/Date puis validez.");
     }
 
     @FXML
@@ -410,6 +401,25 @@ public class EvenementController implements Initializable {
     }
 
     @FXML
+    private void handleGoDashboard() {
+        try {
+            URL fxml = getClass().getResource("/views/AdminDashboardView.fxml");
+            if (fxml == null) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "FXML introuvable: /views/AdminDashboardView.fxml");
+                return;
+            }
+
+            Parent root = FXMLLoader.load(fxml);
+            Stage stage = (Stage) tableEvenements.getScene().getWindow();
+            stage.setScene(new Scene(root, 1200, 800));
+            stage.setTitle("BoostUp Admin - Dashboard");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ouvrir le dashboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     public void handleExportCsv() {
         if (tableEvenements == null) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "TableView introuvable");
@@ -455,10 +465,20 @@ public class EvenementController implements Initializable {
         try {
             evenementList.clear();
 
-            // Récupérer les Evenement depuis le service (actifs uniquement -> les archivés ne s'affichent plus)
             for (Evenement e : es.readActifs()) {
-                // Convertir chaque Evenement en EvenementFX
                 evenementList.add(new EvenementFX(e));
+            }
+
+            // IMPORTANT: s'assurer que la TableView pointe bien sur les données filtrées/triées actuelles
+            // (évite l'impression "ça se modifie puis ça revient comme avant")
+            if (tableEvenements != null) {
+                if (tableEvenements.getItems() == null || tableEvenements.getItems().isEmpty()) {
+                    // si setupSearchFilter n'a pas encore injecté le SortedList, on met la liste brute
+                    tableEvenements.setItems(evenementList);
+                } else {
+                    // forcer un refresh visuel si on est déjà sur SortedList
+                    tableEvenements.refresh();
+                }
             }
 
             if (evenementList.isEmpty()) {
@@ -632,5 +652,235 @@ public class EvenementController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void setupInlineEditing() {
+        if (tableEvenements == null) return;
+        tableEvenements.setEditable(true);
+
+        // Titre
+        if (colTitre != null) {
+            colTitre.setEditable(true);
+            colTitre.setCellFactory(TextFieldTableCell.forTableColumn());
+            colTitre.setOnEditCommit(ev -> {
+                EvenementFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+                if (newV.isEmpty() || newV.matches("\\d+")) {
+                    showAlert(Alert.AlertType.ERROR, "Validation", "Titre invalide (obligatoire, pas uniquement des chiffres). ");
+                    tableEvenements.refresh();
+                    return;
+                }
+                String old = row.getTitre();
+                row.setTitre(newV);
+                try {
+                    es.update(row.toEvenement());
+                    setStatusOk("✓ Modifié: Titre");
+                } catch (SQLException ex) {
+                    row.setTitre(old);
+                    tableEvenements.refresh();
+                    showAlert(Alert.AlertType.ERROR, "Erreur SQL", "Impossible de modifier le titre: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Type
+        if (colType != null) {
+            colType.setEditable(true);
+            colType.setCellFactory(TextFieldTableCell.forTableColumn());
+            colType.setOnEditCommit(ev -> {
+                EvenementFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+                if (newV.isEmpty() || newV.matches("\\d+")) {
+                    showAlert(Alert.AlertType.ERROR, "Validation", "Type invalide (obligatoire, pas uniquement des chiffres). ");
+                    tableEvenements.refresh();
+                    return;
+                }
+                String old = row.getType();
+                row.setType(newV);
+                try {
+                    es.update(row.toEvenement());
+                    setStatusOk("✓ Modifié: Type");
+                } catch (SQLException ex) {
+                    row.setType(old);
+                    tableEvenements.refresh();
+                    showAlert(Alert.AlertType.ERROR, "Erreur SQL", "Impossible de modifier le type: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Lieu
+        if (colLieu != null) {
+            colLieu.setEditable(true);
+            colLieu.setCellFactory(TextFieldTableCell.forTableColumn());
+            colLieu.setOnEditCommit(ev -> {
+                EvenementFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue() == null ? "" : ev.getNewValue().trim();
+                if (newV.length() < 3) {
+                    showAlert(Alert.AlertType.ERROR, "Validation", "Lieu invalide (minimum 3 caractères). ");
+                    tableEvenements.refresh();
+                    return;
+                }
+                String old = row.getLieu();
+                row.setLieu(newV);
+                try {
+                    es.update(row.toEvenement());
+                    setStatusOk("✓ Modifié: Lieu");
+                } catch (SQLException ex) {
+                    row.setLieu(old);
+                    tableEvenements.refresh();
+                    showAlert(Alert.AlertType.ERROR, "Erreur SQL", "Impossible de modifier le lieu: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Capacité (int, <= 250)
+        if (colCapacite != null) {
+            colCapacite.setEditable(true);
+            IntegerStringConverter intConv = new IntegerStringConverter();
+            colCapacite.setCellFactory(TextFieldTableCell.forTableColumn(intConv));
+            colCapacite.setOnEditCommit(ev -> {
+                EvenementFX row = ev.getRowValue();
+                if (row == null) return;
+                Integer newV = ev.getNewValue();
+                if (newV == null) {
+                    showAlert(Alert.AlertType.ERROR, "Validation", "Capacité invalide.");
+                    tableEvenements.refresh();
+                    return;
+                }
+                if (newV < 1 || newV > 250) {
+                    showAlert(Alert.AlertType.ERROR, "Validation", "Capacité invalide (1..250). ");
+                    tableEvenements.refresh();
+                    return;
+                }
+                int old = row.getCapaciteMax();
+                row.setCapaciteMax(newV);
+                try {
+                    es.update(row.toEvenement());
+                    setStatusOk("✓ Modifié: Capacité");
+                } catch (SQLException ex) {
+                    row.setCapaciteMax(old);
+                    tableEvenements.refresh();
+                    showAlert(Alert.AlertType.ERROR, "Erreur SQL", "Impossible de modifier la capacité: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Image (URL ou /images/...) - pas de validation stricte ici
+        if (colImage != null) {
+            colImage.setEditable(true);
+            colImage.setCellFactory(TextFieldTableCell.forTableColumn());
+            colImage.setOnEditCommit(ev -> {
+                EvenementFX row = ev.getRowValue();
+                if (row == null) return;
+                String newV = ev.getNewValue();
+                String old = row.getImage();
+                row.setImage(newV == null ? null : newV.trim());
+                try {
+                    es.update(row.toEvenement());
+                    setStatusOk("✓ Modifié: Image");
+                } catch (SQLException ex) {
+                    row.setImage(old);
+                    tableEvenements.refresh();
+                    showAlert(Alert.AlertType.ERROR, "Erreur SQL", "Impossible de modifier l'image: " + ex.getMessage());
+                }
+            });
+        }
+
+        // Date (via DatePicker dans la cellule)
+        if (colDate != null) {
+            colDate.setEditable(true);
+            colDate.setCellFactory(column -> new DateEditingCell());
+        }
+    }
+
+    /**
+     * Cellule editable pour DatePicker (colonne Date): commit direct en DB.
+     */
+    private class DateEditingCell extends TableCell<EvenementFX, Date> {
+        private final DatePicker picker = new DatePicker();
+
+        DateEditingCell() {
+            picker.setOnAction(e -> commitFromPicker());
+            picker.focusedProperty().addListener((obs, old, foc) -> {
+                if (!foc && isEditing()) {
+                    commitFromPicker();
+                }
+            });
+        }
+
+        private void commitFromPicker() {
+            LocalDate ld = picker.getValue();
+            if (ld == null) {
+                cancelEdit();
+                return;
+            }
+            commitEdit(Date.valueOf(ld));
+        }
+
+        @Override
+        public void startEdit() {
+            super.startEdit();
+            if (!isEmpty()) {
+                Date d = getItem();
+                picker.setValue(d == null ? null : d.toLocalDate());
+                setGraphic(picker);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+
+        @Override
+        public void commitEdit(Date newValue) {
+            EvenementFX row = getTableRow() == null ? null : getTableRow().getItem();
+            if (row == null || newValue == null) {
+                super.commitEdit(newValue);
+                return;
+            }
+
+            Date old = row.getDateEvenement();
+            row.setDateEvenement(newValue);
+            try {
+                es.update(row.toEvenement());
+                setStatusOk("✓ Modifié: Date");
+                super.commitEdit(newValue);
+            } catch (SQLException ex) {
+                row.setDateEvenement(old);
+                tableEvenements.refresh();
+                showAlert(Alert.AlertType.ERROR, "Erreur SQL", "Impossible de modifier la date: " + ex.getMessage());
+                super.cancelEdit();
+            }
+
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+
+        @Override
+        protected void updateItem(Date item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
+                return;
+            }
+            setText(item == null ? "" : item.toLocalDate().toString());
+            setGraphic(null);
+            setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+    }
+
+    private void setStatusOk(String msg) {
+        if (statusLabel != null) {
+            statusLabel.setText(msg);
+        }
     }
 }

@@ -17,8 +17,8 @@
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
-      <entry key="chat-panel" value="GPT-5.2" />
-      <entry key="agent-panel" value="GPT-5.2" />
+      <entry key="chat-panel" value="Claude Sonnet 4.5" />
+      <entry key="agent-panel" value="Claude Sonnet 4.5" />
     </selectedModels>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -38,32 +38,38 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Pc/IdeaProjects/boostup&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Application.MainApp.executor": "Run",
+    "Maven.boostup [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Pc/IdeaProjects/boostup",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Pc\IdeaProjects\boostup\src\main\resources" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="MainApp" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="main.MainApp" />
       <module name="boostup" />
-      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\Pc\.m2\repository\org\openjfx\javafx-controls\17.0.10;C:\Users\Pc\.m2\repository\org\openjfx\javafx-fxml\17.0.10;C:\Users\Pc\.m2\repository\org\openjfx\javafx-graphics\17.0.10;C:\Users\Pc\.m2\repository\org\openjfx\javafx-base\17.0.10&quot; --add-modules javafx.controls,javafx.fxml" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\Pc\.m2\repository\org\openjfx\javafx-base\17.0.10\javafx-base-17.0.10-win.jar;C:\Users\Pc\.m2\repository\org\openjfx\javafx-graphics\17.0.10\javafx-graphics-17.0.10-win.jar;C:\Users\Pc\.m2\repository\org\openjfx\javafx-controls\17.0.10\javafx-controls-17.0.10-win.jar;C:\Users\Pc\.m2\repository\org\openjfx\javafx-fxml\17.0.10\javafx-fxml-17.0.10-win.jar;C:\Users\Pc\.m2\repository\org\openjfx\javafx-web\17.0.10\javafx-web-17.0.10-win.jar;C:\Users\Pc\.m2\repository\org\openjfx\javafx-media\17.0.10\javafx-media-17.0.10-win.jar&quot; --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.media " />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -108,6 +114,11 @@
       <workItem from="1771200764780" duration="676000" />
       <workItem from="1771207732576" duration="3384000" />
       <workItem from="1771215018224" duration="6137000" />
+      <workItem from="1771291288534" duration="7149000" />
+      <workItem from="1771337465027" duration="605000" />
+      <workItem from="1771529335820" duration="5428000" />
+      <workItem from="1771610357469" duration="9088000" />
+      <workItem from="1771697248493" duration="9002000" />
     </task>
     <servers />
   </component>

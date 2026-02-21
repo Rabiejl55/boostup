@@ -36,3 +36,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+src/main/resources/lib/CursorUserSetup-x64-2.5.20.exe

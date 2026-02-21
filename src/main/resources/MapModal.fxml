@@ -2,8 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.web.WebView?>
 
 <!-- Modal Maps (Front) -->
 <StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
@@ -25,12 +25,16 @@
         <Label fx:id="lblSubtitle" text="" style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 700;" wrapText="true"/>
 
         <StackPane styleClass="mini-card" VBox.vgrow="ALWAYS">
-            <WebView fx:id="webView" />
+            <ImageView fx:id="mapImage" preserveRatio="true" smooth="true" fitWidth="840" fitHeight="420" />
             <ProgressIndicator fx:id="progress" visible="false" maxWidth="64" maxHeight="64" />
         </StackPane>
 
-        <HBox alignment="CENTER_RIGHT" spacing="10">
-            <Button fx:id="btnOpenExternal" text="Ouvrir dans Maps" onAction="#handleOpenExternal" styleClass="btn-primary" />
+        <HBox alignment="CENTER" spacing="10">
+            <Button text="← Retour" onAction="#handleClose" styleClass="btn-secondary"
+                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 13px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnOpenExternal" text="Ouvrir dans Maps" onAction="#handleOpenExternal" styleClass="btn-primary"
+                    style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 13px; -fx-font-weight: 600; -fx-cursor: hand;"/>
         </HBox>
     </VBox>
 </StackPane>

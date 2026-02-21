@@ -424,9 +424,9 @@ public class FrontEvenementsController implements Initializable {
     @FXML
     private void handleLogout() {
         try {
-            URL fxml = getClass().getResource("/views/login.fxml");
+            URL fxml = getClass().getResource("/login.fxml");
             if (fxml == null) {
-                setStatus("FXML introuvable: /views/login.fxml");
+                setStatus("FXML introuvable: /login.fxml");
                 return;
             }
 
@@ -549,6 +549,56 @@ public class FrontEvenementsController implements Initializable {
         st.setInterpolator(Interpolator.EASE_BOTH);
 
         new ParallelTransition(ft, cft, tt, st).play();
+    }
+
+    @FXML
+    private void handleUtilisateurs() {
+        setStatus("Section Utilisateurs : non implémentée dans ce module.");
+    }
+
+    @FXML
+    private void handleAccompagnement() {
+        setStatus("Section Accompagnement : non implémentée dans ce module.");
+    }
+
+    @FXML
+    private void handleFinancement() {
+        setStatus("Section Financement : non implémentée dans ce module.");
+    }
+
+    @FXML
+    private void handleCandidatures() {
+        setStatus("Section Candidatures : non implémentée dans ce module.");
+    }
+
+    @FXML
+    private void handleEvenements() {
+        // On est déjà sur l'écran événements front
+        setStatus("Événements");
+    }
+
+    @FXML
+    private void handleGoHome() {
+        try {
+            URL fxml = getClass().getResource("/HomePageView.fxml");
+            if (fxml == null) {
+                setStatus("FXML introuvable: /HomePageView.fxml");
+                return;
+            }
+
+            Parent root = FXMLLoader.load(fxml);
+            Stage stage = (Stage) tileEvenements.getScene().getWindow();
+            Scene scene = stage.getScene();
+            if (scene == null) {
+                stage.setScene(new Scene(root, 1000, 650));
+            } else {
+                scene.setRoot(root);
+            }
+            stage.setTitle("BoostUp - Accueil");
+        } catch (Exception e) {
+            e.printStackTrace();
+            setStatus("Impossible d'ouvrir l'accueil: " + e.getMessage());
+        }
     }
 
 }

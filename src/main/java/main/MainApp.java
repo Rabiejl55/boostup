@@ -13,6 +13,16 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Active l'usage des proxies système si un proxy auto est détecté (PAC/WPAD)
+        // Sans ça, Java peut échouer en ConnectException alors que Chrome fonctionne.
+        System.setProperty("java.net.useSystemProxies", "true");
+
+        // Diagnostic réseau (console) pour debug si la carte ne se charge pas
+        try {
+            System.out.println("\n=== NetDiagnostics ===\n" + utils.NetDiagnostics.quick());
+        } catch (Exception ignored) {
+        }
+
         // Log toutes les exceptions JavaFX non catchées (FXML/initialize etc.)
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             System.err.println("\n❌ Uncaught exception dans le thread: " + t.getName());
@@ -23,7 +33,7 @@ public class MainApp extends Application {
                 alert.setHeaderText("L'application a rencontré une erreur");
                 alert.setContentText(e.toString());
                 alert.showAndWait();
-            } catch (Exception ignored) {
+            } catch (Exception ignored1) {
                 // si JavaFX n'est pas disponible à ce moment, au moins la console contient la trace
             }
         });

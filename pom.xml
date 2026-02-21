@@ -13,6 +13,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javafx.version>17.0.10</javafx.version>
     </properties>
 
     <dependencies>
@@ -23,31 +24,36 @@
             <version>8.0.32</version>
         </dependency>
 
-        <!-- JavaFX Dependencies -->
+        <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>17.0.10</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>17.0.10</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>17.0.10</version>
+            <version>${javafx.version}</version>
         </dependency>
 
-        <!-- JavaFX WebView (Maps) -->
+        <!-- WebView (Maps in-app) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>17.0.10</version>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
 
-        <!-- ZXing (QR Code) : build fiable (pas dépendant d'IntelliJ) -->
+        <!-- ZXing (QR Code) -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
@@ -62,16 +68,29 @@
 
     <build>
         <plugins>
-            <!-- JavaFX Maven Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>main.MainApp</mainClass>
-                    <addModules>javafx.controls,javafx.fxml,javafx.web</addModules>
+                    <commandlineArgs>${javafx.args}</commandlineArgs>
+                    <options>
+                        <option>--add-modules</option>
+                        <option>javafx.controls,javafx.fxml,javafx.web,javafx.media</option>
+                    </options>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>

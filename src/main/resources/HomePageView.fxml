@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.HomePageController"
+            stylesheets="@/css/style.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="280" spacing="10"
+              style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+            <padding>
+                <Insets top="25" right="18" bottom="20" left="18"/>
+            </padding>
+
+            <!-- Logo app -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 5;">
+                <Label text="⚡" style="-fx-font-size: 28px; -fx-text-fill: #e63956; -fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 6, 0, 0, 0);" />
+                <VBox spacing="0">
+                    <Label text="BoostUp" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 800; -fx-font-family: 'Segoe UI';" />
+                    <Label text="Startup Platform" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px; -fx-font-family: 'Segoe UI';" />
+                </VBox>
+            </HBox>
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+
+            <!-- Profil utilisateur avec badge online -->
+            <VBox spacing="12" alignment="CENTER" style="-fx-padding: 15 10;">
+                <StackPane>
+                    <Circle radius="42" style="-fx-fill: rgba(255,255,255,0.15);
+                                               -fx-stroke: rgba(255,255,255,0.3); -fx-stroke-width: 2;" />
+                    <ImageView fx:id="avatarImageView" fitHeight="72" fitWidth="72"
+                               preserveRatio="true" styleClass="sidebar-avatar" />
+                    <Circle radius="8" style="-fx-fill: #2ecc71; -fx-stroke: #1b2a4a; -fx-stroke-width: 3;"
+                            StackPane.alignment="BOTTOM_RIGHT" translateX="-8" translateY="-5" />
+                </StackPane>
+
+                <VBox alignment="CENTER" spacing="4">
+                    <Label fx:id="welcomeLabel" styleClass="sidebar-user-name"
+                           style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 700;" />
+                    <HBox alignment="CENTER">
+                        <Label fx:id="userRoleLabel" text="✦ Membre"
+                               style="-fx-text-fill: white; -fx-font-size: 12px;
+                                      -fx-background-color: rgba(255,255,255,0.2);
+                                      -fx-padding: 4 14; -fx-background-radius: 20;" />
+                    </HBox>
+                </VBox>
+
+                <HBox spacing="8" alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+                    <Button text="👤 Profil" onAction="#goToProfile"
+                            style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                                   -fx-background-radius: 8; -fx-padding: 7 16; -fx-font-size: 12px;
+                                   -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.25);
+                                   -fx-border-radius: 8;" />
+                    <Button text="🚪 Quitter" onAction="#handleLogout"
+                            style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: #fca5a5;
+                                   -fx-background-radius: 8; -fx-padding: 7 16; -fx-font-size: 12px;
+                                   -fx-cursor: hand; -fx-border-color: rgba(239,68,68,0.4);
+                                   -fx-border-radius: 8;" />
+                </HBox>
+            </VBox>
+
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+
+            <!-- Navigation principale -->
+            <VBox spacing="3" style="-fx-padding: 5 0;">
+                <Label text="MENU PRINCIPAL" style="-fx-text-fill: rgba(255,255,255,0.5);
+                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 5 12 8 12;
+                       -fx-font-family: 'Segoe UI';" />
+                <Button text="🏠  Tableau de bord" onAction="#goToHome" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 10;
+                               -fx-font-weight: 600;" />
+                <Button text="🚀  Startups" onAction="#viewStartups" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="📅  Événements" onAction="#viewEvenements" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="📝  Candidatures" onAction="#viewCandidatures" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+            </VBox>
+
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+
+            <!-- Espace personnel -->
+            <VBox spacing="3" style="-fx-padding: 5 0;">
+                <Label text="MON ESPACE" style="-fx-text-fill: rgba(255,255,255,0.5);
+                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 5 12 8 12;
+                       -fx-font-family: 'Segoe UI';" />
+                <Button text="💼  Investissements" onAction="#viewInvestments" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="🏢  Ma startup" onAction="#viewMyStartup" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <!-- Footer avec carte upgrade -->
+            <VBox spacing="10">
+                <VBox spacing="8" style="-fx-background-color: rgba(255,255,255,0.12);
+                                         -fx-background-radius: 12; -fx-padding: 15;">
+                    <Label text="🚀 Passer en Pro" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 700;" />
+                    <Label text="Accédez à toutes les fonctionnalités premium"
+                           wrapText="true" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px;" />
+                    <Button text="Upgrader →" maxWidth="Infinity"
+                            style="-fx-background-color: rgba(255,255,255,0.2);
+                                   -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 0;
+                                   -fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand;
+                                   -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 8;" />
+                </VBox>
+                <HBox alignment="CENTER" spacing="5">
+                    <Label text="BoostUp v1.0" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 10px;" />
+                    <Label text="•" style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 10px;" />
+                    <Label text="© 2024" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 10px;" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CONTENU PRINCIPAL (minimal : on garde le look, et on offre l'accès aux événements) -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #f0f2f5;"
+                    styleClass="content-scrollpane">
+            <VBox spacing="25" style="-fx-padding: 30 35;">
+
+                <VBox spacing="5">
+                    <Label text="Tableau de bord" style="-fx-font-size: 28px; -fx-font-weight: 800;
+                           -fx-text-fill: #1a1a2e; -fx-font-family: 'Segoe UI';" />
+                    <Label text="Bienvenue ! Voici un aperçu rapide."
+                           style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
+                </VBox>
+
+                <!-- Carte Événements (le bouton Gérer ouvre le front) -->
+                <HBox spacing="20">
+                    <VBox spacing="12" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16;
+                                 -fx-padding: 22; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <StackPane style="-fx-background-color: rgba(46,204,113,0.1);
+                                              -fx-background-radius: 14;" prefWidth="52" prefHeight="52">
+                                <Label text="📅" style="-fx-font-size: 24px;" />
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Événements" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                                <Label text="Accéder à la liste publique" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #1a1a2e;" />
+                            </VBox>
+                        </HBox>
+                        <Button fx:id="btnManageEvents" text="Gérer →" onAction="#viewEvenements" maxWidth="Infinity"
+                                style="-fx-background-color: #2ecc71; -fx-text-fill: white;
+                                       -fx-background-radius: 10; -fx-padding: 10 0; -fx-font-size: 13px;
+                                       -fx-font-weight: 600; -fx-cursor: hand;" />
+                    </VBox>
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
+
