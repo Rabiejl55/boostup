@@ -27,7 +27,7 @@ public class InvestissementController {
     private static final int STATIC_USER_ID = 8;
 
     private static final PseudoClass PSEUDO_ERROR = PseudoClass.getPseudoClass("error");
-    private static final String[] STATUTS = {"EN_ATTENTE", "FINANCE", "REFUSE"};
+    private static final String[] STATUTS = {"EN_ATTENTE", "FINANCE", "REFUSE", "REMBOURSE"};
 
     // ====== UI Form (sert pour AJOUT uniquement)
     @FXML private TextField tfInvMontant;
@@ -339,10 +339,18 @@ public class InvestissementController {
 
         try {
             Investissement inv = buildFromForm(0);
-            invService.ajouter(inv);
-            showToast("✅ Investissement ajouté.", "toastSuccess");
+
+            // ✅ On force EN_ATTENTE pour que le workflow soit cohérent
+            inv.setStatut("EN_ATTENTE");
+
+            // ✅ Ajoute investissement + crée transaction EN_ATTENTE automatiquement
+            // Mode par défaut : "CARTE"
+            invService.ajouterAvecTransaction(inv, "CARTE");
+
+            showToast("✅ Investissement ajouté + transaction créée.", "toastSuccess");
             refreshInvestissements();
             clearInvestissementForm();
+
         } catch (SQLException e) {
             showToast("❌ Erreur ajout: " + e.getMessage(), "toastError");
         }
@@ -579,10 +587,11 @@ public class InvestissementController {
         public final String titre;
         public ProjetItem(int id, String titre) { this.id = id; this.titre = titre; }
     }
-
     public static class UserItem {
         public final int id;
         public final String label;
         public UserItem(int id, String label) { this.id = id; this.label = label; }
     }
+
+
 }

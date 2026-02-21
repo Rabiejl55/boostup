@@ -81,6 +81,9 @@
                     <Button fx:id="btnModifierTx" text="✏️ Modifier" onAction="#modifierTransaction"
                             disable="true" visible="false" managed="false" styleClass="btn-refresh"/>
 
+                    <Button text="Confirmer paiement"
+                            onAction="#confirmerPaiementSelection"
+                            styleClass="btn-primary"/>
                     <Button fx:id="btnSupprimerTx" text="🗑️ Supprimer" onAction="#supprimerTransaction" styleClass="btn-delete"/>
                     <Button text="✕ Vider" onAction="#clearTransactionForm" styleClass="btn-clear-filters"/>
                     <Region HBox.hgrow="ALWAYS"/>

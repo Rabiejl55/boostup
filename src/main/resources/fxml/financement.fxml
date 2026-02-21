@@ -162,6 +162,10 @@
                                 <Button fx:id="btnSupprimerProjet" text="🗑️ Supprimer" onAction="#supprimerProjet" styleClass="btn-delete"/>
                                 <Button text="✕ Vider" onAction="#clearProjetForm" styleClass="btn-clear-filters"/>
 
+                                <Button text="Clôturer et Rembourser"
+                                        onAction="#cloturerEtRembourserProjet"
+                                        styleClass="btn-danger"/>
+
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <Button text="🔄 Rafraîchir" onAction="#refreshProjets" styleClass="btn-refresh"/>
                             </HBox>

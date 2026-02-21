@@ -12,6 +12,10 @@ public class TransactionFinanciereService implements IService<Transaction_Financ
 
     @Override
     public void ajouter(Transaction_Financiere t) throws SQLException {
+        if (t.getStatut_transaction() == null || t.getStatut_transaction().isBlank()) {
+            t.setStatut_transaction("EN_ATTENTE");
+        }
+
         String sql = "INSERT INTO transaction_financiere (montantTransaction, date_transaction, mode_paiement, statut_transaction, id_investissement) " +
                 "VALUES (?, ?, ?, ?, ?)";
         Connection conn = MyDatabase.getInstance().getConnection();
@@ -75,5 +79,134 @@ public class TransactionFinanciereService implements IService<Transaction_Financ
             }
         }
         return list;
+    }
+
+    // ✅ WORKFLOW: Confirmer paiement
+    // Transaction -> VALIDEE
+    // Investissement -> FINANCE
+    // Si budget atteint -> Projet -> FINANCE
+    public void confirmerPaiement(int idTransaction) throws SQLException {
+        Connection conn = MyDatabase.getInstance().getConnection();
+        conn.setAutoCommit(false);
+
+        try {
+            // 1) Transaction -> VALIDEE
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE transaction_financiere SET statut_transaction = 'VALIDEE' WHERE id_transaction = ?")) {
+                ps.setInt(1, idTransaction);
+                int updated = ps.executeUpdate();
+                if (updated == 0) throw new SQLException("Transaction introuvable.");
+            }
+
+            // 2) id_investissement
+            int idInvestissement;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT id_investissement FROM transaction_financiere WHERE id_transaction = ?")) {
+                ps.setInt(1, idTransaction);
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    idInvestissement = rs.getInt("id_investissement");
+                }
+            }
+
+            // 3) Investissement -> FINANCE
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE investissement SET statut = 'FINANCE' WHERE id_investissement = ?")) {
+                ps.setInt(1, idInvestissement);
+                ps.executeUpdate();
+            }
+
+            // 4) id_projet
+            int idProjet;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT id_projet FROM investissement WHERE id_investissement = ?")) {
+                ps.setInt(1, idInvestissement);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) throw new SQLException("Investissement introuvable.");
+                    idProjet = rs.getInt("id_projet");
+                }
+            }
+
+            // 5) Montant collecté (investissements FINANCE)
+            double collecte;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT COALESCE(SUM(montantInvestissement),0) AS total " +
+                            "FROM investissement WHERE id_projet = ? AND statut = 'FINANCE'")) {
+                ps.setInt(1, idProjet);
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    collecte = rs.getDouble("total");
+                }
+            }
+
+            // 6) Budget projet
+            double budget;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT budget FROM projet WHERE id_projet = ?")) {
+                ps.setInt(1, idProjet);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) throw new SQLException("Projet introuvable.");
+                    budget = rs.getDouble("budget");
+                }
+            }
+
+            // 7) Si atteint -> Projet FINANCE
+            if (collecte >= budget) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE projet SET statut = 'FINANCE' WHERE id_projet = ?")) {
+                    ps.setInt(1, idProjet);
+                    ps.executeUpdate();
+                }
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
+
+    // ✅ WORKFLOW: Clôturer projet en échec + remboursement
+    // Projet -> REFUSE
+    // Investissements FINANCE -> REMBOURSE
+    // Transactions -> REMBOURSEE
+    public void rembourserProjet(int idProjet) throws SQLException {
+        Connection conn = MyDatabase.getInstance().getConnection();
+        conn.setAutoCommit(false);
+
+        try {
+            // 1) Projet -> REFUSE
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE projet SET statut = 'REFUSE' WHERE id_projet = ?")) {
+                ps.setInt(1, idProjet);
+                ps.executeUpdate();
+            }
+
+            // 2) Passer investissements FINANCE -> REMBOURSE
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE investissement SET statut = 'REMBOURSE' WHERE id_projet = ? AND statut = 'FINANCE'")) {
+                ps.setInt(1, idProjet);
+                ps.executeUpdate();
+            }
+
+            // 3) Marquer transactions liées -> REMBOURSEE
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE transaction_financiere tf " +
+                            "JOIN investissement i ON tf.id_investissement = i.id_investissement " +
+                            "SET tf.statut_transaction = 'REMBOURSEE' " +
+                            "WHERE i.id_projet = ?")) {
+                ps.setInt(1, idProjet);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
     }
 }

@@ -21,12 +21,14 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.DoubleStringConverter;
 import services.FinancementService.ProjetService;
+import services.FinancementService.TransactionFinanciereService;
 
 import java.io.IOException;
 
 public class FinancementController {
 
     private final ProjetService projetService = new ProjetService();
+    private final TransactionFinanciereService txService = new TransactionFinanciereService();
 
     // ===== Tabs =====
     @FXML private TabPane tabPaneFinancement;
@@ -526,6 +528,29 @@ public class FinancementController {
             lblProjetToast.setManaged(false);
         });
         pause.play();
+    }
+    @FXML
+    private void cloturerEtRembourserProjet() {
+        Projet selected = tableProjets.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showToastError("Sélectionne un projet.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Clôturer ce projet en REFUSE et rembourser les investissements ?",
+                ButtonType.OK, ButtonType.CANCEL);
+        confirm.setHeaderText(null);
+
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        try {
+            txService.rembourserProjet(selected.getId_projet());
+            refreshProjets();
+            showToastSuccess("Projet clôturé + remboursements effectués.");
+        } catch (Exception e) {
+            showToastError("Erreur clôture: " + e.getMessage());
+        }
     }
 
 }

@@ -56,7 +56,7 @@ public class TransactionFinanciereController {
     private final ObservableList<Transaction_Financiere> filtered = FXCollections.observableArrayList();
 
     // ✅ adapte si tes valeurs DB sont différentes
-    private static final String[] TX_STATUTS = {"EN_ATTENTE", "VALIDEE", "REFUSEE"};
+    private static final String[] TX_STATUTS = {"EN_ATTENTE", "VALIDEE", "REFUSEE", "REMBOURSEE"};
     private static final String[] TX_MODES   = {"CARTE", "VIREMENT", "ESPECES", "CHEQUE"};
 
     private static final PseudoClass ERROR = PseudoClass.getPseudoClass("error");
@@ -306,6 +306,28 @@ public class TransactionFinanciereController {
                 }
             }
         });
+    }
+    @FXML
+    private void confirmerPaiementSelection() {
+        Transaction_Financiere selected = tableTransactions.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            showToast("⚠️ Sélectionne une transaction dans le tableau.", "toastInfo");
+            return;
+        }
+
+        try {
+            // ✅ Appelle le workflow côté service
+            txService.confirmerPaiement(selected.getId_transaction());
+
+            showToast("✅ Paiement confirmé : transaction VALIDEE, investissement FINANCE, projet mis à jour.", "toastSuccess");
+
+            refreshTransactions();
+            loadInvestissements(); // utile si tu affiches la liste des investissements dans le combo
+
+        } catch (SQLException e) {
+            showToast("❌ Erreur confirmation paiement: " + e.getMessage(), "toastError");
+        }
     }
 
     @FXML
