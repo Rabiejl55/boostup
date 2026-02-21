@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.web.WebView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -310,6 +310,19 @@
                                               -fx-focus-color: transparent;"
                                        prefWidth="220"/>
                         </HBox>
+                        <Button text="🗺 Voir sur Map"
+                                onAction="#handleOpenMap"
+                                style="-fx-background-color: linear-gradient(to right, #4facfe, #00f2fe);
+               -fx-text-fill: white;
+               -fx-font-weight: 600;
+               -fx-background-radius: 30;
+               -fx-padding: 8 18;
+               -fx-cursor: hand;" />
+                        <!-- Ajouter sous le bouton "Voir sur Map" -->
+                        <VBox spacing="10" style="-fx-padding: 10 0;">
+                            <Label text="Carte des Sessions" style="-fx-font-weight: 700; -fx-font-size: 14px;"/>
+                            <WebView fx:id="sessionsMapView" prefHeight="400" prefWidth="700"/>
+                        </VBox>
 
                         <Label fx:id="sessionsCount"
                                style="-fx-text-fill: #6c757d;" />
@@ -396,6 +409,16 @@
                         <Label fx:id="coachsCount"
                                style="-fx-text-fill: #6c757d;" />
                     </HBox>
+                    <!-- Bouton Calendrier -->
+                    <Button text="📅 Calendrier"
+                            fx:id="calendarButton"
+                            onAction="#handleCalendarClick"
+                            style="-fx-background-color: #26214c;
+                   -fx-text-fill: white;
+                   -fx-font-weight: 600;
+                   -fx-background-radius: 30;
+                   -fx-padding: 8 20;
+                   -fx-cursor: hand;" />
 
                     <FlowPane fx:id="coachesContainer"
                               hgap="20"

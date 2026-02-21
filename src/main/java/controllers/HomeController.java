@@ -24,7 +24,11 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.BarcodeFormat;
-
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import entities.GAccompagnement.Coach;
 import entities.GAccompagnement.Domaine;
 import entities.GAccompagnement.Session;
@@ -39,7 +43,17 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
+
+
+import entities.GAccompagnement.Session;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class HomeController {
     // ================= SIDEBAR =================
@@ -423,5 +437,28 @@ public class HomeController {
             coachComboBox.getItems().add(c);
         }
     }
+    @FXML
+    private void handleOpenMap() {
+        try {
 
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/MapView.fxml")
+            );
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("🗺 Carte des Sessions");
+            stage.setScene(new Scene(root, 1000, 650));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void handleCalendarClick(ActionEvent event) {
+        System.out.println("Calendrier cliqué !");
+        // Ici tu peux ouvrir une nouvelle fenêtre, afficher un calendrier, etc.
+    }
 }

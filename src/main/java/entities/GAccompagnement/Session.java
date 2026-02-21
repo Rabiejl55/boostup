@@ -11,7 +11,9 @@ public class Session {
     private String typeSession;
     private String objectif;
     private Coach coach;
-    private Domaine domaine; // <-- Ajout de la relation Many-to-One
+    private Domaine domaine;
+    private Double latitude;
+    private Double longitude;
 
     // ===== Constructeurs =====
     public Session(int idSession, LocalDate dateSession, int duree,
@@ -112,5 +114,9 @@ public class Session {
                 "' aura lieu le " + session.getDateSession() +
                 " au lieu : " + session.getLieu());
     }
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
 
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }
