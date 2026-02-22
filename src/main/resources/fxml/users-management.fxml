@@ -3,104 +3,181 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.shape.Circle?>  <!-- IMPORT MANQUANT AJOUTÉ -->
-<?import javafx.scene.image.ImageView?> <!-- IMPORT MANQUANT AJOUTÉ -->
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.UsersManagementController"
-            stylesheets="@../css/style.css" style="-fx-background-color: #f8f9fa;">
+            stylesheets="@../css/style.css" style="-fx-background-color: #f0f2f5;">
 
-    <!-- Barre latérale gauche (Sidebar) -->
+    <!-- SIDEBAR -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="280" spacing="20"
-              style="-fx-background-color: linear-gradient(to bottom, #0d6efd, #0a58ca);">
-            <padding>
-                <Insets top="25" right="15" bottom="25" left="15"/>
-            </padding>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: transparent; -fx-background: transparent;"
+                    prefWidth="280" minWidth="280">
+        <VBox prefWidth="280" spacing="10"
+              style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+            <padding><Insets top="25" right="18" bottom="20" left="18"/></padding>
 
-            <!-- Logo et avatar utilisateur -->
-            <!-- Logo et avatar utilisateur - SIMPLE VERSION WITHOUT BORDERS -->
-            <VBox spacing="15" alignment="CENTER" styleClass="sidebar-header">
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 5;">
+                <Label text="⚡" style="-fx-font-size: 28px; -fx-text-fill: #e63956;
+                       -fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 6, 0, 0, 0);" />
+                <VBox spacing="0">
+                    <Label text="BoostUp" style="-fx-text-fill: white; -fx-font-size: 22px;
+                           -fx-font-weight: 800; -fx-font-family: 'Segoe UI';" />
+                    <Label text="Administration" style="-fx-text-fill: rgba(255,255,255,0.6);
+                           -fx-font-size: 11px; -fx-font-family: 'Segoe UI';" />
+                </VBox>
+            </HBox>
+
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+
+            <VBox spacing="12" alignment="CENTER" style="-fx-padding: 15 10;">
                 <StackPane>
-                    <!-- Just the ImageView - no circles! -->
-                    <ImageView fx:id="avatarImageView" fitHeight="80" fitWidth="80"
+                    <Circle radius="42" style="-fx-fill: rgba(255,255,255,0.15);
+                                               -fx-stroke: rgba(255,255,255,0.3); -fx-stroke-width: 2;" />
+                    <ImageView fx:id="avatarImageView" fitHeight="72" fitWidth="72"
                                preserveRatio="true" styleClass="sidebar-avatar" />
+                    <Circle radius="8" style="-fx-fill: #2ecc71; -fx-stroke: #1b2a4a; -fx-stroke-width: 3;"
+                            StackPane.alignment="BOTTOM_RIGHT" translateX="-8" translateY="-5" />
                 </StackPane>
-                <VBox alignment="CENTER" spacing="5">
-                    <Label fx:id="welcomeLabel" text="admin" styleClass="sidebar-user-name" />
+                <VBox alignment="CENTER" spacing="4">
+                    <Label fx:id="welcomeLabel" text=""
+                           style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 700;" />
+                    <HBox alignment="CENTER">
+                        <Label text="✦ Administrateur"
+                               style="-fx-text-fill: white; -fx-font-size: 12px;
+                                      -fx-background-color: rgba(255,255,255,0.2);
+                                      -fx-padding: 4 14; -fx-background-radius: 20;" />
+                    </HBox>
                 </VBox>
             </VBox>
 
-            <Separator styleClass="sidebar-separator" />
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
 
-            <VBox spacing="8" styleClass="sidebar-menu">
-                <Label text="MENU" styleClass="sidebar-menu-category" />
-                <Button text="📊  Dashboard" onAction="#goToDashboard" styleClass="sidebar-menu-item" />
-                <Button text="👥  Utilisateurs" onAction="#showAddUserDialog" styleClass="sidebar-menu-item active" />
-                <Button text="📅  Événements" styleClass="sidebar-menu-item" />
-                <Button text="💰  Financements" styleClass="sidebar-menu-item" />
+            <VBox spacing="3" style="-fx-padding: 5 0;">
+                <Label text="MENU PRINCIPAL" style="-fx-text-fill: rgba(255,255,255,0.5);
+                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 5 12 8 12;
+                       -fx-font-family: 'Segoe UI';" />
+                <Button text="📊  Dashboard" onAction="#goToDashboard" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="👥  Utilisateurs" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 10;
+                               -fx-font-weight: 600;" />
+                <Button text="📅  Événements" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="💰  Financements" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="📈  Statistiques" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="⚙️  Paramètres" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
             </VBox>
 
-            <Region VBox.vgrow="ALWAYS" />
+            <Region prefHeight="20" />
 
-            <VBox spacing="10" styleClass="sidebar-footer">
-                <Separator styleClass="sidebar-separator" />
-                <Button text="🚪  Déconnexion" onAction="#handleLogout"
-                        styleClass="sidebar-logout-btn" maxWidth="Infinity" />
+            <VBox spacing="10">
+                <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+                <Button text="🚪  Déconnexion" onAction="#handleLogout" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(239,68,68,0.15); -fx-text-fill: #fca5a5;
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;
+                               -fx-border-color: rgba(239,68,68,0.3); -fx-border-radius: 10;" />
+                <HBox alignment="CENTER" spacing="5">
+                    <Label text="BoostUp Admin v1.0" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 10px;" />
+                    <Label text="•" style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 10px;" />
+                    <Label text="© 2024" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 10px;" />
+                </HBox>
             </VBox>
         </VBox>
+        </ScrollPane>
     </left>
 
-    <!-- Centre: Contenu gestion utilisateurs -->
+    <!-- CONTENU PRINCIPAL -->
     <center>
-        <VBox spacing="20" style="-fx-padding: 30;">
-            <!-- En-tête de page -->
-            <VBox spacing="10" styleClass="page-header">
-                <Label text="Gestion des utilisateurs" styleClass="page-title" />
-                <Label text="Gérez les comptes, les rôles et les permissions" styleClass="page-subtitle" />
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    style="-fx-background-color: transparent; -fx-background: #f0f2f5;">
+        <VBox spacing="18" style="-fx-padding: 28 32;">
+
+            <!-- Header -->
+            <VBox spacing="4">
+                <Label text="Gestion des utilisateurs"
+                       style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1a1a2e;
+                              -fx-font-family: 'Segoe UI';" />
+                <Label text="Gérez les comptes, rôles et permissions de vos utilisateurs"
+                       style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
             </VBox>
 
-            <!-- Filtres et recherche -->
-            <VBox spacing="15" styleClass="filter-section-modern">
-                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
-
-                <HBox spacing="15" alignment="CENTER_LEFT">
-                    <TextField fx:id="searchField" promptText="Rechercher un utilisateur..."
-                               HBox.hgrow="ALWAYS" styleClass="modern-input" prefHeight="40" />
-                    <ComboBox fx:id="filterComboBox" prefWidth="150" styleClass="modern-input" />
+            <!-- Filtres -->
+            <VBox spacing="12"
+                  style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 22;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <TextField fx:id="searchField" promptText="🔍 Rechercher un utilisateur..."
+                               HBox.hgrow="ALWAYS" styleClass="modern-input" prefHeight="42" />
+                    <ComboBox fx:id="filterComboBox" prefWidth="160" styleClass="modern-input" prefHeight="42" />
                 </HBox>
-
-                <HBox spacing="15" alignment="CENTER_LEFT">
-                    <ComboBox fx:id="roleFilterComboBox" prefWidth="150" styleClass="modern-input" />
-                    <ComboBox fx:id="statusFilterComboBox" prefWidth="150" styleClass="modern-input" />
-                    <Button text="Effacer les filtres" onAction="#clearFilters" styleClass="clear-btn-modern" />
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="roleFilterComboBox" prefWidth="160" styleClass="modern-input" prefHeight="42" />
+                    <ComboBox fx:id="statusFilterComboBox" prefWidth="170" styleClass="modern-input" prefHeight="42" />
+                    <Button text="✕ Effacer les filtres" onAction="#clearFilters" styleClass="btn-clear-filters" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="userCountLabel"
+                           style="-fx-text-fill: #0d6efd; -fx-font-size: 14px; -fx-font-weight: 700;
+                                  -fx-background-color: rgba(13,110,253,0.06); -fx-padding: 8 16;
+                                  -fx-background-radius: 8;" />
                 </HBox>
             </VBox>
 
             <!-- Boutons d'action -->
-            <HBox spacing="15" alignment="CENTER_LEFT">
-                <Button text="➕ Ajouter" onAction="#showAddUserDialog" styleClass="action-btn-primary" />
-                <Button text="✏️ Modifier" onAction="#showEditUserDialog" styleClass="action-btn-secondary" />
-                <Button text="🔒 Bloquer" onAction="#blockSelectedUser" styleClass="action-btn-danger" />
-                <Button text="🔓 Débloquer" onAction="#unblockSelectedUser" styleClass="action-btn-success" />
-                <Button text="🗑️ Supprimer" onAction="#deleteSelectedUser" styleClass="action-btn-danger-outline" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="userCountLabel" styleClass="user-count-modern" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="➕ Ajouter" onAction="#showAddUserDialog" styleClass="btn-add" />
+                <Button text="🔄 Rafraîchir" onAction="#refreshUsers" styleClass="btn-refresh" />
+
+                <Separator orientation="VERTICAL" style="-fx-background-color: #e9ecef;" />
+
+                <Button text="🔒 Bloquer" onAction="#blockSelectedUser" styleClass="btn-block" />
+                <Button text="🔓 Débloquer" onAction="#unblockSelectedUser" styleClass="btn-unblock" />
+                <Button text="🗑️ Supprimer" onAction="#deleteSelectedUser" styleClass="btn-delete" />
             </HBox>
 
-            <!-- Tableau des utilisateurs -->
-            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="500" styleClass="modern-table">
+            <!-- Info édition inline -->
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="info-banner">
+                <Label text="💡" style="-fx-font-size: 16px;" />
+                <Label text="Double-cliquez sur Nom ou Email pour modifier  •  Cliquez sur le badge Rôle ou Statut pour changer directement"
+                       style="-fx-text-fill: #0d6efd; -fx-font-size: 12px; -fx-font-weight: 500;" />
+            </HBox>
+
+            <!-- Tableau -->
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="480"
+                       editable="true">
                 <columns>
-                    <TableColumn fx:id="idColumn" text="ID" prefWidth="60" />
-                    <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150" />
-                    <TableColumn fx:id="emailColumn" text="Email" prefWidth="200" />
-                    <TableColumn fx:id="roleColumn" text="Rôle" prefWidth="120" />
-                    <TableColumn fx:id="activeColumn" text="Statut" prefWidth="100" />
-                    <TableColumn fx:id="dateCreationColumn" text="Inscription" prefWidth="150" />
+                    <TableColumn fx:id="idColumn" text="ID" visible="false" />
+                    <TableColumn fx:id="nomColumn" text="👤 Nom" prefWidth="180" editable="true" />
+                    <TableColumn fx:id="emailColumn" text="📧 Email" prefWidth="260" editable="true" />
+                    <TableColumn fx:id="roleColumn" text="🎯 Rôle" prefWidth="150" />
+                    <TableColumn fx:id="activeColumn" text="⚡ Statut" prefWidth="130" />
+                    <TableColumn fx:id="dateCreationColumn" text="📅 Inscription" prefWidth="155" />
                 </columns>
             </TableView>
 
-            <Label fx:id="feedbackLabel" styleClass="feedback-message-modern" />
+            <!-- Feedback -->
+            <Label fx:id="feedbackLabel" style="-fx-font-size: 13px; -fx-font-weight: 600;" />
         </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

@@ -2,60 +2,451 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.ProfileController" stylesheets="@../css/style.css"
-            style="-fx-background-color: #f8f9fa;">
+            style="-fx-background-color: #f0f2f5;">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="top-bar">
-            <padding><Insets top="15" right="30" bottom="15" left="30"/></padding>
-            <Label text="Mon Profil" styleClass="logo-label" />
-            <HBox HBox.hgrow="ALWAYS" />
-            <Button text="Retour Dashboard" onAction="#goToDashboard" styleClass="nav-button" />
-            <Button text="Déconnexion" onAction="#handleLogout" styleClass="nav-button logout-button" />
-        </HBox>
-    </top>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SIDEBAR identique au Dashboard                         -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="280" minWidth="280" spacing="10"
+              style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+            <padding>
+                <Insets top="25" right="18" bottom="20" left="18"/>
+            </padding>
 
-    <center>
-        <VBox alignment="CENTER" spacing="30" style="-fx-padding: 60;">
-            <ImageView fx:id="avatarImageView" fitHeight="180" fitWidth="180" preserveRatio="true" styleClass="avatar-photo" />
+            <!-- Logo -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 5;">
+                <Label text="⚡" style="-fx-font-size: 28px; -fx-text-fill: #e63956; -fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 6, 0, 0, 0);" />
+                <VBox spacing="0">
+                    <Label text="BoostUp" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 800; -fx-font-family: 'Segoe UI';" />
+                    <Label text="Startup Platform" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px; -fx-font-family: 'Segoe UI';" />
+                </VBox>
+            </HBox>
 
-            <Label fx:id="welcomeLabel" styleClass="welcome-title" />
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
 
-            <GridPane hgap="20" vgap="15" style="-fx-padding: 30; -fx-background-color: white;
-                     -fx-border-radius: 12px; -fx-background-radius: 12px;
-                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);">
-                <Label text="Nom :" GridPane.rowIndex="0" GridPane.columnIndex="0"
-                       style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                <Label fx:id="nomLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"
-                       style="-fx-font-size: 16px;" />
+            <!-- Profil sidebar -->
+            <VBox spacing="12" alignment="CENTER" style="-fx-padding: 15 10;">
+                <StackPane>
+                    <Circle radius="42" style="-fx-fill: rgba(255,255,255,0.15);
+                                               -fx-stroke: rgba(255,255,255,0.3); -fx-stroke-width: 2;" />
+                    <ImageView fx:id="sidebarAvatarView" fitHeight="72" fitWidth="72"
+                               preserveRatio="true" styleClass="sidebar-avatar" />
+                    <Circle radius="8" style="-fx-fill: #2ecc71; -fx-stroke: #1b2a4a; -fx-stroke-width: 3;"
+                            StackPane.alignment="BOTTOM_RIGHT" translateX="-8" translateY="-5" />
+                </StackPane>
+                <VBox alignment="CENTER" spacing="4">
+                    <Label fx:id="welcomeLabel" styleClass="sidebar-user-name"
+                           style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 700;" />
+                    <HBox alignment="CENTER">
+                        <Label fx:id="sidebarRoleLabel" text="✦ Membre"
+                               style="-fx-text-fill: white; -fx-font-size: 12px;
+                                      -fx-background-color: rgba(255,255,255,0.2);
+                                      -fx-padding: 4 14; -fx-background-radius: 20;" />
+                    </HBox>
+                </VBox>
+            </VBox>
 
-                <Label text="Email :" GridPane.rowIndex="1" GridPane.columnIndex="0"
-                       style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                <Label fx:id="emailLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"
-                       style="-fx-font-size: 16px;" />
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
 
-                <Label text="Rôle :" GridPane.rowIndex="2" GridPane.columnIndex="0"
-                       style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                <Label fx:id="roleLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"
-                       style="-fx-font-size: 16px;" />
+            <!-- Navigation -->
+            <VBox spacing="3" style="-fx-padding: 5 0;">
+                <Label text="NAVIGATION" style="-fx-text-fill: rgba(255,255,255,0.5);
+                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 5 12 8 12;" />
+                <Button text="🏠  Tableau de bord" onAction="#goToDashboard" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="👤  Mon Profil" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 10;
+                               -fx-font-weight: 600;" />
+                <Button text="🚀  Startups" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button text="📅  Événements" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+            </VBox>
 
-                <Label text="Téléphone :" GridPane.rowIndex="3" GridPane.columnIndex="0"
-                       style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                <Label fx:id="phoneLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"
-                       style="-fx-font-size: 16px;" />
+            <Region VBox.vgrow="ALWAYS" />
 
-                <Label text="Avatar :" GridPane.rowIndex="4" GridPane.columnIndex="0"
-                       style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                <Label fx:id="avatarLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"
-                       style="-fx-font-size: 16px; -fx-wrap-text: true;" />
-            </GridPane>
-
-            <Button text="Modifier Profil" onAction="#editProfile" styleClass="action-button" />
+            <!-- Déconnexion -->
+            <VBox spacing="10">
+                <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+                <Button text="🚪  Déconnexion" onAction="#handleLogout" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(239,68,68,0.15); -fx-text-fill: #fca5a5;
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;
+                               -fx-border-color: rgba(239,68,68,0.3); -fx-border-radius: 10;" />
+                <HBox alignment="CENTER" spacing="5">
+                    <Label text="BoostUp v1.0" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 10px;" />
+                    <Label text="•" style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 10px;" />
+                    <Label text="© 2024" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 10px;" />
+                </HBox>
+            </VBox>
         </VBox>
+    </left>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CONTENU PRINCIPAL - PROFIL LECTURE SEULE               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #f0f2f5;">
+            <VBox spacing="25" style="-fx-padding: 30 35;">
+
+                <!-- Header de page (sans bouton modifier) -->
+                <VBox spacing="5">
+                    <Label text="Mon Profil" style="-fx-font-size: 28px; -fx-font-weight: 800;
+                           -fx-text-fill: #1a1a2e; -fx-font-family: 'Segoe UI';" />
+                    <Label text="Consultez vos informations personnelles"
+                           style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
+                </VBox>
+
+                <!-- ═══════════════════════════════════════ -->
+                <!-- HERO CARD PROFIL                       -->
+                <!-- ═══════════════════════════════════════ -->
+                <VBox style="-fx-background-color: white; -fx-background-radius: 20;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 5);">
+
+                    <!-- Bannière gradient -->
+                    <HBox prefHeight="120" style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                                                   -fx-background-radius: 20 20 0 0;" />
+
+                    <!-- Avatar + infos principales -->
+                    <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 0 30 20 30; -fx-translate-y: -45;">
+                        <StackPane>
+                            <Circle radius="55" style="-fx-fill: white; -fx-stroke: white; -fx-stroke-width: 4;
+                                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" />
+                            <ImageView fx:id="avatarImageView" fitHeight="100" fitWidth="100"
+                                       preserveRatio="true" styleClass="avatar-photo" />
+                            <Circle radius="10" style="-fx-fill: #2ecc71; -fx-stroke: white; -fx-stroke-width: 3;"
+                                    StackPane.alignment="BOTTOM_RIGHT" translateX="-5" translateY="-5" />
+                        </StackPane>
+
+                        <VBox spacing="6" style="-fx-padding: 50 0 0 0;" HBox.hgrow="ALWAYS">
+                            <Label fx:id="profileNameLabel" text="Nom Utilisateur"
+                                   style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #1b2a4a;
+                                          -fx-font-family: 'Segoe UI';" />
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <Label fx:id="profileRoleTag" text="👤 Membre"
+                                       style="-fx-text-fill: white; -fx-font-size: 11px;
+                                              -fx-background-color: #1b2a4a;
+                                              -fx-padding: 4 14;
+                                              -fx-background-radius: 15; -fx-font-weight: 600;" />
+                                <Label fx:id="profileEmailPreview" text="email@example.com"
+                                       style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                            </HBox>
+                            <Label fx:id="dateCreationLabel" text="Membre depuis..."
+                                   style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Statistiques rapides — ligne séparée -->
+                    <HBox spacing="0" style="-fx-padding: 0; -fx-translate-y: -20;
+                                             -fx-border-color: #f0f2f5 transparent transparent transparent;
+                                             -fx-border-width: 1 0 0 0;">
+                        <VBox alignment="CENTER" spacing="2" HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 16 10;
+                                     -fx-border-color: transparent #f0f2f5 transparent transparent;
+                                     -fx-border-width: 0 1 0 0;">
+                            <Label text="5" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #1b2a4a;" />
+                            <Label text="Projets" style="-fx-text-fill: #8e99a4; -fx-font-size: 12px; -fx-font-weight: 600;" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2" HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 16 10;
+                                     -fx-border-color: transparent #f0f2f5 transparent transparent;
+                                     -fx-border-width: 0 1 0 0;">
+                            <Label text="12" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #e63956;" />
+                            <Label text="Événements" style="-fx-text-fill: #8e99a4; -fx-font-size: 12px; -fx-font-weight: 600;" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2" HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 16 10;">
+                            <Label text="3" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #2d1b4e;" />
+                            <Label text="Investissements" style="-fx-text-fill: #8e99a4; -fx-font-size: 12px; -fx-font-weight: 600;" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- ═══════════════════════════════════════ -->
+                <!-- GRILLE D'INFORMATIONS (2 colonnes)     -->
+                <!-- ═══════════════════════════════════════ -->
+                <HBox spacing="20">
+
+                    <!-- Carte Informations Personnelles -->
+                    <VBox spacing="0" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="10"
+                              style="-fx-padding: 20 25; -fx-border-color: transparent transparent #f0f2f5 transparent;
+                                     -fx-border-width: 0 0 1 0;">
+                            <StackPane style="-fx-background-color: rgba(27,42,74,0.1);
+                                              -fx-background-radius: 10;" prefWidth="40" prefHeight="40">
+                                <Label text="📋" style="-fx-font-size: 18px;" />
+                            </StackPane>
+                            <Label text="Informations personnelles"
+                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1a1a2e;" />
+                        </HBox>
+
+                        <VBox spacing="0" style="-fx-padding: 5 0;">
+                            <!-- Nom complet -->
+                            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;
+                                  -fx-border-color: transparent transparent #f8f9fa transparent; -fx-border-width: 0 0 1 0;">
+                                <Label text="👤" style="-fx-font-size: 16px;" minWidth="25" />
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Nom complet" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                    <Label fx:id="fullnameLabel" style="-fx-font-size: 15px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Nom -->
+                            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;
+                                  -fx-border-color: transparent transparent #f8f9fa transparent; -fx-border-width: 0 0 1 0;">
+                                <Label text="🏷️" style="-fx-font-size: 16px;" minWidth="25" />
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Nom d'utilisateur" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                    <Label fx:id="nomLabel" style="-fx-font-size: 15px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Email -->
+                            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;
+                                  -fx-border-color: transparent transparent #f8f9fa transparent; -fx-border-width: 0 0 1 0;">
+                                <Label text="📧" style="-fx-font-size: 16px;" minWidth="25" />
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Adresse email" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                    <Label fx:id="emailLabel" style="-fx-font-size: 15px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                </VBox>
+                                <Label text="✅ Vérifié" style="-fx-text-fill: #2ecc71; -fx-font-size: 11px;
+                                       -fx-background-color: rgba(46,204,113,0.1); -fx-padding: 4 10;
+                                       -fx-background-radius: 6; -fx-font-weight: 600;" />
+                            </HBox>
+
+                            <!-- Rôle -->
+                            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;
+                                  -fx-border-color: transparent transparent #f8f9fa transparent; -fx-border-width: 0 0 1 0;">
+                                <Label text="🎯" style="-fx-font-size: 16px;" minWidth="25" />
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Rôle" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                    <Label fx:id="roleLabel" style="-fx-font-size: 15px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Téléphone -->
+                            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;">
+                                <Label text="📱" style="-fx-font-size: 16px;" minWidth="25" />
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label text="Téléphone" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                    <Label fx:id="phoneLabel" style="-fx-font-size: 15px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Colonne droite : Infos du compte + Activité -->
+                    <VBox spacing="20" prefWidth="380" minWidth="380">
+
+                        <!-- Carte Informations du compte -->
+                        <VBox spacing="0"
+                              style="-fx-background-color: white; -fx-background-radius: 16;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                            <HBox alignment="CENTER_LEFT" spacing="10"
+                                  style="-fx-padding: 20 25; -fx-border-color: transparent transparent #f0f2f5 transparent;
+                                         -fx-border-width: 0 0 1 0;">
+                                <StackPane style="-fx-background-color: rgba(45,27,78,0.1);
+                                                  -fx-background-radius: 10;" prefWidth="40" prefHeight="40">
+                                    <Label text="🔐" style="-fx-font-size: 18px;" />
+                                </StackPane>
+                                <Label text="Informations du compte"
+                                       style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1a1a2e;" />
+                            </HBox>
+                            <VBox spacing="0" style="-fx-padding: 5 0;">
+                                <!-- Statut du compte -->
+                                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;
+                                      -fx-border-color: transparent transparent #f8f9fa transparent; -fx-border-width: 0 0 1 0;">
+                                    <Label text="🟢" style="-fx-font-size: 14px;" minWidth="25" />
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Statut" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                        <Label text="Actif" style="-fx-font-size: 14px; -fx-text-fill: #2ecc71; -fx-font-weight: 600;" />
+                                    </VBox>
+                                </HBox>
+                                <!-- Date d'inscription -->
+                                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;
+                                      -fx-border-color: transparent transparent #f8f9fa transparent; -fx-border-width: 0 0 1 0;">
+                                    <Label text="📅" style="-fx-font-size: 14px;" minWidth="25" />
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Date d'inscription" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                        <Label fx:id="accountDateLabel" text="—"
+                                               style="-fx-font-size: 14px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                    </VBox>
+                                </HBox>
+                                <!-- Type de plan -->
+                                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 16 25;">
+                                    <Label text="⭐" style="-fx-font-size: 14px;" minWidth="25" />
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Plan" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px; -fx-font-weight: 600;" />
+                                        <Label text="Gratuit" style="-fx-font-size: 14px; -fx-text-fill: #1a1a2e; -fx-font-weight: 500;" />
+                                    </VBox>
+                                    <Label text="Free" style="-fx-text-fill: #1b2a4a; -fx-font-size: 11px;
+                                           -fx-background-color: rgba(27,42,74,0.1); -fx-padding: 4 12;
+                                           -fx-background-radius: 6; -fx-font-weight: 600;" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Carte Activité récente -->
+                        <VBox spacing="0"
+                              style="-fx-background-color: white; -fx-background-radius: 16;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                            <HBox alignment="CENTER_LEFT" spacing="10"
+                                  style="-fx-padding: 20 25; -fx-border-color: transparent transparent #f0f2f5 transparent;
+                                         -fx-border-width: 0 0 1 0;">
+                                <StackPane style="-fx-background-color: rgba(230,57,86,0.1);
+                                                  -fx-background-radius: 10;" prefWidth="40" prefHeight="40">
+                                    <Label text="📊" style="-fx-font-size: 18px;" />
+                                </StackPane>
+                                <Label text="Activité récente"
+                                       style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1a1a2e;" />
+                            </HBox>
+                            <VBox spacing="0" style="-fx-padding: 5 0;">
+                                <HBox spacing="12" alignment="CENTER_LEFT"
+                                      style="-fx-padding: 14 25; -fx-border-color: transparent transparent #f8f9fa transparent;
+                                             -fx-border-width: 0 0 1 0;">
+                                    <StackPane style="-fx-background-color: rgba(27,42,74,0.1);
+                                                      -fx-background-radius: 8;" prefWidth="32" prefHeight="32">
+                                        <Label text="🚀" style="-fx-font-size: 14px;" />
+                                    </StackPane>
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Candidature envoyée" style="-fx-font-size: 13px;
+                                               -fx-font-weight: 600; -fx-text-fill: #1a1a2e;" />
+                                        <Label text="EcoTech - CleanTech" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                                    </VBox>
+                                    <Label text="2h" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                                </HBox>
+
+                                <HBox spacing="12" alignment="CENTER_LEFT"
+                                      style="-fx-padding: 14 25; -fx-border-color: transparent transparent #f8f9fa transparent;
+                                             -fx-border-width: 0 0 1 0;">
+                                    <StackPane style="-fx-background-color: rgba(230,57,86,0.08);
+                                                      -fx-background-radius: 8;" prefWidth="32" prefHeight="32">
+                                        <Label text="📅" style="-fx-font-size: 14px;" />
+                                    </StackPane>
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Inscrit à un événement" style="-fx-font-size: 13px;
+                                               -fx-font-weight: 600; -fx-text-fill: #1a1a2e;" />
+                                        <Label text="Startup Pitch Night" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                                    </VBox>
+                                    <Label text="1j" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                                </HBox>
+
+                                <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 25;">
+                                    <StackPane style="-fx-background-color: rgba(45,27,78,0.1);
+                                                      -fx-background-radius: 8;" prefWidth="32" prefHeight="32">
+                                        <Label text="⭐" style="-fx-font-size: 14px;" />
+                                    </StackPane>
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label text="Ajouté aux favoris" style="-fx-font-size: 13px;
+                                               -fx-font-weight: 600; -fx-text-fill: #1a1a2e;" />
+                                        <Label text="AI Health - HealthTech" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                                    </VBox>
+                                    <Label text="3j" style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+                </HBox>
+
+                <!-- ═══════════════════════════════════════ -->
+                <!-- SÉCURITÉ & FONCTIONNALITÉS AVANCÉES   -->
+                <!-- ═══════════════════════════════════════ -->
+                <HBox spacing="20">
+
+                    <!-- Carte Face ID -->
+                    <VBox spacing="0" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: white; -fx-background-radius: 16;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="10"
+                              style="-fx-padding: 20 25; -fx-border-color: transparent transparent #f0f2f5 transparent;
+                                     -fx-border-width: 0 0 1 0;">
+                            <StackPane style="-fx-background-color: rgba(230,57,86,0.1);
+                                              -fx-background-radius: 10;" prefWidth="40" prefHeight="40">
+                                <Label text="🔐" style="-fx-font-size: 18px;" />
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Face ID — Reconnaissance Faciale"
+                                       style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1a1a2e;" />
+                                <Label text="Connectez-vous avec votre visage"
+                                       style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                            </VBox>
+                        </HBox>
+                        <VBox spacing="12" style="-fx-padding: 20 25;">
+                            <Label text="Enregistrez votre visage pour une connexion rapide et sécurisée sans mot de passe."
+                                   wrapText="true" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                            <HBox spacing="10">
+                                <Button text="📸  Activer Face ID" onAction="#handleEnrollFaceId"
+                                        style="-fx-background-color: linear-gradient(to right, #1b2a4a, #2d1b4e);
+                                               -fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 13px;
+                                               -fx-background-radius: 10; -fx-padding: 10 20; -fx-cursor: hand;" />
+                                <Button text="🗑️  Désactiver" onAction="#handleRemoveFaceId"
+                                        style="-fx-background-color: rgba(239,68,68,0.1); -fx-text-fill: #ef4444;
+                                               -fx-font-weight: 600; -fx-font-size: 12px;
+                                               -fx-background-radius: 10; -fx-padding: 10 16; -fx-cursor: hand;
+                                               -fx-border-color: rgba(239,68,68,0.3); -fx-border-radius: 10;" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Carte SMS 2FA -->
+                    <VBox spacing="0" prefWidth="380" minWidth="380"
+                          style="-fx-background-color: white; -fx-background-radius: 16;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="10"
+                              style="-fx-padding: 20 25; -fx-border-color: transparent transparent #f0f2f5 transparent;
+                                     -fx-border-width: 0 0 1 0;">
+                            <StackPane style="-fx-background-color: rgba(27,42,74,0.1);
+                                              -fx-background-radius: 10;" prefWidth="40" prefHeight="40">
+                                <Label text="📱" style="-fx-font-size: 18px;" />
+                            </StackPane>
+                            <VBox spacing="2">
+                                <Label text="Vérification SMS (2FA)"
+                                       style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1a1a2e;" />
+                                <Label text="Double authentification par SMS"
+                                       style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                            </VBox>
+                        </HBox>
+                        <VBox spacing="10" style="-fx-padding: 20 25;">
+                            <Label text="La vérification SMS est automatiquement activée si un numéro de téléphone est associé à votre compte."
+                                   wrapText="true" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label text="🟢" style="-fx-font-size: 12px;" />
+                                <Label fx:id="sms2faStatusLabel" text="Activé — SMS envoyé à chaque connexion"
+                                       style="-fx-text-fill: #2ecc71; -fx-font-size: 12px; -fx-font-weight: 600;" />
+                            </HBox>
+                            <Label text="📧 Email de notification activé"
+                                   style="-fx-text-fill: #1b2a4a; -fx-font-size: 12px; -fx-font-weight: 500;
+                                          -fx-background-color: rgba(27,42,74,0.06); -fx-padding: 8 14;
+                                          -fx-background-radius: 8;" />
+                        </VBox>
+                    </VBox>
+                </HBox>
+
+                <Region prefHeight="20" />
+            </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

@@ -12,3 +12,40 @@
 [13/02/2026 17:15:10] 🔐 ACTION: UNBLOCK | Admin: Administrateur Principal Modifié | Cible: test (32) | Email: test88@gmail.com | Rôle: STARTUP
 [13/02/2026 21:59:33] 🔐 ACTION: BLOCK | Admin: rabie jlassi | Cible: test (32) | Email: test88@gmail.com | Rôle: STARTUP
 [13/02/2026 21:59:36] 🔐 ACTION: UNBLOCK | Admin: rabie jlassi | Cible: test (32) | Email: test88@gmail.com | Rôle: STARTUP
+[15/02/2026 14:45:49] 🔐 ACTION: BLOCK | Admin: rabie jlassi | Cible: test (32) | Email: test88@gmail.com | Rôle: STARTUP
+[15/02/2026 14:45:52] 🔐 ACTION: UNBLOCK | Admin: rabie jlassi | Cible: test (32) | Email: test88@gmail.com | Rôle: STARTUP
+[17/02/2026 10:33:14] 🔐 ACTION: BLOCK | Admin: rabie jlassi | Cible: jean dupont (34) | Email: jean.dupont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:18:04] 🔐 ACTION: EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: INVESTISSEUR
+[19/02/2026 21:18:06] 🔐 ACTION: EDIT_NOM | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: INVESTISSEUR
+[19/02/2026 21:18:11] 🔐 ACTION: EDIT_ROLE | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: STARTUP
+[19/02/2026 21:18:14] 🔐 ACTION: EDIT_ROLE | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: ADMIN
+[19/02/2026 21:19:47] 🔐 ACTION: DEACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:19:47] 🔐 ACTION: ACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:19:48] 🔐 ACTION: DEACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:19:49] 🔐 ACTION: ACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:19:59] 🔐 ACTION: DEACTIVATE | Admin: rabie jlassi | Cible: test (ID:32) | Email: test88@gmail.com | Rôle: STARTUP
+[19/02/2026 21:19:59] 🔐 ACTION: DEACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:20:02] 🔐 ACTION: ACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:30:07] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: ADMIN
+[19/02/2026 21:30:08] 🔐 EDIT_NOM | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: ADMIN
+[19/02/2026 21:30:13] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: ADMIN
+[19/02/2026 21:30:16] 🔐 ACTIVATE | Admin: rabie jlassi | Cible: test (ID:32) | Email: test88@gmail.com | Rôle: STARTUP
+[19/02/2026 21:30:17] 🔐 DEACTIVATE | Admin: rabie jlassi | Cible: test (ID:32) | Email: test88@gmail.com | Rôle: STARTUP
+[19/02/2026 21:30:18] 🔐 ACTIVATE | Admin: rabie jlassi | Cible: test (ID:32) | Email: test88@gmail.com | Rôle: STARTUP
+[19/02/2026 21:32:42] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: ADMIN
+[19/02/2026 21:37:37] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: Administrateur Principal (ID:36) | Email: admin.profil@test.com | Rôle: ADMIN
+[19/02/2026 21:37:38] 🔐 EDIT_NOM | Admin: rabie jlassi | Cible: Administrateur Principal (ID:36) | Email: admin.profil@test.com | Rôle: ADMIN
+[19/02/2026 21:37:47] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:39:35] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: test (ID:32) | Email: test88@gmail.com | Rôle: STARTUP
+[19/02/2026 21:42:10] 🔐 DEACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:42:11] 🔐 ACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:42:14] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[19/02/2026 21:42:14] 🔐 EDIT_NOM | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[20/02/2026 10:03:21] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: jean dupont (ID:37) | Email: user1@gmail.com | Rôle: ADMIN
+[20/02/2026 10:03:24] 🔐 DEACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[20/02/2026 10:03:24] 🔐 ACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[20/02/2026 10:03:33] 🔐 DEACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[20/02/2026 10:03:34] 🔐 ACTIVATE | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[20/02/2026 10:03:46] 🔐 BLOCK | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[20/02/2026 10:03:50] 🔐 UNBLOCK | Admin: rabie jlassi | Cible: jean dupont (ID:34) | Email: jean.ont@invest.com | Rôle: INVESTISSEUR
+[21/02/2026 15:53:48] 🔐 EDIT_EMAIL | Admin: rabie jlassi | Cible: Administrateur Principal (ID:36) | Email: admin.profil@test.com | Rôle: ADMIN

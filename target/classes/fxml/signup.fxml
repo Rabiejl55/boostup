@@ -8,140 +8,177 @@
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.SignupController" stylesheets="@../css/style.css"
-            style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);">
+            style="-fx-background-color: #f0f2f5;">
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-            <VBox alignment="CENTER" spacing="30" style="-fx-padding: 40;">
-                <!-- Carte d'inscription -->
-                <VBox alignment="CENTER" spacing="25" styleClass="glass-card"
-                      prefWidth="500" maxWidth="500">
+        <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
 
-                    <!-- Logo et titre -->
-                    <VBox alignment="CENTER" spacing="15">
-                        <StackPane>
-                            <Circle radius="30" fill="#198754"
-                                    style="-fx-effect: dropshadow(gaussian, rgba(25, 135, 84, 0.4), 15, 0, 0, 5);" />
-                            <Label text="📝" style="-fx-font-size: 28px;" />
-                        </StackPane>
-                        <Label text="Créer un compte" style="-fx-font-size: 32px; -fx-font-weight: 800;
-                               -fx-text-fill: #212529;" />
-                        <Label text="Rejoignez la communauté BoostUp"
-                               style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
-                    </VBox>
+            <!-- Panneau gauche : Branding -->
+            <VBox alignment="CENTER" spacing="25" HBox.hgrow="NEVER"
+                  style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                         -fx-min-width: 400; -fx-max-width: 400;">
+                <padding><Insets top="50" right="40" bottom="50" left="40"/></padding>
 
-                    <!-- Formulaire -->
-                    <VBox alignment="CENTER" spacing="20" style="-fx-padding: 0 40;">
-                        <!-- Nom -->
-                        <VBox spacing="5">
-                            <Label text="Nom complet *" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <TextField fx:id="nomField" promptText="Jean Dupont"
-                                       styleClass="modern-input" prefWidth="420" prefHeight="45" />
-                        </VBox>
-
-                        <!-- Email -->
-                        <VBox spacing="5">
-                            <Label text="Email *" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <TextField fx:id="emailField" promptText="exemple@email.com"
-                                       styleClass="modern-input" prefWidth="420" prefHeight="45" />
-                        </VBox>
-
-                        <!-- Mot de passe -->
-                        <VBox spacing="5">
-                            <Label text="Mot de passe *" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <PasswordField fx:id="mdpField" promptText="Minimum 6 caractères"
-                                           styleClass="modern-input" prefWidth="420" prefHeight="45" />
-                            <Label fx:id="passwordHintLabel" style="-fx-font-size: 12px; -fx-padding: 5 0 0 5;" />
-                        </VBox>
-
-                        <!-- Confirmation mot de passe -->
-                        <VBox spacing="5">
-                            <Label text="Confirmer le mot de passe *" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <PasswordField fx:id="mdpConfirmField" promptText="Retapez votre mot de passe"
-                                           styleClass="modern-input" prefWidth="420" prefHeight="45" />
-                        </VBox>
-
-                        <!-- Téléphone -->
-                        <VBox spacing="5">
-                            <Label text="Téléphone" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <TextField fx:id="phoneField" promptText="+33 1 23 45 67 89 (optionnel)"
-                                       styleClass="modern-input" prefWidth="420" prefHeight="45" />
-                        </VBox>
-
-                        <!-- Photo de profil -->
-                        <VBox spacing="10" alignment="CENTER">
-                            <Label text="Photo de profil" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <StackPane>
-                                <Circle radius="50" fill="#f8f9fa"
-                                        style="-fx-stroke: #dee2e6; -fx-stroke-width: 2px;" />
-                                <ImageView fx:id="avatarPreview" fitHeight="90" fitWidth="90"
-                                           preserveRatio="true" style="-fx-border-radius: 45;" />
-                            </StackPane>
-                            <HBox spacing="10" alignment="CENTER">
-                                <Button text="Choisir une photo" onAction="#chooseAvatar"
-                                        styleClass="secondary-button" prefWidth="150" />
-                                <Button text="Retirer" onAction="#removeAvatar"
-                                        styleClass="secondary-button" prefWidth="80" />
-                            </HBox>
-                        </VBox>
-
-                        <!-- Rôle -->
-                        <VBox spacing="5">
-                            <Label text="Rôle *" style="-fx-font-weight: 600; -fx-text-fill: #495057;" />
-                            <ComboBox fx:id="roleComboBox" styleClass="modern-input"
-                                      prefWidth="420" prefHeight="45" />
-                        </VBox>
-
-                        <!-- Conditions -->
-                        <VBox spacing="10">
-                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                <CheckBox fx:id="termsCheckbox" />
-                                <Label text="J'accepte les " style="-fx-text-fill: #495057;" />
-                                <Hyperlink text="conditions d'utilisation" onAction="#showTerms"
-                                           style="-fx-text-fill: #0d6efd; -fx-font-weight: 500;" />
-                                <Label text=" et la " style="-fx-text-fill: #495057;" />
-                                <Hyperlink text="politique de confidentialité" onAction="#showPrivacyPolicy"
-                                           style="-fx-text-fill: #0d6efd; -fx-font-weight: 500;" />
-                            </HBox>
-                            <Hyperlink text="Conseils pour mot de passe sécurisé" onAction="#showPasswordHelp"
-                                       style="-fx-text-fill: #6c757d; -fx-font-size: 12px;" />
-                        </VBox>
-
-                        <!-- Message -->
-                        <Label fx:id="messageLabel" prefWidth="420" wrapText="true"
-                               style="-fx-font-size: 14px; -fx-padding: 10px 0; -fx-text-alignment: center;" />
-
-                        <!-- Progress indicator -->
-                        <ProgressIndicator fx:id="progressIndicator" visible="false" />
-
-                        <!-- Boutons principaux -->
-                        <HBox spacing="15" alignment="CENTER" prefWidth="420">
-                            <Button fx:id="signupButton" text="S'inscrire"
-                                    onAction="#handleSignup" prefWidth="200" prefHeight="50"
-                                    styleClass="action-button success-button" />
-                            <Button text="Réinitialiser" onAction="#clearForm"
-                                    styleClass="secondary-button" prefWidth="120" prefHeight="50" />
-                        </HBox>
-                    </VBox>
-
-                    <!-- Lien vers connexion -->
-                    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
-                        <Separator prefWidth="300" style="-fx-background-color: #dee2e6;" />
-                        <HBox spacing="5" alignment="CENTER">
-                            <Label text="Déjà inscrit ?" style="-fx-text-fill: #6c757d;" />
-                            <Button text="Se connecter" onAction="#goToLogin"
-                                    styleClass="nav-button" />
-                        </HBox>
-                        <Button text="← Retour à l'accueil" onAction="#goToLogin"
-                                style="-fx-background-color: transparent; -fx-text-fill: #6c757d;
-                                       -fx-border-color: transparent;" />
-                    </VBox>
-
-                    <!-- Footer -->
-                    <Label text="© 2024 BoostUp. Tous droits réservés."
-                           style="-fx-text-fill: #adb5bd; -fx-font-size: 12px; -fx-padding: 20 0 0 0;" />
+                <Label text="🚀" style="-fx-font-size: 50px;" />
+                <VBox alignment="CENTER" spacing="6">
+                    <Label text="BoostUp"
+                           style="-fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: 800;" />
+                    <Label text="Rejoignez la communauté"
+                           style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 15px;" />
                 </VBox>
+
+                <Region prefHeight="20" />
+
+                <VBox spacing="16" style="-fx-max-width: 300;">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="✅" style="-fx-font-size: 18px;" />
+                        <Label text="Inscription rapide et gratuite"
+                               style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 13px;" />
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="✅" style="-fx-font-size: 18px;" />
+                        <Label text="Accès à des startups exclusives"
+                               style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 13px;" />
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="✅" style="-fx-font-size: 18px;" />
+                        <Label text="Événements et networking premium"
+                               style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 13px;" />
+                    </HBox>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Label text="© 2024 BoostUp. Tous droits réservés."
+                       style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
             </VBox>
-        </ScrollPane>
+
+            <!-- Panneau droit : Formulaire -->
+            <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS" style="-fx-background-color: white;">
+                <ScrollPane fitToWidth="true" fitToHeight="true"
+                            style="-fx-background-color: transparent; -fx-background: white;">
+                    <VBox alignment="CENTER" spacing="18" style="-fx-padding: 40 60;">
+
+                        <VBox alignment="CENTER_LEFT" spacing="4">
+                            <Label text="Créer un compte"
+                                   style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1b2a4a;" />
+                            <Label text="Remplissez les informations ci-dessous"
+                                   style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                        </VBox>
+
+                        <VBox spacing="14" style="-fx-max-width: 460;">
+                            <!-- Nom -->
+                            <VBox spacing="4">
+                                <Label text="Nom complet *" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <TextField fx:id="nomField" promptText="Jean Dupont"
+                                           styleClass="modern-input" prefHeight="44" />
+                                <Label fx:id="nomErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Email -->
+                            <VBox spacing="4">
+                                <Label text="Email *" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <TextField fx:id="emailField" promptText="exemple@email.com"
+                                           styleClass="modern-input" prefHeight="44" />
+                                <Label fx:id="emailErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Mot de passe -->
+                            <VBox spacing="4">
+                                <Label text="Mot de passe *" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <PasswordField fx:id="mdpField" promptText="Minimum 6 caractères"
+                                               styleClass="modern-input" prefHeight="44" />
+                                <Label fx:id="passwordHintLabel" style="-fx-font-size: 11px; -fx-padding: 2 0 0 5;" />
+                                <Label fx:id="mdpErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Confirmation -->
+                            <VBox spacing="4">
+                                <Label text="Confirmer le mot de passe *" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <PasswordField fx:id="mdpConfirmField" promptText="Retapez votre mot de passe"
+                                               styleClass="modern-input" prefHeight="44" />
+                                <Label fx:id="mdpConfirmErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Téléphone -->
+                            <VBox spacing="4">
+                                <Label text="Téléphone" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <TextField fx:id="phoneField" promptText="+33 1 23 45 67 89 (optionnel)"
+                                           styleClass="modern-input" prefHeight="44" />
+                                <Label fx:id="phoneErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Avatar -->
+                            <VBox spacing="8" alignment="CENTER">
+                                <Label text="Photo de profil" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <StackPane>
+                                    <Circle radius="40" style="-fx-fill: #f0f2f5; -fx-stroke: #dee2e6; -fx-stroke-width: 2;" />
+                                    <ImageView fx:id="avatarPreview" fitHeight="72" fitWidth="72" preserveRatio="true" />
+                                </StackPane>
+                                <HBox spacing="10" alignment="CENTER">
+                                    <Button text="Choisir" onAction="#chooseAvatar"
+                                            style="-fx-background-color: #f0f2f5; -fx-text-fill: #344054;
+                                                   -fx-background-radius: 8; -fx-padding: 6 16; -fx-font-size: 12px;
+                                                   -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-radius: 8;" />
+                                    <Button text="Retirer" onAction="#removeAvatar"
+                                            style="-fx-background-color: transparent; -fx-text-fill: #6c757d;
+                                                   -fx-padding: 6 12; -fx-font-size: 12px; -fx-cursor: hand;" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- Rôle -->
+                            <VBox spacing="4">
+                                <Label text="Rôle *" style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <ComboBox fx:id="roleComboBox" styleClass="modern-input" prefHeight="44" maxWidth="Infinity" />
+                                <Label fx:id="roleErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Conditions -->
+                            <VBox spacing="4">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <CheckBox fx:id="termsCheckbox" />
+                                    <Label text="J'accepte les" style="-fx-text-fill: #495057; -fx-font-size: 12px;" />
+                                    <Hyperlink text="conditions" onAction="#showTerms"
+                                               style="-fx-text-fill: #e63956; -fx-font-size: 12px;" />
+                                    <Label text="et la" style="-fx-text-fill: #495057; -fx-font-size: 12px;" />
+                                    <Hyperlink text="politique de confidentialité" onAction="#showPrivacyPolicy"
+                                               style="-fx-text-fill: #e63956; -fx-font-size: 12px;" />
+                                </HBox>
+                                <Label fx:id="termsErrorLabel" styleClass="error-label" wrapText="true" managed="false" visible="false" />
+                            </VBox>
+
+                            <!-- Message -->
+                            <Label fx:id="messageLabel" wrapText="true" visible="false" managed="false"
+                                   style="-fx-font-size: 13px; -fx-text-alignment: center;" />
+
+                            <ProgressIndicator fx:id="progressIndicator" visible="false" prefWidth="35" prefHeight="35" />
+
+                            <!-- Boutons -->
+                            <HBox spacing="12" alignment="CENTER">
+                                <Button fx:id="signupButton" text="S'inscrire" onAction="#handleSignup"
+                                        prefHeight="46" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                        style="-fx-background-color: linear-gradient(to right, #1b2a4a, #2d1b4e);
+                                               -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700;
+                                               -fx-background-radius: 10; -fx-cursor: hand;" />
+                                <Button text="Réinitialiser" onAction="#clearForm" prefHeight="46"
+                                        style="-fx-background-color: #f0f2f5; -fx-text-fill: #344054;
+                                               -fx-background-radius: 10; -fx-padding: 0 24; -fx-font-size: 13px;
+                                               -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-radius: 10;" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Lien connexion -->
+                        <HBox spacing="5" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                            <Label text="Déjà inscrit ?" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                            <Hyperlink text="Se connecter" onAction="#goToLogin"
+                                       style="-fx-text-fill: #e63956; -fx-font-weight: 700; -fx-font-size: 13px;" />
+                        </HBox>
+
+                        <Hyperlink text="Conseils mot de passe sécurisé" onAction="#showPasswordHelp"
+                                   style="-fx-text-fill: #adb5bd; -fx-font-size: 11px;" />
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </HBox>
     </center>
 </BorderPane>

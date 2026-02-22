@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.ActivityLogController"
+            stylesheets="@../css/style.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- SIDEBAR -->
+    <left>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: transparent; -fx-background: transparent;"
+                    prefWidth="280" minWidth="280">
+        <VBox prefWidth="280" spacing="10"
+              style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+            <padding><Insets top="25" right="18" bottom="20" left="18"/></padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 5;">
+                <Label text="⚡" style="-fx-font-size: 28px; -fx-text-fill: #e63956;" />
+                <VBox spacing="0">
+                    <Label text="BoostUp" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                    <Label text="Journal d'activité" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px;" />
+                </VBox>
+            </HBox>
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+
+            <!-- Stats rapides -->
+            <VBox spacing="12" style="-fx-padding: 15 8;">
+                <Label text="STATISTIQUES" style="-fx-text-fill: rgba(255,255,255,0.5);
+                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 0 4;" />
+
+                <HBox spacing="10">
+                    <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: rgba(46,204,113,0.15); -fx-background-radius: 12; -fx-padding: 12 8;">
+                        <Label fx:id="statLoginsLabel" text="0"
+                               style="-fx-text-fill: #2ecc71; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Connexions" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 10px;" />
+                    </VBox>
+                    <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: rgba(239,68,68,0.15); -fx-background-radius: 12; -fx-padding: 12 8;">
+                        <Label fx:id="statFailedLabel" text="0"
+                               style="-fx-text-fill: #ef4444; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Échouées" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 10px;" />
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10">
+                    <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: rgba(13,110,253,0.15); -fx-background-radius: 12; -fx-padding: 12 8;">
+                        <Label fx:id="statTotalLabel" text="0"
+                               style="-fx-text-fill: #5b9bff; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Total actions" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 10px;" />
+                    </VBox>
+                    <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: rgba(111,66,193,0.15); -fx-background-radius: 12; -fx-padding: 12 8;">
+                        <Label fx:id="statFaceIdLabel" text="0"
+                               style="-fx-text-fill: #a78bfa; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Face ID" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 10px;" />
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+
+            <!-- Filtres -->
+            <VBox spacing="8" style="-fx-padding: 10 8;">
+                <Label text="FILTRER PAR TYPE" style="-fx-text-fill: rgba(255,255,255,0.5);
+                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 0 4;" />
+                <ComboBox fx:id="filterTypeCombo" maxWidth="Infinity" promptText="Tous les types"
+                          style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 8;
+                                 -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 8;" />
+                <TextField fx:id="searchEmailField" promptText="🔍 Rechercher par email..."
+                           style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 8;
+                                  -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.4);
+                                  -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 8;
+                                  -fx-padding: 8 12;" />
+            </VBox>
+
+            <Region prefHeight="20" />
+
+            <!-- Navigation -->
+            <VBox spacing="8">
+                <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
+                <Button text="← Retour au Dashboard" onAction="#goBack" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                               -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.25);
+                               -fx-border-radius: 10; -fx-font-weight: 600;" />
+                <Button text="🗑️ Purger les anciens logs" onAction="#handlePurgeLogs" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(239,68,68,0.15); -fx-text-fill: #fca5a5;
+                               -fx-background-radius: 10; -fx-padding: 10 18; -fx-font-size: 12px;
+                               -fx-cursor: hand; -fx-border-color: rgba(239,68,68,0.3); -fx-border-radius: 10;" />
+            </VBox>
+        </VBox>
+        </ScrollPane>
+    </left>
+
+    <!-- CONTENU PRINCIPAL -->
+    <center>
+        <VBox spacing="0" style="-fx-padding: 0;">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 25 35 20 35;
+                  -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);">
+                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                    <Label text="📝 Journal d'activité" style="-fx-font-size: 26px; -fx-font-weight: 800;
+                           -fx-text-fill: #1a1a2e;" />
+                    <Label fx:id="subtitleLabel" text="Toutes les activités du système"
+                           style="-fx-text-fill: #6c757d; -fx-font-size: 13px;" />
+                </VBox>
+                <Button text="🔄 Actualiser" onAction="#handleRefresh"
+                        style="-fx-background-color: #1b2a4a; -fx-text-fill: white;
+                               -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-weight: 600;
+                               -fx-cursor: hand; -fx-font-size: 12px;" />
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="activityTable" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: white; -fx-padding: 0;">
+                <columns>
+                    <TableColumn fx:id="colIcon" text="" prefWidth="50" sortable="false" />
+                    <TableColumn fx:id="colAction" text="Action" prefWidth="180" />
+                    <TableColumn fx:id="colEmail" text="Utilisateur" prefWidth="220" />
+                    <TableColumn fx:id="colDescription" text="Détails" prefWidth="320" />
+                    <TableColumn fx:id="colDate" text="Date / Heure" prefWidth="170" />
+                </columns>
+                <placeholder>
+                    <Label text="Aucune activité enregistrée" style="-fx-text-fill: #adb5bd; -fx-font-size: 14px;" />
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>
+
+
+
+

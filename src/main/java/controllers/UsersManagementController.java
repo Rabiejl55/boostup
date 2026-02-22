@@ -15,6 +15,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
@@ -33,268 +35,255 @@ public class UsersManagementController {
     @FXML private TableColumn<User, Boolean> activeColumn;
     @FXML private TableColumn<User, java.sql.Timestamp> dateCreationColumn;
     @FXML private Label feedbackLabel;
-    @FXML private Label filterSummaryLabel;  // Pour le résumé des filtres
-    @FXML private Label userCountLabel;      // Pour le compteur d'utilisateurs
-    @FXML
-    private ImageView avatarImageView;
+    @FXML private Label filterSummaryLabel;
+    @FXML private Label userCountLabel;
+    @FXML private Label welcomeLabel;
+    @FXML private ImageView avatarImageView;
 
     private final UserService userService = new UserService();
     private ObservableList<User> usersList = FXCollections.observableArrayList();
-    // New FXML fields for search and filter
+
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterComboBox;
     @FXML private ComboBox<Role_enum> roleFilterComboBox;
     @FXML private ComboBox<String> statusFilterComboBox;
-    @FXML private Button clearFiltersButton;
 
     private FilteredList<User> filteredData;
 
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}$");
     private static final Pattern PHONE_REGEX = Pattern.compile("^[+]?[0-9\\s.-]{8,20}$");
     private static final Pattern NAME_REGEX = Pattern.compile("^[A-Za-z0-9À-ÖØ-öø-ÿ\\s'-]{2,50}$");
 
+    private ObservableList<String> activityLog = FXCollections.observableArrayList();
+
+    // ══════════════════════════════════════════════════════════
+    // INITIALISATION
+    // ══════════════════════════════════════════════════════════
+
     @FXML
     public void initialize() {
-        // Configurer les colonnes
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser != null && welcomeLabel != null) {
+            String displayName = currentUser.getFullname() != null && !currentUser.getFullname().isEmpty()
+                    ? currentUser.getFullname() : currentUser.getNom();
+            welcomeLabel.setText(displayName);
+        }
+
+        // ID — Caché
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setVisible(false);
+
+        // NOM — Éditable double-clic
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        nomColumn.setCellFactory(col -> new EditableTextFieldCell("nom"));
+        nomColumn.setOnEditCommit(event -> {
+            User user = event.getRowValue();
+            String newValue = event.getNewValue().trim();
+            String oldValue = event.getOldValue();
+            if (validateAndSaveField(user, "nom", newValue)) {
+                user.setNom(newValue);
+                logUserAction("EDIT_NOM", user);
+                showFeedback("✅ Nom modifié : " + oldValue + " → " + newValue, "success");
+            } else {
+                event.getTableView().refresh();
+            }
+        });
+
+        // EMAIL — Éditable double-clic
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        emailColumn.setCellFactory(col -> new EditableTextFieldCell("email"));
+        emailColumn.setOnEditCommit(event -> {
+            User user = event.getRowValue();
+            String newValue = event.getNewValue().trim();
+            String oldValue = event.getOldValue();
+            if (validateAndSaveField(user, "email", newValue)) {
+                user.setEmail(newValue);
+                logUserAction("EDIT_EMAIL", user);
+                showFeedback("✅ Email modifié : " + oldValue + " → " + newValue, "success");
+            } else {
+                event.getTableView().refresh();
+            }
+        });
+
+        // RÔLE — Clic badge
         roleColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
                 cell.getValue().getRole() != null ? cell.getValue().getRole().name() : "N/A"));
-        activeColumn.setCellValueFactory(new PropertyValueFactory<>("active"));
-        dateCreationColumn.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
+        roleColumn.setCellFactory(col -> new EditableRoleCell());
 
-        // Formatter la date
+        // STATUT — Clic badge toggle
+        activeColumn.setCellValueFactory(new PropertyValueFactory<>("active"));
+        activeColumn.setCellFactory(col -> new ToggleActiveCell());
+
+        // DATE — Lecture seule
+        dateCreationColumn.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
         dateCreationColumn.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(java.sql.Timestamp item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    setText("");
+                    setText(null);
+                    setGraphic(null);
                 } else {
                     setText(new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm")
                             .format(new java.util.Date(item.getTime())));
+                    setStyle("-fx-text-fill: #6c757d; -fx-font-size: 12px;");
                 }
             }
         });
 
-        // Personnaliser l'affichage de la colonne active
-        activeColumn.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(Boolean active, boolean empty) {
-                super.updateItem(active, empty);
-                if (empty || active == null) {
-                    setText("");
-                    setGraphic(null);
-                } else {
-                    Label badge = new Label(active ? "Actif" : "Inactif");
-                    badge.getStyleClass().addAll("badge", active ? "badge-success" : "badge-danger");
-                    setGraphic(badge);
-                }
-            }
-        });
+        // Activer édition
+        usersTable.setEditable(true);
+        usersTable.getSelectionModel().setCellSelectionEnabled(false);
 
-        // Personnaliser l'affichage du rôle
-        roleColumn.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String role, boolean empty) {
-                super.updateItem(role, empty);
-                if (empty || role == null) {
-                    setText("");
-                    setGraphic(null);
-                } else {
-                    Label badge = new Label(role);
-                    badge.getStyleClass().addAll("badge", "role-" + role.toLowerCase());
-                    setGraphic(badge);
-                }
-            }
-        });
         initializeFilters();
         usersTable.setItems(usersList);
         refreshUsers();
         loadAvatar();
     }
 
+    // ══════════════════════════════════════════════════════════
+    // COMPTEUR
+    // ══════════════════════════════════════════════════════════
+
+    private void updateUserCount() {
+        if (userCountLabel != null) {
+            int total = usersList.size();
+            int filtered = filteredData != null ? filteredData.size() : total;
+            if (filtered < total) {
+                userCountLabel.setText("📊 " + filtered + " / " + total);
+            } else {
+                userCountLabel.setText("📊 " + total + " utilisateur" + (total > 1 ? "s" : ""));
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // AVATAR
+    // ══════════════════════════════════════════════════════════
+
     private void loadAvatar() {
         if (avatarImageView == null) return;
-
         User user = SessionManager.getCurrentUser();
         String avatarUrl = user != null ? user.getAvatar() : null;
 
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
             try {
-                // Clean URL
                 if (avatarUrl.contains(" ")) avatarUrl = avatarUrl.replace(" ", "%20");
-                if (avatarUrl.startsWith("C:/") || avatarUrl.startsWith("D:/")) {
+                if (avatarUrl.startsWith("C:/") || avatarUrl.startsWith("D:/"))
                     avatarUrl = "file:///" + avatarUrl.replace("\\", "/");
-                }
 
-                // Load image with proper dimensions (80x80)
                 Image image = new Image(avatarUrl, 80, 80, true, true, true);
-
                 if (!image.isError()) {
-                    avatarImageView.setImage(image);
-                    avatarImageView.setPreserveRatio(true);
-                    avatarImageView.setSmooth(true);
-                    avatarImageView.setFitWidth(80);
-                    avatarImageView.setFitHeight(80);
-
-                    // Create circular clip - radius 40 for 80px image
-                    Circle clip = new Circle(40, 40, 40);
-                    avatarImageView.setClip(clip);
-                    avatarImageView.setVisible(true);
+                    applyAvatarImage(image);
                     return;
                 }
             } catch (Exception e) {
                 System.err.println("Erreur chargement avatar: " + e.getMessage());
             }
         }
-
-        // Default avatar if none
         setDefaultAvatar();
     }
 
-    private void setDefaultAvatar() {
-        if (avatarImageView != null) {
-            User user = SessionManager.getCurrentUser();
-
-            // Create gradient color based on user ID or name
-            Color color1, color2;
-            if (user != null) {
-                int hash = user.getNom().hashCode();
-                double hue = Math.abs(hash % 360);
-                color1 = Color.hsb(hue, 0.7, 0.9);
-                color2 = Color.hsb((hue + 30) % 360, 0.8, 0.8);
-            } else {
-                color1 = Color.web("#0d6efd");
-                color2 = Color.web("#6f42c1");
-            }
-
-            // Create gradient image
-            WritableImage image = new WritableImage(80, 80);
-            PixelWriter writer = image.getPixelWriter();
-
-            for (int y = 0; y < 80; y++) {
-                for (int x = 0; x < 80; x++) {
-                    double ratio = (double)(x + y) / (160.0);
-                    Color mixed = color1.interpolate(color2, ratio);
-                    writer.setColor(x, y, mixed);
-                }
-            }
-
-            avatarImageView.setImage(image);
-            avatarImageView.setPreserveRatio(true);
-            avatarImageView.setFitWidth(80);
-            avatarImageView.setFitHeight(80);
-
-            Circle clip = new Circle(40, 40, 40);
-            avatarImageView.setClip(clip);
-            avatarImageView.setVisible(true);
-        }
+    private void applyAvatarImage(Image image) {
+        avatarImageView.setImage(image);
+        avatarImageView.setPreserveRatio(true);
+        avatarImageView.setSmooth(true);
+        avatarImageView.setFitWidth(80);
+        avatarImageView.setFitHeight(80);
+        avatarImageView.setClip(new Circle(40, 40, 40));
+        avatarImageView.setVisible(true);
     }
+
+    private void setDefaultAvatar() {
+        if (avatarImageView == null) return;
+        User user = SessionManager.getCurrentUser();
+        Color c1, c2;
+        if (user != null) {
+            double hue = Math.abs(user.getNom().hashCode() % 360);
+            c1 = Color.hsb(hue, 0.7, 0.9);
+            c2 = Color.hsb((hue + 30) % 360, 0.8, 0.8);
+        } else {
+            c1 = Color.web("#0d6efd");
+            c2 = Color.web("#6f42c1");
+        }
+
+        WritableImage img = new WritableImage(80, 80);
+        PixelWriter w = img.getPixelWriter();
+        for (int y = 0; y < 80; y++) {
+            for (int x = 0; x < 80; x++) {
+                w.setColor(x, y, c1.interpolate(c2, (x + y) / 160.0));
+            }
+        }
+        applyAvatarImage(img);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // FILTRES
+    // ══════════════════════════════════════════════════════════
+
     private void initializeFilters() {
-        // Setup search field listener
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            applyFilters();
-        });
+        searchField.textProperty().addListener((o, ov, nv) -> applyFilters());
 
-        // Setup filter comboboxes
-        filterComboBox.setItems(FXCollections.observableArrayList(
-                "Tous les champs",
-                "Nom",
-                "Email",
-                "Téléphone"
-        ));
+        filterComboBox.setItems(FXCollections.observableArrayList("Tous les champs", "Nom", "Email", "Téléphone"));
         filterComboBox.getSelectionModel().selectFirst();
-        filterComboBox.valueProperty().addListener((obs, old, newVal) -> applyFilters());
+        filterComboBox.valueProperty().addListener((o, ov, nv) -> applyFilters());
 
-        // Setup role filter
         roleFilterComboBox.setItems(FXCollections.observableArrayList(Role_enum.values()));
         roleFilterComboBox.getSelectionModel().selectFirst();
-        roleFilterComboBox.valueProperty().addListener((obs, old, newVal) -> applyFilters());
+        roleFilterComboBox.valueProperty().addListener((o, ov, nv) -> applyFilters());
 
-        // Setup status filter
         statusFilterComboBox.setItems(FXCollections.observableArrayList(
-                "Tous les statuts",
-                "Actifs uniquement",
-                "Inactifs uniquement"
-        ));
+                "Tous les statuts", "Actifs uniquement", "Inactifs uniquement"));
         statusFilterComboBox.getSelectionModel().selectFirst();
-        statusFilterComboBox.valueProperty().addListener((obs, old, newVal) -> applyFilters());
+        statusFilterComboBox.valueProperty().addListener((o, ov, nv) -> applyFilters());
     }
-
 
     private void refreshUsers() {
         try {
             usersList.clear();
             usersList.addAll(userService.read());
-            // Initialize filtered list
             filteredData = new FilteredList<>(usersList, p -> true);
             usersTable.setItems(filteredData);
-            showFeedback("Liste rafraîchie (" + usersList.size() + " utilisateurs)", "success");
+            updateUserCount();
+            showFeedback("✅ " + usersList.size() + " utilisateurs chargés", "success");
         } catch (SQLException e) {
-            showFeedback("Erreur chargement : " + e.getMessage(), "error");
+            showFeedback("❌ Erreur chargement : " + e.getMessage(), "error");
         }
     }
+
     private void applyFilters() {
         if (filteredData == null) return;
 
-        String searchText = searchField.getText().toLowerCase();
-        String searchField = filterComboBox.getValue();
-        Role_enum selectedRole = roleFilterComboBox.getValue();
-        String statusFilter = statusFilterComboBox.getValue();
+        String text = searchField.getText() != null ? searchField.getText().toLowerCase() : "";
+        String field = filterComboBox.getValue();
+        Role_enum role = roleFilterComboBox.getValue();
+        String status = statusFilterComboBox.getValue();
 
         filteredData.setPredicate(user -> {
-            // Filtre par rôle
-            if (selectedRole != null && user.getRole() != selectedRole) {
-                return false;
-            }
+            if (role != null && user.getRole() != role) return false;
+            if ("Actifs uniquement".equals(status) && !user.isActive()) return false;
+            if ("Inactifs uniquement".equals(status) && user.isActive()) return false;
+            if (text.isEmpty()) return true;
 
-            // Filtre par statut
-            if (statusFilter != null) {
-                if ("Actifs uniquement".equals(statusFilter) && !user.isActive()) {
-                    return false;
-                }
-                if ("Inactifs uniquement".equals(statusFilter) && user.isActive()) {
-                    return false;
-                }
-            }
-
-            // Filtre par recherche textuelle
-            if (searchText == null || searchText.isEmpty()) {
-                return true;
-            }
-
-            // Recherche dans le champ spécifié
-            switch (searchField) {
+            switch (field != null ? field : "Tous les champs") {
                 case "Nom":
-                    return user.getNom() != null && user.getNom().toLowerCase().contains(searchText);
+                    return contains(user.getNom(), text);
                 case "Email":
-                    return user.getEmail() != null && user.getEmail().toLowerCase().contains(searchText);
+                    return contains(user.getEmail(), text);
                 case "Téléphone":
-                    return user.getPhone() != null && user.getPhone().toLowerCase().contains(searchText);
-                case "Nom complet":
-                    return user.getFullname() != null && user.getFullname().toLowerCase().contains(searchText);
-                case "Tous les champs":
+                    return contains(user.getPhone(), text);
                 default:
-                    return (user.getNom() != null && user.getNom().toLowerCase().contains(searchText)) ||
-                            (user.getEmail() != null && user.getEmail().toLowerCase().contains(searchText)) ||
-                            (user.getFullname() != null && user.getFullname().toLowerCase().contains(searchText)) ||
-                            (user.getPhone() != null && user.getPhone().toLowerCase().contains(searchText)) ||
-                            (user.getRole() != null && user.getRole().name().toLowerCase().contains(searchText));
+                    return contains(user.getNom(), text) || contains(user.getEmail(), text) ||
+                            contains(user.getFullname(), text) || contains(user.getPhone(), text) ||
+                            (user.getRole() != null && user.getRole().name().toLowerCase().contains(text));
             }
         });
+        updateUserCount();
+    }
 
-        // Update feedback with filter results
-        int filteredCount = filteredData.size();
-        int totalCount = usersList.size();
-        if (filteredCount < totalCount) {
-            showFeedback(filteredCount + " utilisateur(s) trouvé(s) sur " + totalCount, "info");
-        } else {
-            showFeedback(totalCount + " utilisateur(s) au total", "success");
-        }
+    private boolean contains(String value, String search) {
+        return value != null && value.toLowerCase().contains(search);
     }
 
     @FXML
@@ -304,357 +293,170 @@ public class UsersManagementController {
         roleFilterComboBox.getSelectionModel().selectFirst();
         statusFilterComboBox.getSelectionModel().selectFirst();
         applyFilters();
-        showFeedback("Filtres réinitialisés", "success");
+        showFeedback("🔄 Filtres réinitialisés", "success");
     }
-
 
     @FXML
     private void refreshUsers(ActionEvent event) {
         refreshUsers();
     }
 
+    // ══════════════════════════════════════════════════════════
+    // AJOUTER UTILISATEUR
+    // ══════════════════════════════════════════════════════════
+
     @FXML
     private void showAddUserDialog(ActionEvent event) {
-        Dialog<User> dialog = createUserDialog(null);
-        dialog.setTitle("Ajouter un utilisateur");
+        Dialog<User> dialog = createAddDialog();
         dialog.showAndWait().ifPresent(user -> {
             try {
-                validateUser(user, true);
+                validateUser(user);
                 userService.ajouter(user);
+                logUserAction("ADD", user);
                 refreshUsers();
-                showFeedback("Utilisateur ajouté avec succès !", "success");
+                showFeedback("✅ " + user.getDisplayName() + " ajouté avec succès !", "success");
             } catch (SQLException e) {
-                if (e.getMessage().contains("email")) {
-                    showFeedback("Cette adresse email est déjà utilisée !", "error");
+                if (e.getMessage() != null && e.getMessage().contains("email")) {
+                    showFeedback("❌ Cet email est déjà utilisé !", "error");
                 } else {
-                    showFeedback("Erreur ajout : " + e.getMessage(), "error");
+                    showFeedback("❌ Erreur : " + e.getMessage(), "error");
                 }
             } catch (IllegalArgumentException e) {
-                showFeedback(e.getMessage(), "error");
+                showFeedback("❌ " + e.getMessage(), "error");
             }
         });
     }
 
-
-    @FXML
-    private void showEditUserDialog(ActionEvent event) {
-        User selected = usersTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showFeedback("Sélectionnez un utilisateur à modifier", "error");
-            return;
-        }
-
-        Dialog<User> dialog = createUserDialog(selected);
-        dialog.setTitle("Modifier l'utilisateur");
-        dialog.showAndWait().ifPresent(user -> {
-            try {
-                validateUser(user, false);
-                userService.update(user);
-                refreshUsers();
-                showFeedback("Utilisateur modifié avec succès !", "success");
-            } catch (SQLException e) {
-                if (e.getMessage().contains("email")) {
-                    showFeedback("Cette adresse email est déjà utilisée !", "error");
-                } else {
-                    showFeedback("Erreur modification : " + e.getMessage(), "error");
-                }
-            } catch (IllegalArgumentException e) {
-                showFeedback(e.getMessage(), "error");
-            }
-        });
-    }
-
-    @FXML
-    private void deleteSelectedUser(ActionEvent event) {
-        User selected = usersTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showFeedback("Sélectionnez un utilisateur à supprimer", "error");
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Supprimer utilisateur");
-        confirm.setHeaderText("Confirmer la suppression");
-        confirm.setContentText("Êtes-vous sûr de vouloir supprimer l'utilisateur :\n" +
-                "• " + selected.getNom() + "\n" +
-                "• " + selected.getEmail() + "\n\n" +
-                "Cette action est irréversible !");
-        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                try {
-                    userService.supprimer(selected.getId());
-                    refreshUsers();
-                    showFeedback("Utilisateur supprimé avec succès !", "success");
-                } catch (SQLException e) {
-                    showFeedback("Erreur suppression : " + e.getMessage(), "error");
-                }
-            }
-        });
-    }
-
-    private Dialog<User> createUserDialog(User existing) {
+    private Dialog<User> createAddDialog() {
         Dialog<User> dialog = new Dialog<>();
-        dialog.setTitle(existing == null ? "Ajouter utilisateur" : "Modifier utilisateur");
+        dialog.setTitle("➕ Nouvel utilisateur");
 
-        DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        dialogPane.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
-        dialogPane.setPrefWidth(500);
-        dialogPane.setPrefHeight(650);
+        DialogPane dp = dialog.getDialogPane();
+        dp.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dp.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+        dp.setPrefWidth(550);
+        dp.setPrefHeight(650);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(8);
-        grid.setPadding(new Insets(20, 20, 20, 20));
-        grid.setStyle("-fx-background-color: white;");
+        ScrollPane sp = new ScrollPane();
+        sp.setFitToWidth(true);
+        sp.setStyle("-fx-background-color: transparent;");
 
-        int rowIndex = 0;
+        VBox main = new VBox(16);
+        main.setPadding(new Insets(20));
+        main.setStyle("-fx-background-color: #f8f9fa;");
 
-        // === Nom d'utilisateur ===
-        Label nomLabel = new Label("Nom d'utilisateur *:");
-        nomLabel.getStyleClass().add("form-label");
-        grid.add(nomLabel, 0, rowIndex);
+        // Section infos
+        VBox infoBox = createSection("👤 Informations");
+        GridPane g1 = new GridPane();
+        g1.setHgap(12);
+        g1.setVgap(8);
+        int r = 0;
 
-        TextField nomField = new TextField(existing != null ? existing.getNom() : "");
-        nomField.setPromptText("Nom d'utilisateur");
-        nomField.getStyleClass().add("modern-input");
-        nomField.setPrefWidth(300);
-        grid.add(nomField, 1, rowIndex);
-        rowIndex++;
+        TextField nomF = addField(g1, r, "Nom d'utilisateur *", "Ex: jean.dupont");
+        r += 2;
+        Label nomErr = addErrorLabel(g1, r++);
 
-        Label nomError = new Label();
-        nomError.getStyleClass().add("error-label");
-        nomError.setWrapText(true);
-        nomError.setVisible(false);
-        nomError.setManaged(false);
-        grid.add(nomError, 1, rowIndex);
-        rowIndex++;
+        TextField fullnameF = addField(g1, r, "Nom complet", "Ex: Jean Dupont");
+        r += 2;
 
-        // === Nom complet ===
-        Label fullnameLabel = new Label("Nom complet :");
-        fullnameLabel.getStyleClass().add("form-label");
-        grid.add(fullnameLabel, 0, rowIndex);
+        TextField emailF = addField(g1, r, "Email *", "Ex: jean@exemple.com");
+        r += 2;
+        Label emailErr = addErrorLabel(g1, r++);
 
-        TextField fullnameField = new TextField(existing != null ? existing.getFullname() : "");
-        fullnameField.setPromptText("Nom complet");
-        fullnameField.getStyleClass().add("modern-input");
-        fullnameField.setPrefWidth(300);
-        grid.add(fullnameField, 1, rowIndex);
-        rowIndex++;
+        TextField phoneF = addField(g1, r, "Téléphone", "+216 12 345 678 (optionnel)");
+        r += 2;
+        Label phoneErr = addErrorLabel(g1, r++);
 
-        Label fullnameError = new Label();
-        fullnameError.getStyleClass().add("error-label");
-        fullnameError.setWrapText(true);
-        fullnameError.setVisible(false);
-        fullnameError.setManaged(false);
-        grid.add(fullnameError, 1, rowIndex);
-        rowIndex++;
+        infoBox.getChildren().add(g1);
+        main.getChildren().add(infoBox);
 
-        // === Email ===
-        Label emailLabel = new Label("Email *:");
-        emailLabel.getStyleClass().add("form-label");
-        grid.add(emailLabel, 0, rowIndex);
+        // Section sécurité
+        VBox secBox = createSection("🔒 Sécurité");
+        GridPane g2 = new GridPane();
+        g2.setHgap(12);
+        g2.setVgap(8);
+        int s = 0;
 
-        TextField emailField = new TextField(existing != null ? existing.getEmail() : "");
-        emailField.setPromptText("email@exemple.com");
-        emailField.getStyleClass().add("modern-input");
-        emailField.setPrefWidth(300);
-        grid.add(emailField, 1, rowIndex);
-        rowIndex++;
+        PasswordField mdpF = addPwdField(g2, s, "Mot de passe *", "Minimum 6 caractères");
+        s += 2;
+        Label mdpErr = addErrorLabel(g2, s++);
 
-        Label emailError = new Label();
-        emailError.getStyleClass().add("error-label");
-        emailError.setWrapText(true);
-        emailError.setVisible(false);
-        emailError.setManaged(false);
-        grid.add(emailError, 1, rowIndex);
-        rowIndex++;
+        PasswordField mdpCF = addPwdField(g2, s, "Confirmation *", "Confirmer le mot de passe");
+        s += 2;
+        Label mdpCErr = addErrorLabel(g2, s++);
 
-        // === Téléphone ===
-        Label phoneLabel = new Label("Téléphone :");
-        phoneLabel.getStyleClass().add("form-label");
-        grid.add(phoneLabel, 0, rowIndex);
+        secBox.getChildren().add(g2);
+        main.getChildren().add(secBox);
 
-        TextField phoneField = new TextField(existing != null ? existing.getPhone() : "");
-        phoneField.setPromptText("+33 1 23 45 67 89 (optionnel)");
-        phoneField.getStyleClass().add("modern-input");
-        phoneField.setPrefWidth(300);
-        grid.add(phoneField, 1, rowIndex);
-        rowIndex++;
+        // Section paramètres
+        VBox setBox = createSection("⚙️ Paramètres");
+        GridPane g3 = new GridPane();
+        g3.setHgap(12);
+        g3.setVgap(8);
 
-        Label phoneError = new Label();
-        phoneError.getStyleClass().add("error-label");
-        phoneError.setWrapText(true);
-        phoneError.setVisible(false);
-        phoneError.setManaged(false);
-        grid.add(phoneError, 1, rowIndex);
-        rowIndex++;
+        Label roleLbl = new Label("Rôle *");
+        roleLbl.setStyle("-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;");
+        g3.add(roleLbl, 0, 0, 2, 1);
 
-        // === Mot de passe ===
-        Label mdpLabel = new Label(existing == null ? "Mot de passe *:" : "Nouveau mot de passe :");
-        mdpLabel.getStyleClass().add("form-label");
-        grid.add(mdpLabel, 0, rowIndex);
-
-        PasswordField mdpField = new PasswordField();
-        mdpField.setPromptText(existing == null ? "Mot de passe requis" : "Laisser vide pour conserver");
-        mdpField.getStyleClass().add("modern-input");
-        mdpField.setPrefWidth(300);
-        grid.add(mdpField, 1, rowIndex);
-        rowIndex++;
-
-        Label mdpError = new Label();
-        mdpError.getStyleClass().add("error-label");
-        mdpError.setWrapText(true);
-        mdpError.setVisible(false);
-        mdpError.setManaged(false);
-        grid.add(mdpError, 1, rowIndex);
-        rowIndex++;
-
-        // === Confirmation mot de passe ===
-        Label mdpConfirmLabel = new Label("Confirmation :");
-        mdpConfirmLabel.getStyleClass().add("form-label");
-        grid.add(mdpConfirmLabel, 0, rowIndex);
-
-        PasswordField mdpConfirmField = new PasswordField();
-        mdpConfirmField.setPromptText("Confirmer le mot de passe");
-        mdpConfirmField.getStyleClass().add("modern-input");
-        mdpConfirmField.setPrefWidth(300);
-        grid.add(mdpConfirmField, 1, rowIndex);
-        rowIndex++;
-
-        Label mdpConfirmError = new Label();
-        mdpConfirmError.getStyleClass().add("error-label");
-        mdpConfirmError.setWrapText(true);
-        mdpConfirmError.setVisible(false);
-        mdpConfirmError.setManaged(false);
-        grid.add(mdpConfirmError, 1, rowIndex);
-        rowIndex++;
-
-        // === Rôle ===
-        Label roleLabel = new Label("Rôle *:");
-        roleLabel.getStyleClass().add("form-label");
-        grid.add(roleLabel, 0, rowIndex);
-
-        ComboBox<Role_enum> roleCombo = new ComboBox<>();
-        roleCombo.setItems(FXCollections.observableArrayList(Role_enum.values()));
-        roleCombo.setValue(existing != null ? existing.getRole() : Role_enum.INVESTISSEUR);
+        ComboBox<Role_enum> roleCombo = new ComboBox<>(FXCollections.observableArrayList(Role_enum.values()));
+        roleCombo.setValue(Role_enum.INVESTISSEUR);
         roleCombo.getStyleClass().add("modern-input");
-        roleCombo.setPrefWidth(300);
-        grid.add(roleCombo, 1, rowIndex);
-        rowIndex++;
+        roleCombo.setPrefWidth(400);
+        g3.add(roleCombo, 0, 1, 2, 1);
 
-        Label roleError = new Label();
-        roleError.getStyleClass().add("error-label");
-        roleError.setWrapText(true);
-        roleError.setVisible(false);
-        roleError.setManaged(false);
-        grid.add(roleError, 1, rowIndex);
-        rowIndex++;
+        CheckBox activeChk = new CheckBox("Compte actif");
+        activeChk.setSelected(true);
+        activeChk.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 10 0 0 0;");
+        g3.add(activeChk, 0, 2, 2, 1);
 
-        // === Statut ===
-        Label activeLabel = new Label("Statut :");
-        activeLabel.getStyleClass().add("form-label");
-        grid.add(activeLabel, 0, rowIndex);
+        setBox.getChildren().add(g3);
+        main.getChildren().add(setBox);
 
-        CheckBox activeCheck = new CheckBox("Actif");
-        activeCheck.setSelected(existing == null || existing.isActive());
-        grid.add(activeCheck, 1, rowIndex);
-        rowIndex++;
+        sp.setContent(main);
+        dp.setContent(sp);
 
-        dialogPane.setContent(grid);
+        // Style boutons
+        Button okBtn = (Button) dp.lookupButton(ButtonType.OK);
+        okBtn.setText("💾 Enregistrer");
+        okBtn.setStyle("-fx-background-color: linear-gradient(to right, #1b2a4a, #2d1b4e); " +
+                "-fx-text-fill: white; -fx-font-weight: 700; -fx-padding: 12 28; -fx-background-radius: 8px;");
+        okBtn.setDisable(true);
 
-        // === VALIDATION EN TEMPS RÉEL ===
-        boolean isNewUser = (existing == null);
+        Button cancelBtn = (Button) dp.lookupButton(ButtonType.CANCEL);
+        cancelBtn.setText("❌ Annuler");
+        cancelBtn.setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #6c757d; -fx-font-weight: 600; " +
+                "-fx-padding: 12 28; -fx-background-radius: 8px; -fx-border-color: #dee2e6; -fx-border-radius: 8px;");
 
-        // Validation nom
-        nomField.textProperty().addListener((obs, old, newVal) ->
-                validateNom(nomField, nomError, newVal));
-
-        // Validation email
-        emailField.textProperty().addListener((obs, old, newVal) ->
-                validateEmail(emailField, emailError, newVal));
-
-        // Validation téléphone
-        phoneField.textProperty().addListener((obs, old, newVal) ->
-                validatePhone(phoneField, phoneError, newVal));
-
-        // Validation mot de passe
-        mdpField.textProperty().addListener((obs, old, newVal) -> {
-            validatePassword(mdpField, mdpError, mdpConfirmField, mdpConfirmError, newVal, isNewUser);
-            validatePasswordConfirmation(mdpField, mdpConfirmField, mdpConfirmError, isNewUser);
-        });
-
-        // Validation confirmation
-        mdpConfirmField.textProperty().addListener((obs, old, newVal) ->
-                validatePasswordConfirmation(mdpField, mdpConfirmField, mdpConfirmError, isNewUser));
-
-        // Validation rôle
-        roleCombo.valueProperty().addListener((obs, old, newVal) ->
-                validateRole(roleCombo, roleError, newVal));
-
-        // Désactiver le bouton OK si validation échoue
-        Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-        okButton.setDisable(true);
-        okButton.getStyleClass().add("action-button");
-
-        // Vérifier périodiquement la validation
-        Runnable validateForm = () -> {
-            boolean isValid = true;
-
-            isValid &= validateNom(nomField, nomError, nomField.getText());
-            isValid &= validateEmail(emailField, emailError, emailField.getText());
-            isValid &= validatePhone(phoneField, phoneError, phoneField.getText());
-            isValid &= validateRole(roleCombo, roleError, roleCombo.getValue());
-
-            if (isNewUser) {
-                isValid &= validatePassword(mdpField, mdpError, mdpConfirmField, mdpConfirmError,
-                        mdpField.getText(), true);
-                isValid &= validatePasswordConfirmation(mdpField, mdpConfirmField, mdpConfirmError, true);
-            } else {
-                // Pour modification, valider seulement si un mot de passe est fourni
-                if (!mdpField.getText().isEmpty()) {
-                    isValid &= validatePassword(mdpField, mdpError, mdpConfirmField, mdpConfirmError,
-                            mdpField.getText(), false);
-                    isValid &= validatePasswordConfirmation(mdpField, mdpConfirmField, mdpConfirmError, false);
-                }
-            }
-
-            okButton.setDisable(!isValid);
+        // Validation temps réel
+        Runnable validate = () -> {
+            boolean ok = true;
+            ok &= vNom(nomF, nomErr);
+            ok &= vEmail(emailF, emailErr);
+            ok &= vPhone(phoneF, phoneErr);
+            ok &= vPwd(mdpF, mdpErr);
+            ok &= vPwdConfirm(mdpF, mdpCF, mdpCErr);
+            ok &= roleCombo.getValue() != null;
+            okBtn.setDisable(!ok);
         };
 
-        nomField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
-        emailField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
-        phoneField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
-        mdpField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
-        mdpConfirmField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
-        roleCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
-
-        // Validation initiale pour les nouveaux utilisateurs
-        if (isNewUser) {
-            validateForm.run();
-        } else {
-            okButton.setDisable(false);
-        }
+        nomF.textProperty().addListener((o, a, b) -> validate.run());
+        emailF.textProperty().addListener((o, a, b) -> validate.run());
+        phoneF.textProperty().addListener((o, a, b) -> validate.run());
+        mdpF.textProperty().addListener((o, a, b) -> validate.run());
+        mdpCF.textProperty().addListener((o, a, b) -> validate.run());
+        roleCombo.valueProperty().addListener((o, a, b) -> validate.run());
 
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
-                User user = existing != null ? existing : new User();
-                user.setNom(nomField.getText().trim());
-                user.setFullname(fullnameField.getText().trim());
-                user.setEmail(emailField.getText().trim());
-                user.setPhone(phoneField.getText().trim().isEmpty() ? null : phoneField.getText().trim());
-
-                if (!mdpField.getText().isEmpty()) {
-                    user.setMDP(mdpField.getText());
-                } else if (isNewUser) {
-                    throw new IllegalArgumentException("Le mot de passe est requis");
-                }
-
-                user.setRole(roleCombo.getValue());
-                user.setActive(activeCheck.isSelected());
-                return user;
+                User u = new User();
+                u.setNom(nomF.getText().trim());
+                u.setFullname(fullnameF.getText().trim());
+                u.setEmail(emailF.getText().trim());
+                u.setPhone(phoneF.getText().trim().isEmpty() ? null : phoneF.getText().trim());
+                u.setMDP(mdpF.getText());
+                u.setRole(roleCombo.getValue());
+                u.setActive(activeChk.isSelected());
+                return u;
             }
             return null;
         });
@@ -662,240 +464,298 @@ public class UsersManagementController {
         return dialog;
     }
 
-    // ==================== MÉTHODES DE VALIDATION ====================
+    // ══════════════════════════════════════════════════════════
+    // HELPERS DIALOGUE
+    // ══════════════════════════════════════════════════════════
 
-    private boolean validateNom(TextField field, Label errorLabel, String value) {
-        if (value == null || value.trim().isEmpty()) {
-            showFieldError(field, errorLabel, "Le nom d'utilisateur est requis");
-            return false;
-        }
-
-        String trimmed = value.trim();
-        if (trimmed.length() < 3) {
-            showFieldError(field, errorLabel, "Minimum 3 caractères");
-            return false;
-        }
-        if (trimmed.length() > 50) {
-            showFieldError(field, errorLabel, "Maximum 50 caractères");
-            return false;
-        }
-        if (!NAME_REGEX.matcher(trimmed).matches()) {
-            showFieldError(field, errorLabel, "Caractères invalides (lettres, chiffres, espaces, apostrophes, tirets)");
-            return false;
-        }
-
-        clearFieldError(field, errorLabel);
-        return true;
+    private VBox createSection(String title) {
+        VBox box = new VBox(12);
+        box.setPadding(new Insets(18));
+        box.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);");
+        Label lbl = new Label(title);
+        lbl.setStyle("-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #1b2a4a;");
+        box.getChildren().add(lbl);
+        return box;
     }
 
-    private boolean validateEmail(TextField field, Label errorLabel, String value) {
-        if (value == null || value.trim().isEmpty()) {
-            showFieldError(field, errorLabel, "L'email est requis");
-            return false;
-        }
-
-        String trimmed = value.trim();
-        if (!EMAIL_PATTERN.matcher(trimmed).matches()) {
-            showFieldError(field, errorLabel, "Format email invalide");
-            return false;
-        }
-        if (trimmed.length() > 100) {
-            showFieldError(field, errorLabel, "Maximum 100 caractères");
-            return false;
-        }
-
-        clearFieldError(field, errorLabel);
-        return true;
+    private TextField addField(GridPane grid, int row, String label, String prompt) {
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;");
+        grid.add(lbl, 0, row, 2, 1);
+        TextField tf = new TextField();
+        tf.setPromptText(prompt);
+        tf.getStyleClass().add("modern-input");
+        tf.setPrefWidth(400);
+        grid.add(tf, 0, row + 1, 2, 1);
+        return tf;
     }
 
-    private boolean validatePhone(TextField field, Label errorLabel, String value) {
-        if (value == null || value.trim().isEmpty()) {
-            clearFieldError(field, errorLabel);
-            return true;
-        }
-
-        String trimmed = value.trim();
-        if (!PHONE_REGEX.matcher(trimmed).matches()) {
-            showFieldError(field, errorLabel, "Format invalide (ex: +33 6 12 34 56 78)");
-            return false;
-        }
-        if (trimmed.length() > 20) {
-            showFieldError(field, errorLabel, "Maximum 20 caractères");
-            return false;
-        }
-
-        clearFieldError(field, errorLabel);
-        return true;
+    private PasswordField addPwdField(GridPane grid, int row, String label, String prompt) {
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;");
+        grid.add(lbl, 0, row, 2, 1);
+        PasswordField pf = new PasswordField();
+        pf.setPromptText(prompt);
+        pf.getStyleClass().add("modern-input");
+        pf.setPrefWidth(400);
+        grid.add(pf, 0, row + 1, 2, 1);
+        return pf;
     }
 
-    private boolean validatePassword(PasswordField field, Label errorLabel,
-                                     PasswordField confirmField, Label confirmErrorLabel,
-                                     String value, boolean isNewUser) {
-        if (isNewUser) {
-            if (value == null || value.isEmpty()) {
-                showFieldError(field, errorLabel, "Le mot de passe est requis");
-                return false;
+    private Label addErrorLabel(GridPane grid, int row) {
+        Label err = new Label();
+        err.setStyle("-fx-text-fill: #dc3545; -fx-font-size: 11px;");
+        err.setWrapText(true);
+        err.setVisible(false);
+        err.setManaged(false);
+        grid.add(err, 0, row, 2, 1);
+        return err;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // SUPPRIMER
+    // ══════════════════════════════════════════════════════════
+
+    @FXML
+    private void deleteSelectedUser(ActionEvent event) {
+        User sel = usersTable.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            showFeedback("⚠️ Sélectionnez un utilisateur", "error");
+            return;
+        }
+
+        User me = SessionManager.getCurrentUser();
+        if (me != null && me.getId() == sel.getId()) {
+            showFeedback("⚠️ Impossible de supprimer votre propre compte", "error");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Supprimer");
+        confirm.setHeaderText("Confirmer la suppression");
+        confirm.setContentText("Supprimer " + sel.getDisplayName() + " (" + sel.getEmail() + ") ?\n\n⚠️ Action irréversible !");
+        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+        Button yesBtn = (Button) confirm.getDialogPane().lookupButton(ButtonType.YES);
+        yesBtn.setText("Supprimer");
+        yesBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                try {
+                    userService.supprimer(sel.getId());
+                    logUserAction("DELETE", sel);
+                    refreshUsers();
+                    showFeedback("✅ " + sel.getDisplayName() + " supprimé", "success");
+                } catch (SQLException e) {
+                    showFeedback("❌ " + e.getMessage(), "error");
+                }
             }
-        } else {
-            if (value == null || value.isEmpty()) {
-                clearFieldError(field, errorLabel);
-                return true;
+        });
+    }
+
+    // ═══════════════════════════════════════════════════��══════
+    // BLOQUER / DÉBLOQUER
+    // ══════════════════════════════════════════════════════════
+
+    @FXML
+    private void blockSelectedUser(ActionEvent event) {
+        User sel = usersTable.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            showFeedback("⚠️ Sélectionnez un utilisateur", "error");
+            return;
+        }
+        if (sel.getRole() == Role_enum.ADMIN) {
+            showFeedback("⚠️ Impossible de bloquer un admin", "error");
+            return;
+        }
+        if (!sel.isActive()) {
+            showFeedback("ℹ️ Déjà bloqué", "info");
+            return;
+        }
+        User me = SessionManager.getCurrentUser();
+        if (me != null && me.getId() == sel.getId()) {
+            showFeedback("⚠️ Impossible de vous bloquer", "error");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Bloquer");
+        confirm.setHeaderText("Confirmer le blocage");
+        confirm.setContentText("Bloquer " + sel.getDisplayName() + " ?\n\n❌ Il ne pourra plus se connecter !");
+        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+        Button blockBtn = (Button) confirm.getDialogPane().lookupButton(ButtonType.YES);
+        blockBtn.setText("Bloquer");
+        blockBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                try {
+                    userService.changerStatut(sel.getId(), false);
+                    logUserAction("BLOCK", sel);
+                    refreshUsers();
+                    showFeedback("✅ " + sel.getDisplayName() + " bloqué", "success");
+                } catch (SQLException e) {
+                    showFeedback("❌ " + e.getMessage(), "error");
+                }
             }
+        });
+    }
+
+    @FXML
+    private void unblockSelectedUser(ActionEvent event) {
+        User sel = usersTable.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            showFeedback("⚠️ Sélectionnez un utilisateur", "error");
+            return;
+        }
+        if (sel.isActive()) {
+            showFeedback("ℹ️ Déjà actif", "info");
+            return;
         }
 
-        if (value.length() < 6) {
-            showFieldError(field, errorLabel, "Minimum 6 caractères");
-            return false;
-        }
-        if (!PASSWORD_PATTERN.matcher(value).matches()) {
-            showFieldError(field, errorLabel, "Doit contenir majuscule, minuscule et chiffre");
-            return false;
-        }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Débloquer");
+        confirm.setHeaderText("Confirmer le déblocage");
+        confirm.setContentText("Débloquer " + sel.getDisplayName() + " ?\n\n✅ Il pourra se reconnecter !");
+        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
 
-        clearFieldError(field, errorLabel);
+        Button unblockBtn = (Button) confirm.getDialogPane().lookupButton(ButtonType.YES);
+        unblockBtn.setText("Débloquer");
+        unblockBtn.setStyle("-fx-background-color: #198754; -fx-text-fill: white;");
 
-        // Vérifier la confirmation si elle existe
-        if (confirmField != null && confirmErrorLabel != null) {
-            validatePasswordConfirmation(field, confirmField, confirmErrorLabel, isNewUser);
-        }
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                try {
+                    userService.changerStatut(sel.getId(), true);
+                    logUserAction("UNBLOCK", sel);
+                    refreshUsers();
+                    showFeedback("✅ " + sel.getDisplayName() + " débloqué", "success");
+                } catch (SQLException e) {
+                    showFeedback("❌ " + e.getMessage(), "error");
+                }
+            }
+        });
+    }
 
+    // ══════════════════════════════════════════════════════════
+    // VALIDATION — Dialogue
+    // ══════════════════════════════════════════════════════════
+
+    private boolean vNom(TextField f, Label err) {
+        String v = f.getText() != null ? f.getText().trim() : "";
+        if (v.isEmpty()) { setErr(f, err, "Requis"); return false; }
+        if (v.length() < 3) { setErr(f, err, "Min 3 caractères"); return false; }
+        if (v.length() > 50) { setErr(f, err, "Max 50 caractères"); return false; }
+        if (!NAME_REGEX.matcher(v).matches()) { setErr(f, err, "Caractères invalides"); return false; }
+        clrErr(f, err);
         return true;
     }
 
-    private boolean validatePasswordConfirmation(PasswordField passwordField,
-                                                 PasswordField confirmField,
-                                                 Label errorLabel, boolean isNewUser) {
-        String password = passwordField.getText();
-        String confirm = confirmField.getText();
-
-        if (isNewUser) {
-            if (confirm == null || confirm.isEmpty()) {
-                showFieldError(confirmField, errorLabel, "La confirmation est requise");
-                return false;
-            }
-        } else {
-            if (password.isEmpty() && confirm.isEmpty()) {
-                clearFieldError(confirmField, errorLabel);
-                return true;
-            }
-            if (confirm == null || confirm.isEmpty()) {
-                showFieldError(confirmField, errorLabel, "Confirmez le mot de passe");
-                return false;
-            }
-        }
-
-        if (!password.isEmpty() && !confirm.isEmpty() && !password.equals(confirm)) {
-            showFieldError(confirmField, errorLabel, "Les mots de passe ne correspondent pas");
-            return false;
-        }
-
-        clearFieldError(confirmField, errorLabel);
+    private boolean vEmail(TextField f, Label err) {
+        String v = f.getText() != null ? f.getText().trim() : "";
+        if (v.isEmpty()) { setErr(f, err, "Requis"); return false; }
+        if (!EMAIL_PATTERN.matcher(v).matches()) { setErr(f, err, "Format invalide"); return false; }
+        clrErr(f, err);
         return true;
     }
 
-    private boolean validateRole(ComboBox<Role_enum> combo, Label errorLabel, Role_enum value) {
-        if (value == null) {
-            showFieldError(combo, errorLabel, "Veuillez sélectionner un rôle");
-            return false;
-        }
-        clearFieldError(combo, errorLabel);
+    private boolean vPhone(TextField f, Label err) {
+        String v = f.getText() != null ? f.getText().trim() : "";
+        if (v.isEmpty()) { clrErr(f, err); return true; }
+        if (!PHONE_REGEX.matcher(v).matches()) { setErr(f, err, "Format invalide"); return false; }
+        clrErr(f, err);
         return true;
     }
 
-    // ==================== GESTION DES ERREURS ====================
-
-    private void showFieldError(Control field, Label errorLabel, String message) {
-        field.getStyleClass().removeAll("valid", "error");
-        if (!field.getStyleClass().contains("error")) {
-            field.getStyleClass().add("error");
-        }
-
-        if (errorLabel != null) {
-            errorLabel.setText(message);
-            errorLabel.setVisible(true);
-            errorLabel.setManaged(true);
-        }
-
-        field.setTooltip(new Tooltip(message));
+    private boolean vPwd(PasswordField f, Label err) {
+        String v = f.getText() != null ? f.getText() : "";
+        if (v.isEmpty()) { setErr(f, err, "Requis"); return false; }
+        if (v.length() < 6) { setErr(f, err, "Min 6 caractères"); return false; }
+        if (!PASSWORD_PATTERN.matcher(v).matches()) { setErr(f, err, "Majuscule + minuscule + chiffre"); return false; }
+        clrErr(f, err);
+        return true;
     }
 
-    private void clearFieldError(Control field, Label errorLabel) {
-        field.getStyleClass().remove("error");
-        if (!field.getStyleClass().contains("valid")) {
-            field.getStyleClass().add("valid");
-        }
-        field.setTooltip(null);
-
-        if (errorLabel != null) {
-            errorLabel.setText("");
-            errorLabel.setVisible(false);
-            errorLabel.setManaged(false);
-        }
+    private boolean vPwdConfirm(PasswordField pwd, PasswordField confirm, Label err) {
+        String c = confirm.getText() != null ? confirm.getText() : "";
+        String p = pwd.getText() != null ? pwd.getText() : "";
+        if (c.isEmpty()) { setErr(confirm, err, "Requis"); return false; }
+        if (!c.equals(p)) { setErr(confirm, err, "Ne correspond pas"); return false; }
+        clrErr(confirm, err);
+        return true;
     }
 
-    private void validateUser(User user, boolean isNewUser) {
-        // Validation nom
-        if (user.getNom() == null || user.getNom().trim().isEmpty()) {
-            throw new IllegalArgumentException("Le nom d'utilisateur est requis");
-        }
-        if (user.getNom().length() < 3) {
+    private void validateUser(User u) {
+        if (u.getNom() == null || u.getNom().trim().length() < 3)
             throw new IllegalArgumentException("Le nom doit contenir au moins 3 caractères");
-        }
-        if (user.getNom().length() > 50) {
-            throw new IllegalArgumentException("Le nom ne peut pas dépasser 50 caractères");
-        }
-        if (!NAME_REGEX.matcher(user.getNom()).matches()) {
-            throw new IllegalArgumentException("Caractères invalides dans le nom");
-        }
-
-        // Validation email
-        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("L'email est requis");
-        }
-        if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
+        if (u.getEmail() == null || !EMAIL_PATTERN.matcher(u.getEmail()).matches())
             throw new IllegalArgumentException("Format d'email invalide");
-        }
-
-        // Validation mot de passe
-        if (isNewUser) {
-            if (user.getMDP() == null || user.getMDP().isEmpty()) {
-                throw new IllegalArgumentException("Le mot de passe est requis");
-            }
-            if (user.getMDP().length() < 6) {
-                throw new IllegalArgumentException("Le mot de passe doit contenir au moins 6 caractères");
-            }
-            if (!PASSWORD_PATTERN.matcher(user.getMDP()).matches()) {
-                throw new IllegalArgumentException("Le mot de passe doit contenir des majuscules, minuscules et chiffres");
-            }
-        }
-
-        // Validation rôle
-        if (user.getRole() == null) {
+        if (u.getMDP() == null || !PASSWORD_PATTERN.matcher(u.getMDP()).matches())
+            throw new IllegalArgumentException("Mot de passe invalide (min 6, majuscule+minuscule+chiffre)");
+        if (u.getRole() == null)
             throw new IllegalArgumentException("Le rôle est requis");
-        }
+        if (u.getPhone() != null && !u.getPhone().isEmpty() && !PHONE_REGEX.matcher(u.getPhone()).matches())
+            throw new IllegalArgumentException("Format de téléphone invalide");
+    }
 
-        // Validation téléphone (optionnel)
-        if (user.getPhone() != null && !user.getPhone().isEmpty()) {
-            if (!PHONE_REGEX.matcher(user.getPhone()).matches()) {
-                throw new IllegalArgumentException("Format de téléphone invalide");
-            }
+    // ══════════════════════════════════════════════════════════
+    // ERREURS VISUELLES
+    // ══════════════════════════════════════════════════════════
+
+    private void setErr(Control f, Label err, String msg) {
+        f.getStyleClass().removeAll("valid", "error");
+        if (!f.getStyleClass().contains("error")) f.getStyleClass().add("error");
+        if (err != null) {
+            err.setText(msg);
+            err.setVisible(true);
+            err.setManaged(true);
+        }
+        f.setTooltip(new Tooltip(msg));
+    }
+
+    private void clrErr(Control f, Label err) {
+        f.getStyleClass().remove("error");
+        if (!f.getStyleClass().contains("valid")) f.getStyleClass().add("valid");
+        f.setTooltip(null);
+        if (err != null) {
+            err.setText("");
+            err.setVisible(false);
+            err.setManaged(false);
         }
     }
+
+    // ══════════════════════════════════════════════════════════
+    // FEEDBACK & LOGGING
+    // ══════════════════════════════════════════════════════════
 
     private void showFeedback(String message, String type) {
         if (feedbackLabel != null) {
-            feedbackLabel.setText(message);
-            feedbackLabel.getStyleClass().removeAll("success", "error", "info");
-            feedbackLabel.getStyleClass().add(type);
-            feedbackLabel.setTextFill(type.equals("success") ? Color.GREEN :
-                    type.equals("error") ? Color.RED : Color.BLUE);
+            javafx.application.Platform.runLater(() -> {
+                feedbackLabel.setText(message);
+                feedbackLabel.getStyleClass().removeAll("success", "error", "info");
+                feedbackLabel.getStyleClass().add(type);
+
+                switch (type) {
+                    case "success":
+                        feedbackLabel.setTextFill(Color.web("#198754"));
+                        break;
+                    case "error":
+                        feedbackLabel.setTextFill(Color.web("#dc3545"));
+                        break;
+                    default:
+                        feedbackLabel.setTextFill(Color.web("#0d6efd"));
+                        break;
+                }
+            });
+
             new Thread(() -> {
                 try {
                     Thread.sleep(5000);
                     javafx.application.Platform.runLater(() -> {
-                        if (feedbackLabel != null) {
-                            feedbackLabel.setText("");
-                        }
+                        if (feedbackLabel != null) feedbackLabel.setText("");
                     });
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -903,6 +763,51 @@ public class UsersManagementController {
             }).start();
         }
     }
+
+    private void logUserAction(String action, User user) {
+        String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date());
+        User admin = SessionManager.getCurrentUser();
+        String adminName = admin != null ? admin.getDisplayName() : "SYSTEM";
+
+        String logMessage = String.format(
+                "[%s] 🔐 %s | Admin: %s | Cible: %s (ID:%d) | Email: %s | Rôle: %s",
+                timestamp, action, adminName, user.getDisplayName(),
+                user.getId(), user.getEmail(), user.getRole());
+
+        System.out.println(logMessage);
+        writeToLogFile(logMessage);
+        addToActivityLog(logMessage);
+    }
+
+    private void writeToLogFile(String message) {
+        try {
+            java.nio.file.Path logPath = java.nio.file.Paths.get("user_actions.log");
+            java.nio.file.Files.writeString(logPath, message + System.lineSeparator(),
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
+        } catch (java.io.IOException e) {
+            System.err.println("⚠️ Log file error: " + e.getMessage());
+        }
+    }
+
+    private void addToActivityLog(String message) {
+        activityLog.add(0, message);
+        if (activityLog.size() > 50) activityLog.remove(activityLog.size() - 1);
+    }
+
+    private String getRoleDisplayName(Role_enum role) {
+        if (role == null) return "Non défini";
+        switch (role) {
+            case ADMIN: return "Administrateur";
+            case INVESTISSEUR: return "Investisseur";
+            case STARTUP: return "Porteur de projet";
+            default: return role.name();
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════════════════════════
 
     @FXML
     private void goToDashboard(ActionEvent event) {
@@ -917,217 +822,288 @@ public class UsersManagementController {
         NavigationHelper.navigateTo(stage, "/fxml/login.fxml", "Connexion");
     }
 
-    //////////////////////////////////////////////////block unblock metier
-    @FXML
-    private void blockSelectedUser(ActionEvent event) {
-        User selected = usersTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showFeedback("❌ Sélectionnez un utilisateur à bloquer", "error");
-            return;
-        }
+    // ══════════════════════════════════════════════════════════
+    // VALIDATION INLINE (édition directe dans le tableau)
+    // ══════════════════════════════════════════════════════════
 
-        // Vérifier si c'est un ADMIN (protection)
-        if (selected.getRole() == Role_enum.ADMIN) {
-            showFeedback("⚠️ Impossible de bloquer un administrateur !", "error");
-            return;
-        }
-
-        // Vérifier si déjà inactif
-        if (!selected.isActive()) {
-            showFeedback("ℹ️ Cet utilisateur est déjà bloqué", "info");
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Bloquer l'utilisateur");
-        confirm.setHeaderText("Confirmer le blocage");
-        confirm.setContentText(String.format("""
-            Êtes-vous sûr de vouloir BLOQUER l'utilisateur :
-            
-            👤 Nom : %s
-            📧 Email : %s
-            🔑 Rôle : %s
-            
-            ❌ Il ne pourra PLUS se connecter !
-            """,
-                selected.getDisplayName(),
-                selected.getEmail(),
-                getRoleDisplayName(selected.getRole())
-        ));
-
-        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-
-        // Personnaliser les boutons
-        Button blockButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.YES);
-        blockButton.setText("Bloquer");
-        blockButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
-
-        Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.NO);
-        cancelButton.setText("Annuler");
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                try {
-                    // Changement de statut + log métier
-                    userService.changerStatut(selected.getId(), false);
-
-                    // Log métier dans la console (ou fichier log)
-                    logUserAction("BLOCK", selected);
-
-                    refreshUsers();
-                    showFeedback(String.format(
-                            "✅ Utilisateur %s a été bloqué avec succès !",
-                            selected.getDisplayName()
-                    ), "success");
-
-                } catch (SQLException e) {
-                    showFeedback("❌ Erreur lors du blocage : " + e.getMessage(), "error");
-                }
+    private boolean validateAndSaveField(User user, String fieldName, String newValue) {
+        if ("nom".equals(fieldName)) {
+            if (newValue == null || newValue.trim().isEmpty()) {
+                showFeedback("❌ Le nom ne peut pas être vide", "error");
+                return false;
             }
-        });
-    }
-
-    @FXML
-    private void unblockSelectedUser(ActionEvent event) {
-        User selected = usersTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showFeedback("❌ Sélectionnez un utilisateur à débloquer", "error");
-            return;
-        }
-
-        // Vérifier si déjà actif
-        if (selected.isActive()) {
-            showFeedback("ℹ️ Cet utilisateur est déjà actif", "info");
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Débloquer l'utilisateur");
-        confirm.setHeaderText("Confirmer le déblocage");
-        confirm.setContentText(String.format("""
-            Êtes-vous sûr de vouloir DÉBLOQUER l'utilisateur :
-            
-            👤 Nom : %s
-            📧 Email : %s
-            🔑 Rôle : %s
-            
-            ✅ Il pourra de nouveau se connecter !
-            """,
-                selected.getDisplayName(),
-                selected.getEmail(),
-                getRoleDisplayName(selected.getRole())
-        ));
-
-        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-
-        Button unblockButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.YES);
-        unblockButton.setText("Débloquer");
-        unblockButton.setStyle("-fx-background-color: #198754; -fx-text-fill: white;");
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                try {
-                    userService.changerStatut(selected.getId(), true);
-                    logUserAction("UNBLOCK", selected);
-                    refreshUsers();
-                    showFeedback(String.format(
-                            "✅ Utilisateur %s a été débloqué avec succès !",
-                            selected.getDisplayName()
-                    ), "success");
-                } catch (SQLException e) {
-                    showFeedback("❌ Erreur lors du déblocage : " + e.getMessage(), "error");
-                }
+            if (newValue.trim().length() < 3) {
+                showFeedback("❌ Le nom doit contenir au moins 3 caractères", "error");
+                return false;
             }
-        });
-    }
-
-    // 🔐 RÈGLE MÉTIER FORTE : Vérification avant blocage
-    private boolean canBlockUser(User targetUser) {
-        User currentUser = SessionManager.getCurrentUser();
-
-        // Règle 1: Un admin ne peut pas bloquer un autre admin
-        if (targetUser.getRole() == Role_enum.ADMIN) {
-            showFeedback("⚠️ Les administrateurs ne peuvent pas être bloqués", "error");
-            return false;
+            if (newValue.trim().length() > 50) {
+                showFeedback("❌ Le nom ne peut pas dépasser 50 caractères", "error");
+                return false;
+            }
+            if (!NAME_REGEX.matcher(newValue.trim()).matches()) {
+                showFeedback("❌ Caractères invalides dans le nom", "error");
+                return false;
+            }
+            user.setNom(newValue.trim());
+        } else if ("email".equals(fieldName)) {
+            if (newValue == null || newValue.trim().isEmpty()) {
+                showFeedback("❌ L'email ne peut pas être vide", "error");
+                return false;
+            }
+            if (!EMAIL_PATTERN.matcher(newValue.trim()).matches()) {
+                showFeedback("❌ Format email invalide", "error");
+                return false;
+            }
+            user.setEmail(newValue.trim());
         }
 
-        // Règle 2: Un admin ne peut pas se bloquer lui-même
-        if (currentUser != null && currentUser.getId() == targetUser.getId()) {
-            showFeedback("⚠️ Vous ne pouvez pas vous bloquer vous-même !", "error");
-            return false;
-        }
-
-        // Règle 3: Vérifier si c'est le dernier admin (si on voulait bloquer un admin)
-        // À implémenter si nécessaire
-
-        return true;
-    }
-
-    // 📝 LOG MÉTIER (sans base de données)
-    private void logUserAction(String action, User user) {
-        String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-                .format(new java.util.Date());
-
-        User admin = SessionManager.getCurrentUser();
-        String adminName = admin != null ? admin.getDisplayName() : "SYSTEM";
-
-        String logMessage = String.format(
-                "[%s] 🔐 ACTION: %s | Admin: %s | Cible: %s (%s) | Email: %s | Rôle: %s",
-                timestamp,
-                action,
-                adminName,
-                user.getDisplayName(),
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        // 1. Afficher dans la console (utile pour debug)
-        System.out.println(logMessage);
-
-        // 2. Optionnel : Écrire dans un fichier log
-        writeToLogFile(logMessage);
-
-        // 3. Optionnel : Stocker dans une liste en mémoire pour l'affichage
-        addToActivityLog(logMessage);
-    }
-
-    // 📁 Écriture dans fichier log (optionnel)
-    private void writeToLogFile(String message) {
         try {
-            java.nio.file.Path logPath = java.nio.file.Paths.get("user_actions.log");
-            java.nio.file.Files.writeString(
-                    logPath,
-                    message + System.lineSeparator(),
-                    java.nio.file.StandardOpenOption.CREATE,
-                    java.nio.file.StandardOpenOption.APPEND
-            );
-        } catch (java.io.IOException e) {
-            System.err.println("⚠️ Impossible d'écrire dans le fichier log: " + e.getMessage());
+            userService.update(user);
+            return true;
+        } catch (SQLException e) {
+            if (e.getMessage() != null && e.getMessage().contains("email")) {
+                showFeedback("❌ Cet email est déjà utilisé", "error");
+            } else {
+                showFeedback("❌ Erreur sauvegarde : " + e.getMessage(), "error");
+            }
+            return false;
         }
     }
 
-    // 📋 Liste en mémoire pour l'activité récente
-    private ObservableList<String> activityLog = FXCollections.observableArrayList();
+    // ═══════════════════════════════════════════════════════════════
+    // CLASSES INTERNES — ÉDITION INLINE
+    // ═══════════════════════════════════════════════════════════════
 
-    private void addToActivityLog(String message) {
-        activityLog.add(0, message); // Ajouter au début
-        if (activityLog.size() > 50) { // Garder seulement 50 entrées
-            activityLog.remove(activityLog.size() - 1);
+    /**
+     * Cellule TextField éditable — double-clic pour éditer Nom ou Email
+     */
+    private class EditableTextFieldCell extends TableCell<User, String> {
+        private TextField textField;
+        private final String fieldName;
+
+        public EditableTextFieldCell(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        @Override
+        public void startEdit() {
+            if (!isEmpty()) {
+                super.startEdit();
+                createTextField();
+                setText(null);
+                setGraphic(textField);
+                textField.selectAll();
+                textField.requestFocus();
+            }
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            setText(getItem());
+            setGraphic(null);
+            setStyle("");
+        }
+
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+                setStyle("");
+            } else {
+                if (isEditing()) {
+                    if (textField != null) textField.setText(getString());
+                    setText(null);
+                    setGraphic(textField);
+                } else {
+                    setText(getString());
+                    setGraphic(null);
+                    setStyle("-fx-cursor: hand;");
+                    setTooltip(new Tooltip("Double-cliquez pour modifier"));
+                }
+            }
+        }
+
+        private void createTextField() {
+            textField = new TextField(getString());
+            textField.setStyle(
+                    "-fx-background-color: white; " +
+                            "-fx-border-color: #0d6efd; " +
+                            "-fx-border-width: 2px; " +
+                            "-fx-border-radius: 8px; " +
+                            "-fx-background-radius: 8px; " +
+                            "-fx-padding: 8px 12px; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-text-fill: #212529; " +
+                            "-fx-effect: dropshadow(gaussian, rgba(13,110,253,0.25), 10, 0, 0, 2);");
+            textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+
+            textField.setOnAction(e -> commitEdit(textField.getText()));
+
+            textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+                if (!isNowFocused) {
+                    commitEdit(textField.getText());
+                }
+            });
+
+            textField.setOnKeyPressed(e -> {
+                if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                    cancelEdit();
+                }
+            });
+        }
+
+        private String getString() {
+            return getItem() == null ? "" : getItem();
         }
     }
-    private String getRoleDisplayName(Role_enum role) {
-        if (role == null) return "Non défini";
 
-        switch (role) {
-            case ADMIN:
-                return "Administrateur";
-            case INVESTISSEUR:
-                return "Investisseur";
-            case STARTUP:
-                return "Porteur de projet";
-            default:
-                return role.name();
+    /**
+     * Cellule badge cliquable pour changer le rôle
+     */
+    private class EditableRoleCell extends TableCell<User, String> {
+
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty) {
+                setGraphic(null);
+                setText(null);
+            } else {
+                User user = getTableView().getItems().get(getIndex());
+                Role_enum currentRole = user.getRole();
+
+                Label badge = new Label(getRoleDisplayName(currentRole));
+                String badgeStyle = getRoleBadgeStyle(currentRole);
+                badge.setStyle(badgeStyle + " -fx-cursor: hand;");
+                badge.setTooltip(new Tooltip("Cliquez pour changer le rôle"));
+
+                badge.setOnMouseClicked(event -> {
+                    ComboBox<Role_enum> comboBox = new ComboBox<>();
+                    comboBox.setItems(FXCollections.observableArrayList(Role_enum.values()));
+                    comboBox.setValue(currentRole);
+                    comboBox.setStyle("-fx-font-size: 12px; -fx-background-color: white; " +
+                            "-fx-border-color: #0d6efd; -fx-border-width: 2px; " +
+                            "-fx-border-radius: 8px; -fx-background-radius: 8px;");
+                    comboBox.setPrefWidth(160);
+
+                    comboBox.setOnAction(e -> {
+                        Role_enum newRole = comboBox.getValue();
+                        if (newRole != null && newRole != currentRole) {
+                            Role_enum oldRole = user.getRole();
+                            user.setRole(newRole);
+                            try {
+                                userService.update(user);
+                                logUserAction("EDIT_ROLE", user);
+                                showFeedback("✅ Rôle : " + getRoleDisplayName(oldRole) +
+                                        " → " + getRoleDisplayName(newRole), "success");
+                                refreshUsers();
+                            } catch (SQLException ex) {
+                                showFeedback("❌ Erreur : " + ex.getMessage(), "error");
+                                user.setRole(oldRole);
+                                refreshUsers();
+                            }
+                        } else {
+                            setGraphic(badge);
+                        }
+                    });
+
+                    comboBox.focusedProperty().addListener((obs, wasFocused, isNow) -> {
+                        if (!isNow) {
+                            setGraphic(badge);
+                        }
+                    });
+
+                    setGraphic(comboBox);
+                    comboBox.show();
+                    comboBox.requestFocus();
+                });
+
+                setGraphic(badge);
+                setText(null);
+                setStyle("-fx-alignment: CENTER;");
+            }
+        }
+
+        private String getRoleBadgeStyle(Role_enum role) {
+            String base = "-fx-padding: 5 14; -fx-background-radius: 20; -fx-font-size: 12px; -fx-font-weight: 600; ";
+            if (role == null) return base + "-fx-background-color: #f0f2f5; -fx-text-fill: #495057;";
+            switch (role) {
+                case ADMIN:
+                    return base + "-fx-background-color: rgba(13,110,253,0.12); -fx-text-fill: #0d6efd;";
+                case INVESTISSEUR:
+                    return base + "-fx-background-color: rgba(255,193,7,0.15); -fx-text-fill: #997404;";
+                case STARTUP:
+                    return base + "-fx-background-color: rgba(111,66,193,0.12); -fx-text-fill: #6f42c1;";
+                default:
+                    return base + "-fx-background-color: #f0f2f5; -fx-text-fill: #495057;";
+            }
+        }
+    }
+
+    /**
+     * Cellule toggle badge pour activer/désactiver un utilisateur
+     */
+    private class ToggleActiveCell extends TableCell<User, Boolean> {
+
+        @Override
+        public void updateItem(Boolean active, boolean empty) {
+            super.updateItem(active, empty);
+
+            if (empty || active == null) {
+                setGraphic(null);
+                setText(null);
+            } else {
+                User user = getTableView().getItems().get(getIndex());
+
+                Label badge = new Label(active ? "✅ Actif" : "❌ Inactif");
+                String badgeStyle = active
+                        ? "-fx-background-color: rgba(25,135,84,0.12); -fx-text-fill: #198754;"
+                        : "-fx-background-color: rgba(220,53,69,0.12); -fx-text-fill: #dc3545;";
+
+                badge.setStyle(badgeStyle +
+                        " -fx-padding: 5 14; -fx-background-radius: 20; " +
+                        "-fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; " +
+                        "-fx-min-width: 95; -fx-alignment: center;");
+                badge.setTooltip(new Tooltip(active ? "Cliquez pour désactiver" : "Cliquez pour activer"));
+
+                badge.setOnMouseClicked(event -> {
+                    User me = SessionManager.getCurrentUser();
+                    if (me != null && me.getId() == user.getId()) {
+                        showFeedback("⚠️ Impossible de modifier votre propre statut", "error");
+                        return;
+                    }
+                    if (user.getRole() == Role_enum.ADMIN && user.isActive()) {
+                        showFeedback("⚠️ Impossible de désactiver un admin", "error");
+                        return;
+                    }
+
+                    boolean newStatus = !user.isActive();
+                    user.setActive(newStatus);
+
+                    try {
+                        userService.update(user);
+                        logUserAction(newStatus ? "ACTIVATE" : "DEACTIVATE", user);
+                        showFeedback(newStatus
+                                        ? "✅ " + user.getDisplayName() + " activé"
+                                        : "⚠️ " + user.getDisplayName() + " désactivé",
+                                newStatus ? "success" : "info");
+                        refreshUsers();
+                    } catch (SQLException e) {
+                        showFeedback("❌ Erreur : " + e.getMessage(), "error");
+                        user.setActive(!newStatus);
+                        refreshUsers();
+                    }
+                });
+
+                setGraphic(badge);
+                setText(null);
+                setStyle("-fx-alignment: CENTER;");
+            }
         }
     }
 }

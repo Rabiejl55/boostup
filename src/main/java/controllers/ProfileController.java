@@ -2,6 +2,7 @@ package controllers;
 
 import entities.GUtilisateurs.User;
 import entities.Role_enum;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -12,21 +13,43 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import services.UtilisateurService.ActivityLogService;
+import services.UtilisateurService.FaceRecognitionService;
 import services.UtilisateurService.UserService;
 
+import java.io.File;
 import java.sql.SQLException;
 
 public class ProfileController {
 
+    // ── Labels du contenu principal ──
     @FXML private Label welcomeLabel;
     @FXML private Label nomLabel;
     @FXML private Label emailLabel;
     @FXML private Label roleLabel;
     @FXML private Label phoneLabel;
     @FXML private Label fullnameLabel;
-    @FXML private ImageView avatarImageView;
     @FXML private Label dateCreationLabel;
+
+    // ── Labels de la hero card ──
+    @FXML private Label profileNameLabel;
+    @FXML private Label profileRoleTag;
+    @FXML private Label profileEmailPreview;
+
+    // ── Label du compte ──
+    @FXML private Label accountDateLabel;
+
+    // ── Labels sidebar ──
+    @FXML private Label sidebarRoleLabel;
+
+    // ── Sécurité ──
+    @FXML private Label sms2faStatusLabel;
+
+    // ── Images ──
+    @FXML private ImageView avatarImageView;
+    @FXML private ImageView sidebarAvatarView;
 
     private final UserService userService = new UserService();
 
@@ -38,129 +61,144 @@ public class ProfileController {
             return;
         }
 
-        // Récupérer les données complètes de l'utilisateur depuis la base
+        // Récupérer les données complètes depuis la base
         try {
             User fullUser = userService.findById(user.getId());
             if (fullUser == null) {
                 showErrorMessage("Utilisateur non trouvé");
                 return;
             }
-
-            // Mettre à jour la session avec les données complètes
             SessionManager.setCurrentUser(fullUser);
             user = fullUser;
         } catch (SQLException e) {
             e.printStackTrace();
             showErrorMessage("Erreur chargement des données");
+            return;
         }
 
-        // Afficher les informations
-        String displayName = user.getFullname() != null && !user.getFullname().isEmpty()
+        // ── Remplir toutes les informations en lecture seule ──
+        String displayName = (user.getFullname() != null && !user.getFullname().isEmpty())
                 ? user.getFullname() : user.getNom();
+        String roleName = getRoleDisplayName(user.getRole());
 
-        if (welcomeLabel != null) welcomeLabel.setText("Bienvenue " + displayName);
-        if (nomLabel != null) nomLabel.setText(user.getNom());
-        if (emailLabel != null) emailLabel.setText(user.getEmail());
-        if (roleLabel != null) roleLabel.setText(getRoleDisplayName(user.getRole()));
+        // Sidebar
+        setText(welcomeLabel, displayName);
+        setText(sidebarRoleLabel, "✦ " + roleName);
 
-        if (fullnameLabel != null) {
-            if (user.getFullname() != null && !user.getFullname().isEmpty()) {
-                fullnameLabel.setText(user.getFullname());
+        // Hero card
+        setText(profileNameLabel, displayName);
+        setText(profileRoleTag, "👤 " + roleName);
+        setText(profileEmailPreview, user.getEmail());
+
+        // Informations personnelles
+        setText(fullnameLabel, defaultIfEmpty(user.getFullname(), "Non renseigné"));
+        setText(nomLabel, user.getNom());
+        setText(emailLabel, user.getEmail());
+        setText(roleLabel, roleName);
+        setText(phoneLabel, defaultIfEmpty(user.getPhone(), "Non renseigné"));
+
+        // 2FA Status
+        if (sms2faStatusLabel != null) {
+            if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+                sms2faStatusLabel.setText("Activé — SMS envoyé à chaque connexion");
+                sms2faStatusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 12px; -fx-font-weight: 600;");
             } else {
-                fullnameLabel.setText("Non renseigné");
+                sms2faStatusLabel.setText("Désactivé — Ajoutez un numéro de téléphone");
+                sms2faStatusLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 12px; -fx-font-weight: 600;");
             }
         }
 
-        if (phoneLabel != null) {
-            phoneLabel.setText(user.getPhone() != null && !user.getPhone().isEmpty()
-                    ? user.getPhone() : "Non renseigné");
+        // Dates
+        if (user.getDateCreation() != null) {
+            String dateFormatted = new java.text.SimpleDateFormat("dd/MM/yyyy").format(user.getDateCreation());
+            setText(dateCreationLabel, "Membre depuis le " + dateFormatted);
+            setText(accountDateLabel, dateFormatted);
+        } else {
+            setText(dateCreationLabel, "Date d'inscription inconnue");
+            setText(accountDateLabel, "—");
         }
 
-        if (dateCreationLabel != null && user.getDateCreation() != null) {
-            dateCreationLabel.setText("Membre depuis: " +
-                    new java.text.SimpleDateFormat("dd/MM/yyyy").format(user.getDateCreation()));
-        }
+        // Avatars (principal + sidebar)
+        loadAvatar(avatarImageView, user, 120);
+        loadAvatar(sidebarAvatarView, user, 72);
+    }
 
-        // Charger l'avatar
-        // Charger l'avatar
-        if (avatarImageView != null) {
-            avatarImageView.setPreserveRatio(true);
-            avatarImageView.setSmooth(true);
+    // ═══════════════════════════════════════════════════════
+    // MÉTHODES UTILITAIRES
+    // ═══════════════════════════════════════════════════════
 
-            if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
-                try {
-                    System.out.println("Chargement avatar: " + user.getAvatar());
-                    String avatarUrl = cleanAvatarUrl(user.getAvatar());
+    private void setText(Label label, String text) {
+        if (label != null) label.setText(text);
+    }
 
-                    // Load image with proper dimensions
-                    Image image = new Image(avatarUrl, 150, 150, true, true, true);
+    private String defaultIfEmpty(String value, String defaultValue) {
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
 
-                    if (!image.isError()) {
-                        avatarImageView.setImage(image);
+    private void loadAvatar(ImageView imageView, User user, double size) {
+        if (imageView == null) return;
 
-                        // Create circular clip
-                        Circle clip = new Circle(75, 75, 75);
-                        avatarImageView.setClip(clip);
-                        avatarImageView.setFitWidth(150);
-                        avatarImageView.setFitHeight(150);
-                        avatarImageView.setVisible(true);
-                    } else {
-                        setDefaultAvatar();
-                    }
-                } catch (Exception e) {
-                    System.err.println("Erreur chargement avatar: " + e.getMessage());
-                    setDefaultAvatar();
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+
+        boolean loaded = false;
+
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+            try {
+                String avatarUrl = cleanAvatarUrl(user.getAvatar());
+                Image image = new Image(avatarUrl, size, size, true, true, true);
+
+                if (!image.isError()) {
+                    imageView.setImage(image);
+                    loaded = true;
                 }
-            } else {
-                setDefaultAvatar();
+            } catch (Exception e) {
+                System.err.println("Erreur chargement avatar: " + e.getMessage());
             }
         }
+
+        if (!loaded) {
+            setDefaultAvatar(imageView, user, size);
+        }
+
+        // Clip circulaire
+        double radius = size / 2;
+        Circle clip = new Circle(radius, radius, radius);
+        imageView.setClip(clip);
+        imageView.setVisible(true);
+    }
+
+    private void setDefaultAvatar(ImageView imageView, User user, double size) {
+        int colorIndex = Math.abs(user.getId() % 8);
+        String[] colors = {"#0d6efd", "#198754", "#6f42c1", "#fd7e14",
+                "#dc3545", "#20c997", "#6610f2", "#ffc107"};
+
+        int intSize = (int) size;
+        WritableImage image = new WritableImage(intSize, intSize);
+        PixelWriter writer = image.getPixelWriter();
+        Color color = Color.web(colors[colorIndex]);
+
+        for (int y = 0; y < intSize; y++) {
+            for (int x = 0; x < intSize; x++) {
+                writer.setColor(x, y, color);
+            }
+        }
+
+        imageView.setImage(image);
     }
 
     private String cleanAvatarUrl(String url) {
         if (url == null || url.isEmpty()) return "";
-        // Si c'est un chemin de fichier local avec backslashes, les convertir en forward slashes
-        if (url.contains("\\")) {
-            url = url.replace("\\", "/");
+        if (url.contains("\\")) url = url.replace("\\", "/");
+        if ((url.startsWith("C:/") || url.startsWith("D:/") || url.startsWith("/"))
+                && !url.startsWith("file://")) {
+            url = "file:///" + url;
         }
-        // Si c'est un chemin local sans file://, ajouter file://
-        if (url.startsWith("C:/") || url.startsWith("D:/") || url.startsWith("/")) {
-            if (!url.startsWith("file://")) {
-                url = "file:///" + url;
-            }
-        }
-        // Corriger les URLs problématiques
         if (url.contains(" ")) url = url.replace(" ", "%20");
         if (url.contains("'")) url = url.replace("'", "%27");
         return url;
-    }
-
-    private void setDefaultAvatar() {
-        User user = SessionManager.getCurrentUser();
-        if (user != null && avatarImageView != null) {
-            int colorIndex = Math.abs(user.getId() % 8);
-            String[] colors = {"#0d6efd", "#198754", "#6f42c1", "#fd7e14",
-                    "#dc3545", "#20c997", "#6610f2", "#ffc107"};
-
-            WritableImage image = new WritableImage(150, 150);
-            PixelWriter writer = image.getPixelWriter();
-            Color color = Color.web(colors[colorIndex]);
-
-            for (int y = 0; y < 150; y++) {
-                for (int x = 0; x < 150; x++) {
-                    writer.setColor(x, y, color);
-                }
-            }
-
-            avatarImageView.setImage(image);
-            avatarImageView.setPreserveRatio(true);
-            avatarImageView.setFitWidth(150);
-            avatarImageView.setFitHeight(150);
-
-            Circle clip = new Circle(75, 75, 75);
-            avatarImageView.setClip(clip);
-            avatarImageView.setVisible(true);
-        }
     }
 
     private String getRoleDisplayName(Role_enum role) {
@@ -172,44 +210,9 @@ public class ProfileController {
         }
     }
 
-    @FXML
-    private void editProfile(ActionEvent event) {
-        System.out.println("Modifier profil cliqué");
-
-        // Afficher un message que cette fonctionnalité n'est pas encore disponible
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Fonctionnalité à venir");
-        alert.setHeaderText("Modification du profil");
-        alert.setContentText("Cette fonctionnalité sera disponible prochainement !");
-        alert.showAndWait();
-
-        // OU créer un dialogue simple de modification ici
-        // createSimpleEditDialog();
-    }
-
-    // Méthode alternative pour créer un dialogue de modification simple
-    private void createSimpleEditDialog() {
-        User user = SessionManager.getCurrentUser();
-        if (user == null) return;
-
-        // Créer un dialogue simple
-        javafx.scene.control.TextInputDialog dialog =
-                new javafx.scene.control.TextInputDialog(user.getFullname());
-        dialog.setTitle("Modifier le nom complet");
-        dialog.setHeaderText("Modifier votre nom complet");
-        dialog.setContentText("Nom complet:");
-
-        dialog.showAndWait().ifPresent(result -> {
-            try {
-                user.setFullname(result);
-                userService.update(user);
-                // Rafraîchir la page
-                initialize();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    // ═══════════════════════════════════════════════════════
+    // NAVIGATION (seules actions autorisées)
+    // ═══════════════════════════════════════════════════════
 
     @FXML
     private void goToDashboard(ActionEvent event) {
@@ -229,9 +232,67 @@ public class ProfileController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
+        User user = SessionManager.getCurrentUser();
+        if (user != null) {
+            ActivityLogService.log(user.getId(), user.getEmail(),
+                    ActivityLogService.ACTION_LOGOUT, "Déconnexion depuis la page profil");
+        }
         SessionManager.logout();
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         NavigationHelper.navigateTo(stage, "/fxml/login.fxml", "Connexion");
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // FACE ID — Enregistrement du visage
+    // ═══════════════════════════════════════════════════════
+
+    @FXML
+    private void handleEnrollFaceId(ActionEvent event) {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) return;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("📸 Sélectionnez votre photo pour Face ID");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
+        );
+
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+
+        if (selectedFile != null) {
+            boolean success = FaceRecognitionService.enrollFaceFromFile(user.getId(), selectedFile);
+
+            Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            alert.setTitle(success ? "✅ Face ID Activé" : "❌ Erreur");
+            alert.setHeaderText(null);
+            alert.setContentText(success
+                    ? "Votre visage a été enregistré avec succès !\nVous pouvez maintenant vous connecter avec Face ID."
+                    : "Impossible d'enregistrer votre visage. Réessayez avec une photo plus nette.");
+            alert.showAndWait();
+
+            if (success) {
+                ActivityLogService.log(user.getId(), user.getEmail(),
+                        ActivityLogService.ACTION_FACE_ENROLL,
+                        "Visage enregistré pour Face ID");
+            }
+        }
+    }
+
+    @FXML
+    private void handleRemoveFaceId(ActionEvent event) {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) return;
+
+        boolean deleted = FaceRecognitionService.deleteFace(user.getId());
+
+        Alert alert = new Alert(deleted ? Alert.AlertType.INFORMATION : Alert.AlertType.WARNING);
+        alert.setTitle(deleted ? "Face ID Désactivé" : "Information");
+        alert.setHeaderText(null);
+        alert.setContentText(deleted
+                ? "Face ID a été désactivé. Vous devrez utiliser email/mot de passe pour vous connecter."
+                : "Aucun visage enregistré à supprimer.");
+        alert.showAndWait();
     }
 
     private void showErrorMessage(String message) {

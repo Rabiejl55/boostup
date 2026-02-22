@@ -5,16 +5,25 @@ import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import services.UtilisateurService.ActivityLogService;
+import services.UtilisateurService.PdfExportService;
 import services.UtilisateurService.UserService;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.List;
 
 public class AdminDashboardController {
 
@@ -171,6 +180,11 @@ public class AdminDashboardController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
+        User user = SessionManager.getCurrentUser();
+        if (user != null) {
+            ActivityLogService.log(user.getId(), user.getEmail(),
+                    ActivityLogService.ACTION_LOGOUT, "Déconnexion depuis le dashboard admin");
+        }
         SessionManager.logout();
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         Parent root = stage.getScene().getRoot();
@@ -182,6 +196,87 @@ public class AdminDashboardController {
             NavigationHelper.navigateTo(stage, "/fxml/login.fxml", "Connexion");
         });
         fadeOut.play();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // EXPORT PDF
+    // ═══════════════════════════════════════════════════════
+
+    @FXML
+    private void handleExportUsersPdf(ActionEvent event) {
+        try {
+            List<User> users = userService.read();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Exporter la liste des utilisateurs en PDF");
+            fileChooser.setInitialFileName("boostup_utilisateurs.pdf");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+
+            if (file != null) {
+                boolean success = PdfExportService.exportUsersList(users, file.getAbsolutePath());
+
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser != null) {
+                    ActivityLogService.log(currentUser.getId(), currentUser.getEmail(),
+                            ActivityLogService.ACTION_EXPORT_PDF,
+                            "Export PDF utilisateurs : " + users.size() + " enregistrements");
+                }
+
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Export réussi" : "Erreur d'export");
+                alert.setHeaderText(null);
+                alert.setContentText(success
+                        ? "Le fichier PDF a été exporté avec succès !\n" + file.getAbsolutePath()
+                        : "Erreur lors de l'export du fichier PDF.");
+                alert.showAndWait();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleExportStatsPdf(ActionEvent event) {
+        try {
+            List<User> users = userService.read();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Exporter le rapport de statistiques en PDF");
+            fileChooser.setInitialFileName("boostup_statistiques.pdf");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+
+            if (file != null) {
+                boolean success = PdfExportService.exportStatsReport(users, file.getAbsolutePath());
+
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Export réussi" : "Erreur d'export");
+                alert.setHeaderText(null);
+                alert.setContentText(success
+                        ? "Le rapport PDF a été exporté avec succès !\n" + file.getAbsolutePath()
+                        : "Erreur lors de l'export du rapport PDF.");
+                alert.showAndWait();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // JOURNAL D'ACTIVITÉ
+    // ═══════════════════════════════════════════════════════
+
+    @FXML
+    private void handleViewActivityLog(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/fxml/activity-log.fxml", "Journal d'activité");
     }
 
     @FXML
