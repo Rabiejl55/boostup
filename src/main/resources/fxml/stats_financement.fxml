@@ -51,6 +51,13 @@
                     <Label text="Taux Financement"/>
                     <Label fx:id="lblKpiTauxFinancement" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
                 </VBox>
+                <VBox spacing="10" prefWidth="400">
+                    <Label text="Alertes Projet" styleClass="section-title"/>
+                    <HBox spacing="10">
+                        <Button text="🔄 Rafraîchir alertes" onAction="#refreshAlertes"/>
+                    </HBox>
+                    <ListView fx:id="lvAlertes" prefHeight="200"/>
+                </VBox>
             </HBox>
         </VBox>
     </top>
