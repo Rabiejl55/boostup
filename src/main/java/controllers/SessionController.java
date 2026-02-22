@@ -26,6 +26,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import javafx.scene.control.Alert;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SessionController {
 
@@ -212,5 +217,15 @@ public class SessionController {
     @FXML private void goToDomaine(ActionEvent event) { navigateTo(event, "/fxml/Domaine.fxml", "Gestion Domaines"); }
     @FXML private void goToCoach(ActionEvent event) { navigateTo(event, "/fxml/accompagnement.fxml", "Gestion Domaines"); }
     @FXML private void goToHome(ActionEvent event) { navigateTo(event, "/fxml/home.fxml", "Gestion Domaines"); }
-
+    @FXML
+    private void onParticiperButtonClicked() {
+        Session selected = sessionsTable.getSelectionModel().getSelectedItem();
+        int selectedUserId = 1; // temporaire : ID d'utilisateur pour test
+        if (selected != null) {
+            sessionService.participerSession(selected.getIdSession(), selectedUserId);
+            feedbackLabel.setText("Participation ajoutée !");
+        } else {
+            feedbackLabel.setText("Veuillez sélectionner une session.");
+        }
+    }
 }

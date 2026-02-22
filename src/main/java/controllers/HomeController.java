@@ -209,31 +209,106 @@ public class HomeController {
     }
 
     private VBox createEnhancedSessionCard(Session session) {
-        VBox card = new VBox(12);
-        card.setPadding(new Insets(20));
-        card.setPrefWidth(300);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-width: 1; -fx-border-color: #e2e8f0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05),10,0,0,2);");
 
-        HBox header = new HBox(10); header.setAlignment(Pos.CENTER_LEFT);
-        VBox dateBadge = new VBox(2); dateBadge.setAlignment(Pos.CENTER); dateBadge.setPrefWidth(60); dateBadge.setPrefHeight(60);
-        dateBadge.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-width:1; -fx-border-color:#e2e8f0;");
+        VBox card = new VBox(15);
+        card.setPadding(new Insets(20));
+        card.setPrefWidth(320);
+        card.setAlignment(Pos.TOP_LEFT);
+
+        card.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-color: #e2e8f0;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05),10,0,0,2);"
+        );
+
+        // ================= HEADER =================
+        HBox header = new HBox(12);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        VBox dateBadge = new VBox(2);
+        dateBadge.setAlignment(Pos.CENTER);
+        dateBadge.setPrefSize(60, 60);
+
+        dateBadge.setStyle(
+                "-fx-background-color: #f8fafc;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-border-width:1;" +
+                        "-fx-border-color:#e2e8f0;"
+        );
 
         LocalDate date = session.getDateSession();
         if (date != null) {
+
             Label month = new Label(date.format(DateTimeFormatter.ofPattern("MMM")));
-            month.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444; -fx-font-weight: 600;");
+            month.setStyle(
+                    "-fx-font-size: 12px;" +
+                            "-fx-text-fill: #ef4444;" +
+                            "-fx-font-weight: 600;"
+            );
+
             Label day = new Label(String.valueOf(date.getDayOfMonth()));
-            day.setStyle("-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+            day.setStyle(
+                    "-fx-font-size: 20px;" +
+                            "-fx-font-weight: 700;" +
+                            "-fx-text-fill: #1e293b;"
+            );
+
             dateBadge.getChildren().addAll(month, day);
         }
 
-        VBox sessionInfo = new VBox(4); sessionInfo.setAlignment(Pos.CENTER_LEFT);
-        Label objectif = new Label(session.getObjectif()); objectif.setWrapText(true);
-        objectif.setStyle("-fx-font-weight: 700; -fx-font-size: 16px; -fx-text-fill: #1e293b;");
+        VBox sessionInfo = new VBox(5);
+        sessionInfo.setAlignment(Pos.CENTER_LEFT);
+
+        Label objectif = new Label(session.getObjectif());
+        objectif.setWrapText(true);
+        objectif.setStyle(
+                "-fx-font-weight: 700;" +
+                        "-fx-font-size: 16px;" +
+                        "-fx-text-fill: #1e293b;"
+        );
+
         sessionInfo.getChildren().add(objectif);
 
         header.getChildren().addAll(dateBadge, sessionInfo);
         card.getChildren().add(header);
+
+        // ================= BOUTON PARTICIPER =================
+        Button btnParticiper = new Button("Participer");
+        btnParticiper.setPrefWidth(200);
+        btnParticiper.setAlignment(Pos.CENTER);
+
+        String normalStyle =
+                "-fx-background-color: #1f274b;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-font-weight: 600;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-cursor: hand;";
+
+        String hoverStyle =
+                "-fx-background-color: #2c3566;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-font-weight: 600;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-cursor: hand;";
+
+        btnParticiper.setStyle(normalStyle);
+
+        btnParticiper.setOnMouseEntered(e -> btnParticiper.setStyle(hoverStyle));
+        btnParticiper.setOnMouseExited(e -> btnParticiper.setStyle(normalStyle));
+
+        btnParticiper.setOnAction(e -> ouvrirMeeting(session));
+
+        // Centrer le bouton
+        HBox buttonContainer = new HBox(btnParticiper);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        card.getChildren().add(buttonContainer);
 
         return card;
     }
@@ -460,5 +535,34 @@ public class HomeController {
     private void handleCalendarClick(ActionEvent event) {
         System.out.println("Calendrier cliqué !");
         // Ici tu peux ouvrir une nouvelle fenêtre, afficher un calendrier, etc.
+    }
+    @FXML
+    private void participerSession(ActionEvent event) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MeetingView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Session Meeting");
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void ouvrirMeeting(Session session) {
+        try {
+            String roomName = "Session_" + session.getIdSession();
+            String url = "https://meet.jit.si/" + roomName;
+
+            // Ouvre dans le navigateur par défaut
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

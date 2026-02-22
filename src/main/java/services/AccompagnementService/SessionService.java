@@ -132,4 +132,60 @@ public class SessionService {
 
         return liste;
     }
+    // ================= PARTICIPER AVEC AUTO-ACCEPTATION =================
+    public void participerAvecAutoAcceptation(int sessionId, int userId) throws SQLException {
+        // 1️⃣ Récupérer l'email depuis la table user
+        String email = null;
+        String sqlEmail = "SELECT email FROM user WHERE id_user = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sqlEmail)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                email = rs.getString("email");
+            }
+        }
+
+        if (email == null) {
+            throw new SQLException("Utilisateur introuvable !");
+        }
+
+        // 2️⃣ Vérifier le domaine de l'email
+        String statut = email.endsWith("@boostup.tn") ? "accepté" : "en_attente";
+
+        // 3️⃣ Ajouter le participant à la session avec le statut
+        String sqlInsert = "INSERT INTO session_participant(id_session, id_user, statut) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sqlInsert)) {
+            ps.setInt(1, sessionId);
+            ps.setInt(2, userId);
+            ps.setString(3, statut);
+            ps.executeUpdate();
+        }
+
+    }
+    public void participerSession(int idSession, int idUser) {
+        String sql = "SELECT email FROM user WHERE id_user = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idUser);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String email = rs.getString("email");
+                boolean estBoostup = email.endsWith("@boostup.tn");
+
+                String statut = estBoostup ? "accepté" : "en attente";
+
+                String insert = "INSERT INTO participation(id_session, id_user, statut) VALUES (?, ?, ?)";
+                try (PreparedStatement ps2 = conn.prepareStatement(insert)) {
+                    ps2.setInt(1, idSession);
+                    ps2.setInt(2, idUser);
+                    ps2.setString(3, statut);
+                    ps2.executeUpdate();
+                }
+
+                System.out.println("Participation ajoutée avec statut: " + statut);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

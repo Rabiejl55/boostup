@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.MeetingController">
+
+    <WebView fx:id="webView"
+             prefWidth="1200"
+             prefHeight="800"/>
+
+</AnchorPane>
