@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.StatsFinancementController"
+      spacing="12" style="-fx-padding: 16;">
+
+    <HBox spacing="12">
+        <VBox styleClass="card" spacing="6">
+            <Label text="Total investi"/>
+            <Label fx:id="lblTotalInvesti" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        </VBox>
+        <VBox styleClass="card" spacing="6">
+            <Label text="Investissements"/>
+            <Label fx:id="lblNbInvest" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        </VBox>
+        <VBox styleClass="card" spacing="6">
+            <Label text="Investissements financés"/>
+            <Label fx:id="lblNbInvestFinances" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        </VBox>
+        <VBox styleClass="card" spacing="6">
+            <Label text="Taux réussite projets"/>
+            <Label fx:id="lblTauxReussite" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <Button text="Rafraîchir" onAction="#refreshStats"/>
+    </HBox>
+
+    <HBox spacing="12">
+        <VBox VBox.vgrow="ALWAYS" spacing="8">
+            <Label text="Top 5 projets (collecte)"/>
+            <TableView fx:id="tableTopProjets" prefHeight="220">
+                <columns>
+                    <TableColumn fx:id="colTopTitre" text="Projet" prefWidth="260"/>
+                    <TableColumn fx:id="colTopCollecte" text="Collecte" prefWidth="140"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <VBox VBox.vgrow="ALWAYS" spacing="8">
+            <Label text="Transactions par statut"/>
+            <PieChart fx:id="pieTxStatuts" prefHeight="220"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="8" VBox.vgrow="ALWAYS">
+        <Label text="Evolution mensuelle des investissements (FINANCE)"/>
+        <LineChart fx:id="lineInvestMois" prefHeight="260">
+            <xAxis>
+                <CategoryAxis />
+            </xAxis>
+            <yAxis>
+                <NumberAxis />
+            </yAxis>
+        </LineChart>
+    </VBox>
+
+</VBox>

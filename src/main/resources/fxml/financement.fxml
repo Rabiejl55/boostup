@@ -217,6 +217,10 @@
                     <BorderPane fx:id="transactionsRoot" styleClass="page"/>
                 </Tab>
 
+                <Tab fx:id="tabStats" text="Statistiques">
+                    <BorderPane fx:id="statsRoot"/>
+                </Tab>
+
             </TabPane>
         </VBox>
         </ScrollPane>

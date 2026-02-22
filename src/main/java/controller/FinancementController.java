@@ -73,6 +73,10 @@ public class FinancementController {
     // Toast
     @FXML private Label lblProjetToast;
 
+    @FXML private Tab tabStats;
+    @FXML private BorderPane statsRoot;
+    private boolean statsLoaded = false;
+
     private final ObservableList<Projet> projetsMaster = FXCollections.observableArrayList();
     private FilteredList<Projet> projetsFiltered;
 
@@ -224,9 +228,14 @@ public class FinancementController {
             if (newTab == tabInvestissements && !invLoaded) {
                 loadInto(investissementsRoot, "/fxml/investissement.fxml");
                 invLoaded = true;
+
             } else if (newTab == tabTransactions && !txLoaded) {
                 loadInto(transactionsRoot, "/fxml/transaction.fxml");
                 txLoaded = true;
+
+            } else if (newTab == tabStats && !statsLoaded) {
+                loadInto(statsRoot, "/fxml/stats_financement.fxml");
+                statsLoaded = true;
             }
         });
     }
@@ -552,5 +561,7 @@ public class FinancementController {
             showToastError("Erreur clôture: " + e.getMessage());
         }
     }
+
+
 
 }
