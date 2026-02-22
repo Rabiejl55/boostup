@@ -331,24 +331,60 @@ public class HomeController {
     }
 
     private HBox createCoachListItem(Coach coach) {
-        HBox item = new HBox(20); item.setPadding(new Insets(20)); item.setPrefWidth(1200);
-        item.setStyle("-fx-background-color: white; -fx-background-radius: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10,0,0,2); -fx-border-width: 1; -fx-border-color: #e2e8f0; -fx-border-radius: 16;");
+        HBox item = new HBox(20);
+        item.setPadding(new Insets(20));
+        item.setPrefWidth(1200);
+        item.setStyle("-fx-background-color: white; -fx-background-radius: 16; "
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10,0,0,2); "
+                + "-fx-border-width: 1; -fx-border-color: #e2e8f0; -fx-border-radius: 16;");
 
         // Avatar
         StackPane avatarContainer = new StackPane();
-        Circle avatarCircle = new Circle(45); avatarCircle.setFill(Color.web("#e2e8f0")); avatarCircle.setStroke(Color.web("#cbd5e1")); avatarCircle.setStrokeWidth(2);
-        ImageView imageView = new ImageView(); imageView.setFitHeight(80); imageView.setFitWidth(80); imageView.setPreserveRatio(true);
-        if (coach.getImagecoach() != null) { File file = new File(coach.getImagecoach()); if (file.exists()) imageView.setImage(new Image(file.toURI().toString(), 80, 80, false, true)); }
+        Circle avatarCircle = new Circle(45);
+        avatarCircle.setFill(Color.web("#e2e8f0"));
+        avatarCircle.setStroke(Color.web("#cbd5e1"));
+        avatarCircle.setStrokeWidth(2);
+
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(80);
+        imageView.setFitWidth(80);
+        imageView.setPreserveRatio(true);
+
+        if (coach.getImagecoach() != null) {
+            File file = new File(coach.getImagecoach());
+            if (file.exists())
+                imageView.setImage(new Image(file.toURI().toString(), 80, 80, false, true));
+        }
         avatarContainer.getChildren().addAll(avatarCircle, imageView);
 
-        VBox infoBox = new VBox(8); infoBox.setAlignment(Pos.CENTER_LEFT);
-        Label nom = new Label(coach.getNom() + " " + coach.getPrenom()); nom.setStyle("-fx-font-size: 18px; -fx-font-weight: 700;");
+        // Info Coach
+        VBox infoBox = new VBox(8);
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+        Label nom = new Label(coach.getNom() + " " + coach.getPrenom());
+        nom.setStyle("-fx-font-size: 18px; -fx-font-weight: 700;");
         infoBox.getChildren().add(nom);
 
-        Button voirProfilBtn = new Button("Voir le profil"); voirProfilBtn.setStyle("-fx-background-color: #4f46e5; -fx-text-fill:white;");
-        voirProfilBtn.setOnAction(e -> System.out.println("Voir profil: " + coach.getNom()));
+        // Bouton Contactez
+        Button voirProfilBtn = new Button("Contactez");
+        voirProfilBtn.setStyle("-fx-background-color: #4f46e5; -fx-text-fill:white;");
 
-        VBox actionBox = new VBox(10); actionBox.setAlignment(Pos.CENTER); actionBox.getChildren().add(voirProfilBtn);
+        voirProfilBtn.setOnAction(e -> {
+            String emailCoach = coach.getEmail(); // Assure-toi que getEmail() existe dans Coach
+            if (emailCoach != null && !emailCoach.isEmpty()) {
+                try {
+                    java.awt.Desktop.getDesktop().mail(new java.net.URI("mailto:" + emailCoach));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                System.out.println("Aucun email disponible pour ce coach.");
+            }
+        });
+
+        VBox actionBox = new VBox(10);
+        actionBox.setAlignment(Pos.CENTER);
+        actionBox.getChildren().add(voirProfilBtn);
+
         item.getChildren().addAll(avatarContainer, infoBox, actionBox);
         return item;
     }
