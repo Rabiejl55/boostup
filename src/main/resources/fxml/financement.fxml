@@ -165,7 +165,7 @@
                                 <Button text="Clôturer et Rembourser"
                                         onAction="#cloturerEtRembourserProjet"
                                         styleClass="btn-danger"/>
-
+                                <Button text="Générer PDF" onAction="#genererPdfProjet"/>
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <Button text="🔄 Rafraîchir" onAction="#refreshProjets" styleClass="btn-refresh"/>
                             </HBox>

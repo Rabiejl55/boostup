@@ -1,67 +1,126 @@
 package controller;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.PieChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.chart.*;
+import javafx.scene.control.*;
 import services.FinancementService.FinancementStatsService;
+
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.util.Map;
 
 public class StatsFinancementController {
 
-    @FXML private Label lblTotalInvesti;
-    @FXML private Label lblNbInvest;
-    @FXML private Label lblNbInvestFinances;
-    @FXML private Label lblTauxReussite;
+    @FXML private DatePicker dpFrom;
+    @FXML private DatePicker dpTo;
+    @FXML private ComboBox<String> cbStatutProjet;
+    @FXML private Button btnRefreshStats;
 
-    @FXML private TableView<FinancementStatsService.TopProjet> tableTopProjets;
-    @FXML private TableColumn<FinancementStatsService.TopProjet, String> colTopTitre;
-    @FXML private TableColumn<FinancementStatsService.TopProjet, Double> colTopCollecte;
+    // KPI labels
+    @FXML private Label lblKpiTotalLeve;
+    @FXML private Label lblKpiNbProjets;
+    @FXML private Label lblKpiNbInvest;
+    @FXML private Label lblKpiTauxFinancement;
+    @FXML private Label lblStatsToast;
 
-    @FXML private PieChart pieTxStatuts;
-    @FXML private LineChart<String, Number> lineInvestMois;
+    // Charts
+    @FXML private BarChart<String, Number> barTopProjets;
+    @FXML private CategoryAxis axisTopProjetsX;
+    @FXML private NumberAxis axisTopProjetsY;
 
-    private final FinancementStatsService stats = new FinancementStatsService();
+    @FXML private PieChart pieModesPaiement;
+
+    @FXML private LineChart<String, Number> lineEvolution;
+    @FXML private CategoryAxis axisLineX;
+    @FXML private NumberAxis axisLineY;
+
+    private final FinancementStatsService statsService = new FinancementStatsService();
+    private final DecimalFormat df = new DecimalFormat("#0.00");
+
+    private static final String[] STATUTS = {"TOUS", "EN_ATTENTE", "FINANCE", "REFUSE"};
 
     @FXML
     public void initialize() {
-        colTopTitre.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().titre));
-        colTopCollecte.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().collecte));
+        cbStatutProjet.setItems(FXCollections.observableArrayList(STATUTS));
+        cbStatutProjet.getSelectionModel().selectFirst();
 
-        refreshStats();
+        // dates par défaut : 90 jours
+        dpTo.setValue(LocalDate.now());
+        dpFrom.setValue(LocalDate.now().minusDays(90));
+
+        // auto refresh
+        dpFrom.valueProperty().addListener((obs,o,n)-> refresh());
+        dpTo.valueProperty().addListener((obs,o,n)-> refresh());
+        cbStatutProjet.valueProperty().addListener((obs,o,n)-> refresh());
+
+        refresh();
     }
 
     @FXML
-    private void refreshStats() {
+    private void refresh() {
+        LocalDate from = dpFrom.getValue();
+        LocalDate to = dpTo.getValue();
+        String st = cbStatutProjet.getValue();
+
+        if (from != null && to != null && from.isAfter(to)) {
+            showToast("❌ Date début > date fin", "toastError");
+            return;
+        }
+
         try {
-            lblTotalInvesti.setText(String.format("%.2f", stats.totalInvesti()));
-            lblNbInvest.setText(String.valueOf(stats.countInvestissements()));
-            lblNbInvestFinances.setText(String.valueOf(stats.countInvestissementsFinances()));
-            lblTauxReussite.setText(String.format("%.1f%%", stats.tauxReussiteProjets()));
+            // KPI
+            double total = statsService.totalLeve(from, to, st);
+            int nbProjets = statsService.nbProjets(st);
+            int nbInv = statsService.nbInvestissements(from, to, st);
+            double taux = statsService.tauxFinancement(from, to, st);
 
-            tableTopProjets.setItems(FXCollections.observableArrayList(stats.topProjetsCollecte(5)));
+            lblKpiTotalLeve.setText(df.format(total));
+            lblKpiNbProjets.setText(String.valueOf(nbProjets));
+            lblKpiNbInvest.setText(String.valueOf(nbInv));
+            lblKpiTauxFinancement.setText(df.format(taux) + " %");
 
-            // Pie chart
-            pieTxStatuts.setData(FXCollections.observableArrayList());
-            for (var sc : stats.transactionsParStatut()) {
-                pieTxStatuts.getData().add(new PieChart.Data(sc.statut, sc.count));
+            // Bar Top projets
+            barTopProjets.getData().clear();
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName("Top projets (levé)");
+
+            for (FinancementStatsService.TopProjet p : statsService.topProjets(from, to, st, 7)) {
+                String name = (p.titre == null || p.titre.isBlank()) ? ("Projet #" + p.idProjet) : p.titre;
+                if (name.length() > 18) name = name.substring(0, 18) + "...";
+                series.getData().add(new XYChart.Data<>(name, p.total));
             }
+            barTopProjets.getData().add(series);
 
-            // Line chart
-            lineInvestMois.getData().clear();
-            XYChart.Series<String, Number> s = new XYChart.Series<>();
-            s.setName("Investissements (FINANCE) / mois");
-            for (var mm : stats.investissementsParMois()) {
-                s.getData().add(new XYChart.Data<>(mm.mois, mm.total));
+            // Pie modes paiement
+            pieModesPaiement.getData().clear();
+            Map<String, Double> map = statsService.repartitionModesPaiement(from, to);
+            map.forEach((mode, val) -> pieModesPaiement.getData().add(new PieChart.Data(mode, val)));
+
+            // Line évolution mensuelle
+            lineEvolution.getData().clear();
+            XYChart.Series<String, Number> sLine = new XYChart.Series<>();
+            sLine.setName("Investissements FINANCE (par mois)");
+
+            for (FinancementStatsService.MoisPoint pt : statsService.evolutionMensuelle(from, to, st)) {
+                sLine.getData().add(new XYChart.Data<>(pt.mois, pt.total));
             }
-            lineInvestMois.getData().add(s);
+            lineEvolution.getData().add(sLine);
+
+            showToast("✅ Stats mises à jour", "toastSuccess");
 
         } catch (Exception e) {
+            showToast("❌ Erreur stats: " + e.getMessage(), "toastError");
             e.printStackTrace();
         }
+    }
+
+    private void showToast(String msg, String cssClass) {
+        if (lblStatsToast == null) return;
+        lblStatsToast.getStyleClass().removeAll("toastInfo","toastSuccess","toastError");
+        lblStatsToast.getStyleClass().add(cssClass);
+        lblStatsToast.setText(msg);
+        lblStatsToast.setVisible(true);
+        lblStatsToast.setManaged(true);
     }
 }

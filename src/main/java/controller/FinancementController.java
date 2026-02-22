@@ -20,6 +20,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.DoubleStringConverter;
+import services.FinancementService.FinancementPdfService;
+import javafx.stage.FileChooser;
+import java.io.File;
 import services.FinancementService.ProjetService;
 import services.FinancementService.TransactionFinanciereService;
 
@@ -86,6 +89,7 @@ public class FinancementController {
 
     private final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
 
+    private final FinancementPdfService pdfService = new FinancementPdfService();
     @FXML
     public void initialize() {
 
@@ -228,11 +232,9 @@ public class FinancementController {
             if (newTab == tabInvestissements && !invLoaded) {
                 loadInto(investissementsRoot, "/fxml/investissement.fxml");
                 invLoaded = true;
-
             } else if (newTab == tabTransactions && !txLoaded) {
                 loadInto(transactionsRoot, "/fxml/transaction.fxml");
                 txLoaded = true;
-
             } else if (newTab == tabStats && !statsLoaded) {
                 loadInto(statsRoot, "/fxml/stats_financement.fxml");
                 statsLoaded = true;
@@ -562,6 +564,31 @@ public class FinancementController {
         }
     }
 
+    @FXML
+    private void genererPdfProjet() {
+        Projet selected = tableProjets.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showToastError("Sélectionne un projet.");
+            return;
+        }
+
+        try {
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Enregistrer le rapport PDF");
+            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+            fc.setInitialFileName("rapport_projet_" + selected.getId_projet() + ".pdf");
+
+            File out = fc.showSaveDialog(root.getScene().getWindow());
+            if (out == null) return;
+
+            pdfService.genererRapportProjet(selected.getId_projet(), out);
+            showToastSuccess("PDF généré : " + out.getName());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToastError("Erreur PDF: " + e.getMessage());
+        }
+    }
 
 
 }

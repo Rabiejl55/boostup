@@ -1,65 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.PieChart?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.StatsFinancementController"
-      spacing="12" style="-fx-padding: 16;">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.StatsFinancementController">
 
-    <HBox spacing="12">
-        <VBox styleClass="card" spacing="6">
-            <Label text="Total investi"/>
-            <Label fx:id="lblTotalInvesti" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-        </VBox>
-        <VBox styleClass="card" spacing="6">
-            <Label text="Investissements"/>
-            <Label fx:id="lblNbInvest" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-        </VBox>
-        <VBox styleClass="card" spacing="6">
-            <Label text="Investissements financés"/>
-            <Label fx:id="lblNbInvestFinances" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-        </VBox>
-        <VBox styleClass="card" spacing="6">
-            <Label text="Taux réussite projets"/>
-            <Label fx:id="lblTauxReussite" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-        </VBox>
+    <top>
+        <VBox spacing="10" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
 
-        <Button text="Rafraîchir" onAction="#refreshStats"/>
-    </HBox>
+            <!-- Filters -->
+            <HBox spacing="12">
+                <Label text="Du:"/>
+                <DatePicker fx:id="dpFrom"/>
+                <Label text="Au:"/>
+                <DatePicker fx:id="dpTo"/>
 
-    <HBox spacing="12">
-        <VBox VBox.vgrow="ALWAYS" spacing="8">
-            <Label text="Top 5 projets (collecte)"/>
-            <TableView fx:id="tableTopProjets" prefHeight="220">
-                <columns>
-                    <TableColumn fx:id="colTopTitre" text="Projet" prefWidth="260"/>
-                    <TableColumn fx:id="colTopCollecte" text="Collecte" prefWidth="140"/>
-                </columns>
-            </TableView>
+                <Label text="Statut Projet:"/>
+                <ComboBox fx:id="cbStatutProjet" prefWidth="150"/>
+
+                <Button fx:id="btnRefreshStats" text="Rafraîchir" onAction="#refresh"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblStatsToast" text="" visible="false" managed="false"/>
+            </HBox>
+
+            <!-- KPI cards -->
+            <HBox spacing="12">
+                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
+                    <Label text="Total Levé"/>
+                    <Label fx:id="lblKpiTotalLeve" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
+                    <Label text="Nb Projets"/>
+                    <Label fx:id="lblKpiNbProjets" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
+                    <Label text="Nb Investissements"/>
+                    <Label fx:id="lblKpiNbInvest" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
+                    <Label text="Taux Financement"/>
+                    <Label fx:id="lblKpiTauxFinancement" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
         </VBox>
+    </top>
 
-        <VBox VBox.vgrow="ALWAYS" spacing="8">
-            <Label text="Transactions par statut"/>
-            <PieChart fx:id="pieTxStatuts" prefHeight="220"/>
-        </VBox>
-    </HBox>
+    <center>
+        <GridPane hgap="12" vgap="12">
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
 
-    <VBox spacing="8" VBox.vgrow="ALWAYS">
-        <Label text="Evolution mensuelle des investissements (FINANCE)"/>
-        <LineChart fx:id="lineInvestMois" prefHeight="260">
-            <xAxis>
-                <CategoryAxis />
-            </xAxis>
-            <yAxis>
-                <NumberAxis />
-            </yAxis>
-        </LineChart>
-    </VBox>
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50"/>
+                <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
 
-</VBox>
+            <rowConstraints>
+                <RowConstraints percentHeight="50"/>
+                <RowConstraints percentHeight="50"/>
+            </rowConstraints>
+
+            <!-- Bar: Top projets -->
+            <BarChart fx:id="barTopProjets" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <xAxis>
+                    <CategoryAxis fx:id="axisTopProjetsX" label="Projets"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="axisTopProjetsY" label="Montant"/>
+                </yAxis>
+            </BarChart>
+
+            <!-- Pie: modes paiement -->
+            <PieChart fx:id="pieModesPaiement" GridPane.columnIndex="1" GridPane.rowIndex="0" title="Modes de paiement (VALIDEE)"/>
+
+            <!-- Line: évolution -->
+            <LineChart fx:id="lineEvolution" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                <xAxis>
+                    <CategoryAxis fx:id="axisLineX" label="Mois"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="axisLineY" label="Montant"/>
+                </yAxis>
+            </LineChart>
+        </GridPane>
+    </center>
+
+</BorderPane>
