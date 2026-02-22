@@ -5,6 +5,7 @@ import services.IService;
 import utils.MyDatabase;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -171,5 +172,43 @@ public class EvenementService implements IService<Evenement> {
         } catch (SQLException ex) {
             return false;
         }
+    }
+
+    /**
+     * Returns events whose date is exactly 2 days from today (for reminder notifications).
+     * Uses active (non-archived) events only.
+     */
+    public List<Evenement> getEventsInExactlyTwoDays() {
+        LocalDate today = LocalDate.now();
+        LocalDate inTwoDays = today.plusDays(2);
+
+        System.out.println("\n📊 DEBUG getEventsInExactlyTwoDays:");
+        System.out.println("  Aujourd'hui : " + today);
+        System.out.println("  Dans 2 jours : " + inTwoDays);
+
+        List<Evenement> result = new ArrayList<>();
+        try {
+            List<Evenement> all = readActifs();
+            System.out.println("  Nombre total d'événements actifs : " + all.size());
+
+            for (Evenement e : all) {
+                if (e.getDateEvenement() != null) {
+                    LocalDate eventDate = e.getDateEvenement().toLocalDate();
+                    System.out.println("  - " + e.getTitre() + " : " + eventDate + " (égal ? " + eventDate.equals(inTwoDays) + ")");
+
+                    if (eventDate.equals(inTwoDays)) {
+                        result.add(e);
+                        System.out.println("    ✅ AJOUTÉ aux notifications !");
+                    }
+                }
+            }
+
+            System.out.println("  Total événements dans 2 jours : " + result.size() + "\n");
+
+        } catch (SQLException ex) {
+            System.err.println("❌ Erreur SQL dans getEventsInExactlyTwoDays : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return result;
     }
 }
