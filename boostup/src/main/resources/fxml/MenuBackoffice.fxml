@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="500.0" prefWidth="600.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.MenuBackofficeController">
+    <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0" /></padding>
+
+    <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text=" BoostUp" />
+
+    <Button onAction="#openCandidatures" prefWidth="300" text="Gestion des Candidatures" />
+    <Button onAction="#openDossiers" prefWidth="300" text="Gestion des Dossiers" />
+    <Button onAction="#openEvaluations" prefWidth="300" text="Gestion des Évaluations" />
+</VBox>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.EvaluationBackofficeController">
+
+    <children>
+        <TableView fx:id="evaluationTable" prefHeight="440.0" prefWidth="900.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <columns>
+                <TableColumn fx:id="nomCandidatureColumn" prefWidth="154.00000303983688" text="Candidature" />
+                <TableColumn fx:id="noteInnovationColumn" prefWidth="110.39997863769531" text="Innovation" />
+                <TableColumn fx:id="noteViabiliteColumn" prefWidth="123.0" text="Viabilité" />
+                <TableColumn fx:id="noteMarcheColumn" prefWidth="119.79998779296875" text="Marché" />
+                <TableColumn fx:id="noteEquipeColumn" prefWidth="123.0" text="Équipe" />
+                <TableColumn fx:id="noteGlobaleColumn" prefWidth="120.20001220703125" text="Globale" />
+                <TableColumn fx:id="decisionColumn" prefWidth="153.99993896484375" text="Décision" />
+            </columns>
+        </TableView>
+
+        <HBox alignment="CENTER" layoutX="9.0" prefHeight="21.0" prefWidth="891.0" spacing="15" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="9.0" AnchorPane.rightAnchor="0.0">
+            <Button fx:id="addButton" onAction="#openAddForm" text="Ajouter" />
+            <Button fx:id="editButton" onAction="#openEditForm" text="Modifier" />
+            <Button fx:id="hideButton" onAction="#hideSelected" text="Cacher" />
+            <Button fx:id="refreshButton" onAction="#refreshTable" text="Rafraîchir" />
+            <Button fx:id="backButton" onAction="#goBackToMenu" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold;" text="Retour au menu" />
+        </HBox>
+    </children>
+</AnchorPane>

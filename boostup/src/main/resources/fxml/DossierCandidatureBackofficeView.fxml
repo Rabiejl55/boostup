@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DossierCandidatureBackofficeController">
+
+    <children>
+        <TableView fx:id="dossierTable" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <columns>
+                <TableColumn fx:id="idColumn" minWidth="0.0" prefWidth="0.0" />
+                <TableColumn fx:id="nomCandidatureColumn" prefWidth="121.80001986026764" text="Date Dépôt" />
+                <TableColumn fx:id="descriptionColumn" prefWidth="138.99999237060547" text="Nom Dossier" />
+                <TableColumn fx:id="businessPlanColumn" prefWidth="165.0" text="Nom Candidature" />
+                <TableColumn fx:id="dateCreationColumn" prefWidth="231.20004272460938" text="Description Projet" />
+                <TableColumn fx:id="etatColumn" prefWidth="145.0" text="Business Plan" />
+                <TableColumn fx:id="visibleColumn" prefWidth="120.5999755859375" text="Etat" />
+            </columns>
+        </TableView>
+
+        <HBox alignment="CENTER" spacing="15" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <Button fx:id="hideButton" onAction="#hideSelected" text="Cacher" />
+            <Button fx:id="refreshButton" onAction="#refreshTable" text="Rafraîchir" />
+            <Button fx:id="backButton" onAction="#goBackToMenu" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold;" text="Retour au menu" />
+        </HBox>
+    </children>
+</AnchorPane>

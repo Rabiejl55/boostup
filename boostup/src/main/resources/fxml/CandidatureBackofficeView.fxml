@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.CandidatureBackofficeController">
+
+    <children>
+        <TableView fx:id="candidatureTable" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <columns>
+                <!-- 1. Nom Candidature → en premier, c'est le plus important -->
+                <TableColumn fx:id="nomCandidatureColumn" prefWidth="159.00002133846283" text="Nom Candidature" />
+
+                <!-- 2. Nom Startup -->
+                <TableColumn fx:id="nomStartupColumn" prefWidth="170.60000610351562" text="Startup" />
+
+                <!-- 3. Date Dépôt -->
+                <TableColumn fx:id="dateDepotColumn" prefWidth="122.39999389648438" text="Date Dépôt" />
+
+                <!-- 4. Statut -->
+                <TableColumn fx:id="statutColumn" prefWidth="119.39999389648438" text="Statut" />
+
+                <!-- 5. Score -->
+                <TableColumn fx:id="scoreColumn" prefWidth="112.5999755859375" text="Score" />
+
+                <!-- 6. Commentaire → en dernier car souvent long -->
+                <TableColumn fx:id="commentaireColumn" prefWidth="279.4000244140625" text="Commentaire" />
+            </columns>
+        </TableView>
+
+        <HBox alignment="CENTER" spacing="15" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <Button fx:id="hideButton" onAction="#hideSelected" text="Cacher" />
+            <Button fx:id="refreshButton" onAction="#refreshTable" text="Rafraîchir" />
+            <Button fx:id="backButton" onAction="#goBackToMenu" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold;" text="Retour au menu" />
+        </HBox>
+    </children>
+</AnchorPane>
