@@ -99,6 +99,16 @@
                            -fx-padding: 12 18;
                            -fx-alignment: CENTER_LEFT;
                            -fx-cursor: hand;" />
+                <Button text="🎯 Feedback"
+                        fx:id="newActionButton"
+                        onAction="#handleFeedbackClick"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent;
+                   -fx-text-fill: rgba(255,255,255,0.8);
+                   -fx-background-radius: 10;
+                   -fx-padding: 12 18;
+                   -fx-alignment: CENTER_LEFT;
+                   -fx-cursor: hand;" />
 
                 <Button text="🎯  Domaines"
                         onAction="#handleAccompagnementsClick"

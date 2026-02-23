@@ -47,37 +47,56 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-
-
-
 import entities.GAccompagnement.Session;
-
 import java.time.LocalDate;
 import java.util.List;
+import javafx.scene.Node;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+import java.io.IOException;
 
 public class HomeController {
     // ================= SIDEBAR =================
-    @FXML private ImageView sidebarAvatarView;
-    @FXML private Label welcomeLabel;
+    @FXML
+    private ImageView sidebarAvatarView;
+    @FXML
+    private Label welcomeLabel;
     // ================= SESSIONS =================
-    @FXML private ComboBox<Session> sessionComboBox;         // <-- ajouté
-    @FXML private ImageView qrCodeImageViewSession;         // <-- ajouté
+    @FXML
+    private ComboBox<Session> sessionComboBox;         // <-- ajouté
+    @FXML
+    private ImageView qrCodeImageViewSession;         // <-- ajouté
 
     // ================= COACHS =================
-    @FXML private ComboBox<Coach> coachComboBox;           // <-- ajouté
-    @FXML private ImageView qrCodeImageViewCoach;
+    @FXML
+    private ComboBox<Coach> coachComboBox;           // <-- ajouté
+    @FXML
+    private ImageView qrCodeImageViewCoach;
 
     // ================= DOMAINES =================
-    @FXML private TextField searchDomainesField;
-    @FXML private FlowPane domainesContainer;
-    @FXML private Label domainesCount;
     @FXML
-    private ComboBox<Domaine> domaineComboBox;    @FXML private ImageView qrCodeImageView;
+    private TextField searchDomainesField;
+    @FXML
+    private FlowPane domainesContainer;
+    @FXML
+    private Label domainesCount;
+    @FXML
+    private ComboBox<Domaine> domaineComboBox;
+    @FXML
+    private ImageView qrCodeImageView;
 
     // ================= SESSIONS =================
-    @FXML private TextField searchSessionsField;
-    @FXML private TilePane sessionsGrid;
-    @FXML private Label sessionsCount;
+    @FXML
+    private TextField searchSessionsField;
+    @FXML
+    private TilePane sessionsGrid;
+    @FXML
+    private Label sessionsCount;
+
     @FXML
     private void handleDashboardClick(ActionEvent event) {
         System.out.println("Dashboard clicked");
@@ -107,10 +126,14 @@ public class HomeController {
     private void handleLogout(ActionEvent event) {
         System.out.println("Logout clicked");
     }
+
     // ================= COACHS =================
-    @FXML private TextField searchCoachsField;
-    @FXML private FlowPane coachesContainer;
-    @FXML private Label coachsCount;
+    @FXML
+    private TextField searchCoachsField;
+    @FXML
+    private FlowPane coachesContainer;
+    @FXML
+    private Label coachsCount;
     @FXML
 
     private final SessionService sessionService = new SessionService();
@@ -161,7 +184,9 @@ public class HomeController {
             File file = new File(domaine.getImage());
             if (file.exists()) imageView.setImage(new Image(file.toURI().toString(), 280, 140, false, true));
         }
-        Rectangle clip = new Rectangle(280, 140); clip.setArcWidth(20); clip.setArcHeight(20);
+        Rectangle clip = new Rectangle(280, 140);
+        clip.setArcWidth(20);
+        clip.setArcHeight(20);
         imageView.setClip(clip);
         imageContainer.getChildren().add(imageView);
 
@@ -174,14 +199,16 @@ public class HomeController {
 
         Label desc = new Label(domaine.getDescription());
         desc.setWrapText(true);
-        desc.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;"); desc.setMaxHeight(60);
+        desc.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
+        desc.setMaxHeight(60);
 
         Button btn = new Button("Explorer le domaine");
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setStyle("-fx-background-color: #4f46e5; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12; -fx-background-radius: 12; -fx-cursor: hand;");
         btn.setOnAction(e -> System.out.println("Explorer domaine: " + domaine.getNom()));
 
-        VBox contentBox = new VBox(12); contentBox.getChildren().addAll(categoryBadge, nom, desc, btn);
+        VBox contentBox = new VBox(12);
+        contentBox.getChildren().addAll(categoryBadge, nom, desc, btn);
         card.getChildren().addAll(imageContainer, contentBox);
         return card;
     }
@@ -198,7 +225,9 @@ public class HomeController {
             domainesContainer.getChildren().clear();
             List<Domaine> domaines = domaineService.rechercherParNom(motCle);
             for (Domaine d : domaines) domainesContainer.getChildren().add(createDomaineCard(d));
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // ======================== SESSIONS ========================
@@ -318,14 +347,17 @@ public class HomeController {
             sessionsGrid.getChildren().clear();
             List<Session> sessions = sessionService.rechercherParNom(motCle);
             for (Session s : sessions) sessionsGrid.getChildren().add(createEnhancedSessionCard(s));
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // ======================== COACHS ========================
     private void chargerCoaches() throws SQLException {
         coachesContainer.getChildren().clear();
         List<Coach> coaches = coachService.afficherAll();
-        VBox coachesList = new VBox(15); coachesList.setPrefWidth(1200);
+        VBox coachesList = new VBox(15);
+        coachesList.setPrefWidth(1200);
         for (Coach c : coaches) coachesList.getChildren().add(createCoachListItem(c));
         coachesContainer.getChildren().add(coachesList);
     }
@@ -393,10 +425,13 @@ public class HomeController {
         try {
             coachesContainer.getChildren().clear();
             List<Coach> coaches = coachService.rechercherParNom(motCle);
-            VBox coachesList = new VBox(15); coachesList.setPrefWidth(1200);
+            VBox coachesList = new VBox(15);
+            coachesList.setPrefWidth(1200);
             for (Coach c : coaches) coachesList.getChildren().add(createCoachListItem(c));
             coachesContainer.getChildren().add(coachesList);
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // ======================== QR CODE ========================
@@ -441,6 +476,7 @@ public class HomeController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void handleGenerateQRCodeCoach() {
         Coach coach = coachComboBox.getValue();
@@ -451,7 +487,7 @@ public class HomeController {
                 "%s %s\n" +
                         "Email : %s\n" +
                         "Téléphone : %s\n" +
-                coach.getNom(),
+                        coach.getNom(),
                 coach.getPrenom(),
                 coach.getEmail(),
                 coach.getTelephone()
@@ -483,6 +519,7 @@ public class HomeController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void handleGenerateQRCodeSession() {
         Session session = sessionComboBox.getValue();
@@ -533,6 +570,7 @@ public class HomeController {
             e.printStackTrace();
         }
     }
+
     private void chargerComboBoxSessions() throws SQLException {
         sessionComboBox.getItems().clear();
         List<Session> sessions = sessionService.afficherAll();
@@ -548,6 +586,7 @@ public class HomeController {
             coachComboBox.getItems().add(c);
         }
     }
+
     @FXML
     private void handleOpenMap() {
         try {
@@ -567,11 +606,13 @@ public class HomeController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void handleCalendarClick(ActionEvent event) {
         System.out.println("Calendrier cliqué !");
         // Ici tu peux ouvrir une nouvelle fenêtre, afficher un calendrier, etc.
     }
+
     @FXML
     private void participerSession(ActionEvent event) {
 
@@ -589,6 +630,7 @@ public class HomeController {
             e.printStackTrace();
         }
     }
+
     private void ouvrirMeeting(Session session) {
         try {
             String roomName = "Session_" + session.getIdSession();
@@ -599,6 +641,60 @@ public class HomeController {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleNewAction(ActionEvent event) {
+        // Exemple simple : afficher un message dans la console
+        System.out.println("Nouveau bouton cliqué !");
+
+        // Tu peux ajouter ici ton code métier, par exemple ouvrir un popup, générer un QR, etc.
+    }
+
+    @FXML
+    private Button dashboardButton;
+
+    @FXML
+    private Button feedbackButton;
+
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    private void handleFeedbackClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Feedback.fxml"));
+            Parent root = loader.load();
+
+            // ⚡ Récupérer le controller
+            FeedbackController feedbackController = loader.getController();
+
+            // Exemple : récupérer la note ou le commentaire
+            // double rating = feedbackController.getRating();
+            // String comment = feedbackController.getComment();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    public void handleHomeClick(ActionEvent event) {
+        try {
+            // Charger le FXML de la page Home
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Home.fxml"));
+            Parent root = loader.load();
+
+            // Récupérer la scène actuelle et remplacer le contenu
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
