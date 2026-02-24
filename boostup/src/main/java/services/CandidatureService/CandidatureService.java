@@ -7,21 +7,29 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service CRUD pour la table candidature.
- * Méthodes utilisées par le front office :
- *   - addCandidature(c)
- *   - getAllCandidatures(onlyVisible)
- *   - updateCandidature(c)
- *   - hideCandidature(id)
- *   - getCandidatureById(id)
- */
 public class CandidatureService {
 
     private final Connection connection;
 
     public CandidatureService() {
         connection = MyDatabase.getInstance().getConnection();
+    }
+
+    // ────────────────────────── UNICITÉ ────────────────────────────────────
+    /**
+     * Vérifie si un nomCandidature existe déjà (en excluant un id pour l'update).
+     * @param nom        le nom à vérifier
+     * @param excludeId  id à exclure (0 pour un ajout, id réel pour un update)
+     */
+    public boolean existsNomCandidature(String nom, int excludeId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM candidature WHERE nomCandidature = ? AND idCandidature <> ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, nom);
+            ps.setInt(2, excludeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
     }
 
     // ────────────────────────── CREATE ─────────────────────────────────────
@@ -36,7 +44,7 @@ public class CandidatureService {
             ps.setString(2, c.getNomStartup());
             ps.setDate(3, c.getDateDepot());
             ps.setString(4, c.getStatut() != null ? c.getStatut() : "EN_ATTENTE");
-            ps.setObject(5, c.getScore());        // peut être null
+            ps.setObject(5, c.getScore());
             ps.setString(6, c.getCommentaire());
             ps.setInt(7, c.getIdStartup());
             ps.setBoolean(8, c.isVisible());
@@ -45,29 +53,18 @@ public class CandidatureService {
     }
 
     // ────────────────────────── READ ───────────────────────────────────────
-    /**
-     * Retourne toutes les candidatures, filtrées ou non par visible=1.
-     *
-     * @param onlyVisible true → WHERE visible = 1
-     */
     public List<Candidature> getAllCandidatures(boolean onlyVisible) throws SQLException {
         List<Candidature> list = new ArrayList<>();
         String sql = "SELECT * FROM candidature"
                 + (onlyVisible ? " WHERE visible = 1" : "")
                 + " ORDER BY dateDepot DESC";
-
         try (Statement stmt = connection.createStatement();
              ResultSet rs   = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(mapRow(rs));
-            }
+            while (rs.next()) list.add(mapRow(rs));
         }
         return list;
     }
 
-    /**
-     * Récupère une candidature par son identifiant.
-     */
     public Candidature getCandidatureById(int id) throws SQLException {
         String sql = "SELECT * FROM candidature WHERE idCandidature = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -80,19 +77,11 @@ public class CandidatureService {
     }
 
     // ────────────────────────── UPDATE ─────────────────────────────────────
-    /**
-     * Met à jour tous les champs éditables d'une candidature.
-     * Utilisé par le front office pour la modification inline.
-     */
     public void updateCandidature(Candidature c) throws SQLException {
         String sql = """
             UPDATE candidature
-            SET nomCandidature = ?,
-                nomStartup     = ?,
-                dateDepot      = ?,
-                statut         = ?,
-                score          = ?,
-                commentaire    = ?
+            SET nomCandidature = ?, nomStartup = ?, dateDepot = ?,
+                statut = ?, score = ?, commentaire = ?
             WHERE idCandidature = ?
             """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -100,7 +89,7 @@ public class CandidatureService {
             ps.setString(2, c.getNomStartup());
             ps.setDate(3, c.getDateDepot());
             ps.setString(4, c.getStatut());
-            ps.setObject(5, c.getScore());        // peut être null
+            ps.setObject(5, c.getScore());
             ps.setString(6, c.getCommentaire());
             ps.setInt(7, c.getIdCandidature());
             ps.executeUpdate();
@@ -108,9 +97,6 @@ public class CandidatureService {
     }
 
     // ────────────────────────── SOFT DELETE ────────────────────────────────
-    /**
-     * Cache une candidature (visible = 0) sans la supprimer.
-     */
     public void hideCandidature(int id) throws SQLException {
         String sql = "UPDATE candidature SET visible = 0 WHERE idCandidature = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -120,9 +106,6 @@ public class CandidatureService {
     }
 
     // ────────────────────────── HARD DELETE ────────────────────────────────
-    /**
-     * Suppression définitive (à utiliser uniquement depuis le back office).
-     */
     public void deleteCandidature(int id) throws SQLException {
         String sql = "DELETE FROM candidature WHERE idCandidature = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -139,11 +122,8 @@ public class CandidatureService {
         c.setNomStartup(rs.getString("nomStartup"));
         c.setDateDepot(rs.getDate("dateDepot"));
         c.setStatut(rs.getString("statut"));
-
-        // score : null en DB → null en Java (rs.getDouble retourne 0 si null)
         Object scoreObj = rs.getObject("score");
         c.setScore(scoreObj == null ? null : rs.getDouble("score"));
-
         c.setCommentaire(rs.getString("commentaire"));
         c.setIdStartup(rs.getInt("idStartup"));
         c.setVisible(rs.getBoolean("visible"));

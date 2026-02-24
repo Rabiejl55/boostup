@@ -15,7 +15,24 @@ public class DossierCandidatureService {
         connection = MyDatabase.getInstance().getConnection();
     }
 
-    // CREATE: Ajouter un dossier de candidature
+    // ────────────────────────── UNICITÉ ────────────────────────────────────
+    /**
+     * Vérifie si un nomDossier existe déjà.
+     * @param nom       le nom à vérifier
+     * @param excludeId id à exclure (0 pour ajout, id réel pour update)
+     */
+    public boolean existsNomDossier(String nom, int excludeId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM dossiercandidature WHERE nomDossier = ? AND idDossier <> ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, nom);
+            ps.setInt(2, excludeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    // ────────────────────────── CREATE ─────────────────────────────────────
     public void addDossier(DossierCandidature dossier) throws SQLException {
         String sql = "INSERT INTO dossiercandidature (nomDossier, descriptionProjet, businessPlan, dateCreation, etat, idCandidature, visible) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -30,11 +47,10 @@ public class DossierCandidatureService {
         }
     }
 
-    // READ: Lister tous les dossiers (avec JOIN pour nomCandidature au lieu d'idCandidature)
+    // ────────────────────────── READ ───────────────────────────────────────
     public List<DossierCandidature> getAllDossiers(boolean onlyVisible) throws SQLException {
         List<DossierCandidature> dossiers = new ArrayList<>();
-        String sql = "SELECT d.*, c.nomCandidature " +
-                "FROM dossiercandidature d " +
+        String sql = "SELECT d.*, c.nomCandidature FROM dossiercandidature d " +
                 "JOIN candidature c ON d.idCandidature = c.idCandidature" +
                 (onlyVisible ? " WHERE d.visible = 1" : "");
         try (Statement stmt = connection.createStatement();
@@ -47,8 +63,8 @@ public class DossierCandidatureService {
                 d.setBusinessPlan(rs.getString("businessPlan"));
                 d.setDateCreation(rs.getDate("dateCreation"));
                 d.setEtat(rs.getString("etat"));
-                d.setIdCandidature(rs.getInt("idCandidature"));  // Gardé pour logique interne
-                d.setNomCandidature(rs.getString("nomCandidature"));  // Nouveau champ pour affichage
+                d.setIdCandidature(rs.getInt("idCandidature"));
+                d.setNomCandidature(rs.getString("nomCandidature"));
                 d.setVisible(rs.getBoolean("visible"));
                 dossiers.add(d);
             }
@@ -56,9 +72,9 @@ public class DossierCandidatureService {
         return dossiers;
     }
 
-    // UPDATE: Mettre à jour un dossier (inclus pour CRUD complet)
+    // ────────────────────────── UPDATE ─────────────────────────────────────
     public void updateDossier(DossierCandidature dossier) throws SQLException {
-        String sql = "UPDATE dossiercandidature SET nomDossier = ?, descriptionProjet = ?, businessPlan = ?, dateCreation = ?, etat = ?, idCandidature = ?, visible = ? WHERE idDossier = ?";
+        String sql = "UPDATE dossiercandidature SET nomDossier=?, descriptionProjet=?, businessPlan=?, dateCreation=?, etat=?, idCandidature=?, visible=? WHERE idDossier=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, dossier.getNomDossier());
             ps.setString(2, dossier.getDescriptionProjet());
@@ -72,7 +88,7 @@ public class DossierCandidatureService {
         }
     }
 
-    // Cacher un dossier (soft delete)
+    // ────────────────────────── SOFT DELETE ────────────────────────────────
     public void hideDossier(int idDossier) throws SQLException {
         String sql = "UPDATE dossiercandidature SET visible = 0 WHERE idDossier = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -81,12 +97,10 @@ public class DossierCandidatureService {
         }
     }
 
-    // Optionnel : récupérer un dossier par ID (avec JOIN pour nomCandidature)
+    // ────────────────────────── GET BY ID ──────────────────────────────────
     public DossierCandidature getDossierById(int id) throws SQLException {
-        String sql = "SELECT d.*, c.nomCandidature " +
-                "FROM dossiercandidature d " +
-                "JOIN candidature c ON d.idCandidature = c.idCandidature " +
-                "WHERE d.idDossier = ?";
+        String sql = "SELECT d.*, c.nomCandidature FROM dossiercandidature d " +
+                "JOIN candidature c ON d.idCandidature = c.idCandidature WHERE d.idDossier = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {

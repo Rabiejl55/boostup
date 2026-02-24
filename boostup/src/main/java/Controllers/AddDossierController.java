@@ -6,10 +6,12 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import services.CandidatureService.CandidatureService;
 import services.CandidatureService.DossierCandidatureService;
 
+import java.io.File;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -19,11 +21,24 @@ import java.util.ResourceBundle;
 
 public class AddDossierController implements Initializable {
 
-    @FXML private TextField              tfNomDossier;
-    @FXML private ComboBox<Candidature>  cbCandidature;
-    @FXML private TextArea               taDescription;
-    @FXML private TextField              tfBusinessPlan;
-    @FXML private DatePicker             dpDateCreation;
+    @FXML private TextField             tfNomDossier;
+    @FXML private ComboBox<Candidature> cbCandidature;
+    @FXML private TextArea              taDescription;
+    @FXML private TextField             tfBusinessPlan;
+    @FXML private Button                btnParcourir;
+    @FXML private DatePicker            dpDateCreation;
+
+    @FXML private ProgressBar pbCompletude;
+    @FXML private Label       lblCompletude;
+    @FXML private Label       lblCountNom;
+    @FXML private Label       lblCountDescription;
+    @FXML private Label       lblCountBp;
+
+    private static final int MAX_NOM  = 100;
+    private static final int MIN_NOM  = 3;
+    private static final int MIN_DESC = 20;
+    private static final int MAX_DESC = 500;
+    private static final int MAX_BP   = 255;
 
     private final DossierCandidatureService service     = new DossierCandidatureService();
     private final CandidatureService        candService = new CandidatureService();
@@ -33,8 +48,12 @@ public class AddDossierController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         dpDateCreation.setValue(LocalDate.now());
 
+        // ✅ CORRECTION : false → charge TOUTES les candidatures sans filtre visible
+        // Ainsi les candidatures masquées du front (visible=0) sont quand même
+        // disponibles pour être associées à un dossier dans le back-office.
+        // Si vous voulez uniquement visible=1, remplacez false par true.
         try {
-            List<Candidature> cands = candService.getAllCandidatures(true);
+            List<Candidature> cands = candService.getAllCandidatures(false);
             cbCandidature.setItems(FXCollections.observableArrayList(cands));
         } catch (SQLException ex) {
             err("Erreur", "Impossible de charger les candidatures : " + ex.getMessage());
@@ -53,25 +72,161 @@ public class AddDossierController implements Initializable {
                         c.getNomCandidature() + "  —  " + c.getNomStartup());
             }
         });
+
+        setupCounter(tfNomDossier,   lblCountNom,         MAX_NOM);
+        setupCounter(taDescription,  lblCountDescription, MAX_DESC);
+        setupCounter(tfBusinessPlan, lblCountBp,          MAX_BP);
+
+        tfNomDossier.textProperty().addListener((o, old, val) -> {
+            if (val != null && val.length() > MAX_NOM) { tfNomDossier.setText(old); return; }
+            validateNomLive();
+            updateProgress();
+        });
+        taDescription.textProperty().addListener((o, old, val) -> {
+            if (val != null && val.length() > MAX_DESC) { taDescription.setText(old); return; }
+            updateProgress();
+        });
+        tfBusinessPlan.textProperty().addListener((o, old, val) -> {
+            if (val != null && val.length() > MAX_BP) { tfBusinessPlan.setText(old); return; }
+            validateBpLive();
+            updateProgress();
+        });
+        cbCandidature.valueProperty().addListener((o, a, b)  -> updateProgress());
+        dpDateCreation.valueProperty().addListener((o, a, b) -> updateProgress());
+
+        updateProgress();
+    }
+
+    @FXML
+    private void browseFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir un fichier Business Plan");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Fichiers PDF",    "*.pdf"),
+                new FileChooser.ExtensionFilter("Documents Word",  "*.docx", "*.doc"),
+                new FileChooser.ExtensionFilter("Présentations",   "*.pptx"),
+                new FileChooser.ExtensionFilter("Tous les fichiers","*.*")
+        );
+        Stage stage = (Stage) tfBusinessPlan.getScene().getWindow();
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            tfBusinessPlan.setText(file.getAbsolutePath());
+            tfBusinessPlan.setStyle("-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
+        }
+    }
+
+    private void updateProgress() {
+        int score = 0;
+        if (tfNomDossier.getText()    != null && tfNomDossier.getText().trim().length()    >= MIN_NOM)  score++;
+        if (cbCandidature.getValue()  != null)                                                           score++;
+        // Description optionnelle → non comptée dans la progression
+        if (tfBusinessPlan.getText()  != null && !tfBusinessPlan.getText().trim().isEmpty())             score++;
+        if (dpDateCreation.getValue() != null)                                                           score++;
+
+        double ratio = score / 4.0; // 4 champs obligatoires (description optionnelle)
+        if (pbCompletude != null) {
+            pbCompletude.setProgress(ratio);
+            pbCompletude.setStyle(ratio < 0.4 ? "-fx-accent:#e63946;" :
+                    ratio < 0.8 ? "-fx-accent:#f59e0b;" : "-fx-accent:#10b981;");
+        }
+        if (lblCompletude != null) {
+            lblCompletude.setText("Complétude : " + (int)(ratio * 100) + "%");
+            lblCompletude.setStyle(ratio < 0.4 ? "-fx-text-fill:#e63946; -fx-font-weight:bold;" :
+                    ratio < 0.8 ? "-fx-text-fill:#f59e0b; -fx-font-weight:bold;" :
+                            "-fx-text-fill:#10b981; -fx-font-weight:bold;");
+        }
+    }
+
+    private void validateNomLive() {
+        String val = tfNomDossier.getText();
+        if (val == null || val.trim().isEmpty())
+            tfNomDossier.setStyle("");
+        else if (val.trim().length() < MIN_NOM)
+            tfNomDossier.setStyle("-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
+        else
+            tfNomDossier.setStyle("-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
+    }
+
+    private void validateBpLive() {
+        String val = tfBusinessPlan.getText();
+        if (val == null || val.trim().isEmpty()) { tfBusinessPlan.setStyle(""); return; }
+        boolean ok = new File(val).exists()
+                || val.startsWith("http://") || val.startsWith("https://")
+                || val.matches("(?i).*\\.(pdf|docx|doc|pptx|xlsx)$");
+        tfBusinessPlan.setStyle(ok
+                ? "-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;"
+                : "-fx-border-color:#f59e0b; -fx-border-width:2; -fx-border-radius:8;");
+    }
+
+    private void setupCounter(TextField tf, Label lbl, int max) {
+        if (lbl == null) return;
+        lbl.setText("0/" + max);
+        tf.textProperty().addListener((o, a, b) -> {
+            int len = b == null ? 0 : b.length();
+            lbl.setText(len + "/" + max);
+            lbl.setStyle(len == 0      ? "-fx-text-fill:#9ca3af;" :
+                    len < max / 2 ? "-fx-text-fill:#f59e0b;" : "-fx-text-fill:#10b981;");
+        });
+    }
+
+    private void setupCounter(TextArea ta, Label lbl, int max) {
+        if (lbl == null) return;
+        lbl.setText("0/" + max);
+        ta.textProperty().addListener((o, a, b) -> {
+            int len = b == null ? 0 : b.length();
+            lbl.setText(len + "/" + max);
+            lbl.setStyle(len == 0      ? "-fx-text-fill:#9ca3af;" :
+                    len < max / 2 ? "-fx-text-fill:#f59e0b;" : "-fx-text-fill:#10b981;");
+        });
     }
 
     @FXML private void save() {
-        String nom  = tfNomDossier.getText()  == null ? "" : tfNomDossier.getText().trim();
-        String desc = taDescription.getText() == null ? "" : taDescription.getText().trim();
+        String nom  = tfNomDossier.getText()   == null ? "" : tfNomDossier.getText().trim();
+        String desc = taDescription.getText()  == null ? "" : taDescription.getText().trim();
+        String bp   = tfBusinessPlan.getText() == null ? "" : tfBusinessPlan.getText().trim();
 
-        if (nom.isEmpty())  { highlight(tfNomDossier);  err("Requis", "Nom du dossier obligatoire."); return; }
-        if (cbCandidature.getValue() == null) { err("Requis", "Sélectionnez une candidature."); return; }
-        if (desc.isEmpty()) { err("Requis", "Description obligatoire."); return; }
-        if (dpDateCreation.getValue() == null) { err("Requis", "Date obligatoire."); return; }
+        // Tous les champs obligatoires
+        if (nom.isEmpty())                       { highlight(tfNomDossier);   err("Champ obligatoire", "Le nom du dossier est requis."); return; }
+        if (cbCandidature.getValue() == null)    {                             err("Champ obligatoire", "Veuillez sélectionner une candidature."); return; }
+        // Description optionnelle
+        if (bp.isEmpty())                        { highlight(tfBusinessPlan); err("Champ obligatoire", "Le Business Plan est requis (fichier PDF ou URL)."); return; }
+        if (dpDateCreation.getValue() == null)   {                             err("Champ obligatoire", "La date de création est requise."); return; }
 
+        // Longueurs minimales
+        if (nom.length() < MIN_NOM)              { highlight(tfNomDossier); err("Champ invalide", "Le nom doit contenir au moins " + MIN_NOM + " caractères."); return; }
+        // Pas de longueur minimale pour la description
+
+        // Validation Business Plan
+        boolean isFile = new File(bp).exists();
+        boolean isUrl  = bp.startsWith("http://") || bp.startsWith("https://");
+        boolean isExt  = bp.matches("(?i).*\\.(pdf|docx|doc|pptx|xlsx)$");
+        if (!isFile && !isUrl && !isExt) {
+            highlight(tfBusinessPlan);
+            err("Business Plan invalide", "Choisissez un fichier via 'Parcourir' ou entrez une URL valide (http/https).");
+            return;
+        }
+
+        // Unicité nomDossier
+        try {
+            if (service.existsNomDossier(nom, 0)) {
+                highlight(tfNomDossier);
+                err("Nom déjà utilisé", "Un dossier avec ce nom existe déjà.");
+                return;
+            }
+        } catch (SQLException ex) {
+            err("Erreur", "Impossible de vérifier l'unicité : " + ex.getMessage());
+            return;
+        }
+
+        // Sauvegarde — visible toujours = true
         DossierCandidature d = new DossierCandidature();
         d.setNomDossier(nom);
         d.setIdCandidature(cbCandidature.getValue().getIdCandidature());
         d.setDescriptionProjet(desc);
-        d.setBusinessPlan(tfBusinessPlan.getText() == null ? "" : tfBusinessPlan.getText().trim());
+        d.setBusinessPlan(bp);
         d.setDateCreation(Date.valueOf(dpDateCreation.getValue()));
         d.setEtat("INCOMPLET");
-        d.setVisible(true);
+        d.setVisible(true); // ✅ toujours visible=1 à la création
 
         try {
             service.addDossier(d);
@@ -82,15 +237,19 @@ public class AddDossierController implements Initializable {
         }
     }
 
-    @FXML private void close() { ((Stage) tfNomDossier.getScene().getWindow()).close(); }
+    @FXML private void close() {
+        ((Stage) tfNomDossier.getScene().getWindow()).close();
+    }
 
     public boolean isSaved() { return saved; }
 
     private void highlight(TextField tf) {
-        tf.setStyle("-fx-border-color:#e63946;-fx-border-width:2;-fx-border-radius:8;");
+        tf.setStyle("-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
         tf.textProperty().addListener((o, a, b) -> tf.setStyle(""));
     }
+
     private void err(String t, String m) {
-        Alert a = new Alert(Alert.AlertType.WARNING); a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait();
+        Alert a = new Alert(Alert.AlertType.WARNING);
+        a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait();
     }
 }

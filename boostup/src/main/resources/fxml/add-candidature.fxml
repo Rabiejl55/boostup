@@ -30,7 +30,7 @@
             <DatePicker fx:id="dpDate" styleClass="dialog-dp" maxWidth="Infinity"/>
         </VBox>
         <VBox spacing="6">
-            <Label text="Commentaire  (optionnel)" styleClass="field-label"/>
+            <Label text="Commentaire " styleClass="field-label"/>
             <TextArea fx:id="taComment" styleClass="dialog-ta" promptText="Décrivez votre projet…"
                       prefRowCount="3" wrapText="true"/>
         </VBox>

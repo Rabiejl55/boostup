@@ -30,22 +30,22 @@
     <HBox spacing="16">
         <VBox spacing="5">
             <Label styleClass="form-label" text="Innovation" />
-            <TextField fx:id="noteInnovationField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+            <TextField fx:id="noteInnovationField" promptText="0-10" prefWidth="185" styleClass="form-input" />
         </VBox>
         <VBox spacing="5">
             <Label styleClass="form-label" text="Viabilité" />
-            <TextField fx:id="noteViabiliteField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+            <TextField fx:id="noteViabiliteField" promptText="0-10" prefWidth="185" styleClass="form-input" />
         </VBox>
     </HBox>
 
     <HBox spacing="16">
         <VBox spacing="5">
             <Label styleClass="form-label" text="Marché" />
-            <TextField fx:id="noteMarcheField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+            <TextField fx:id="noteMarcheField" promptText="0-10" prefWidth="185" styleClass="form-input" />
         </VBox>
         <VBox spacing="5">
             <Label styleClass="form-label" text="Équipe" />
-            <TextField fx:id="noteEquipeField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+            <TextField fx:id="noteEquipeField" promptText="0-10" prefWidth="185" styleClass="form-input" />
         </VBox>
     </HBox>
 

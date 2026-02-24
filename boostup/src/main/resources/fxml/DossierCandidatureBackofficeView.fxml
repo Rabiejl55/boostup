@@ -12,7 +12,7 @@
     <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="15">
         <Label styleClass="logo-label" text="🚀 BoostUp" />
         <Label styleClass="logo-label" text="›" style="-fx-opacity: 0.6;" />
-        <Label styleClass="logo-label" text="Dossiers de Candidature" />
+        <Label styleClass="logo-label" text="Dossiers des Candidatures" />
     </HBox>
 
     <!-- Contenu principal -->
@@ -20,7 +20,7 @@
 
         <!-- En-tête de section -->
         <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label styleClass="page-title" text="Dossiers de Candidature" />
+            <Label styleClass="page-title" text="Dossiers des Candidatures" />
             <HBox HBox.hgrow="ALWAYS" />
         </HBox>
 
