@@ -41,6 +41,10 @@
                                 <Label fx:id="badgeStatut" text="STATUT" styleClass="badge badge-status"/>
                                 <Label fx:id="badgeNote" text="⭐ —" styleClass="badge badge-note"/>
                             </HBox>
+                            <!-- 🌤️ MÉTÉO -->
+                            <Label fx:id="lblMeteo" text="🌤️ Chargement météo..."
+                                   style="-fx-text-fill: #6c757d; -fx-font-size: 13px; -fx-padding: 5 10;
+                                          -fx-background-color: rgba(108,117,125,0.08); -fx-background-radius: 8;"/>
                         </VBox>
 
                         <Separator opacity="0.35"/>

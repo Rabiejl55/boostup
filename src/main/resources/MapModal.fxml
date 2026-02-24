@@ -33,6 +33,8 @@
             <Button text="← Retour" onAction="#handleClose" styleClass="btn-secondary"
                     style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 13px; -fx-font-weight: 600; -fx-cursor: hand;"/>
             <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnMeteo" text="🌤️ Météo" onAction="#handleMeteo" styleClass="btn-primary"
+                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 13px; -fx-font-weight: 600; -fx-cursor: hand;"/>
             <Button fx:id="btnOpenExternal" text="Ouvrir dans Maps" onAction="#handleOpenExternal" styleClass="btn-primary"
                     style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 13px; -fx-font-weight: 600; -fx-cursor: hand;"/>
         </HBox>

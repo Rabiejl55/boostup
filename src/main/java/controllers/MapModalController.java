@@ -14,6 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import services.WeatherService;
+import services.WeatherService.WeatherData;
 import utils.maps.TileMapBuilder;
 
 import java.awt.*;
@@ -32,9 +34,11 @@ public class MapModalController implements Initializable {
     @FXML private ProgressIndicator progress;
     @FXML private Label lblSubtitle;
     @FXML private Button btnOpenExternal;
+    @FXML private Button btnMeteo;
 
     private Runnable onClose;
     private String externalUrl;
+    private String currentLieu; // Pour la météo
 
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(6))
@@ -264,6 +268,77 @@ public class MapModalController implements Initializable {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    /**
+     * 🌤️ NOUVELLE MÉTHODE : Affiche la météo du lieu
+     */
+    @FXML
+    private void handleMeteo() {
+        if (currentLieu == null || currentLieu.trim().isEmpty()) {
+            showMeteoInfo("Météo", "⚠️ Lieu non défini");
+            return;
+        }
+
+        // Récupération de la météo
+        WeatherData meteo = WeatherService.getMeteo(currentLieu);
+
+        if (meteo.isSuccess()) {
+            String emoji = WeatherService.getEmojiMeteo(meteo.getIcon());
+            String message = String.format(
+                "%s MÉTÉO DE %s\n\n" +
+                "%s Température : %s\n" +
+                "☁️ Conditions  : %s\n\n" +
+                "💡 Conseil : %s",
+                emoji,
+                currentLieu.toUpperCase(),
+                emoji,
+                meteo.getTemperature(),
+                meteo.getDescription(),
+                getMeteoAdvice(meteo.getIcon())
+            );
+            showMeteoInfo("Météo - " + currentLieu, message);
+        } else {
+            showMeteoInfo("Météo", "❌ " + meteo.getDescription() + "\n\nVille recherchée : " + currentLieu);
+        }
+    }
+
+    /**
+     * 💡 Donne un conseil selon la météo
+     */
+    private String getMeteoAdvice(String icon) {
+        if (icon == null) return "Profitez de votre événement !";
+
+        String code = icon.substring(0, 2);
+        switch (code) {
+            case "01": return "Parfait pour un événement en extérieur ! ☀️";
+            case "02": return "Beau temps prévu, idéal ! 🌤️";
+            case "03":
+            case "04": return "Nuageux mais aucun souci ! ⛅";
+            case "09":
+            case "10": return "N'oubliez pas votre parapluie ! ☂️";
+            case "11": return "Attention aux orages, prévoyez un plan B ! ⛈️";
+            case "13": return "Il va neiger, habillez-vous chaudement ! ❄️";
+            case "50": return "Brouillard possible, soyez prudents ! 🌫️";
+            default: return "Profitez de votre événement !";
+        }
+    }
+
+    /**
+     * Définit le lieu pour la météo
+     */
+    public void setLieu(String lieu) {
+        this.currentLieu = lieu;
+    }
+
+    private void showMeteoInfo(String title, String message) {
+        Platform.runLater(() -> {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 
     @Override

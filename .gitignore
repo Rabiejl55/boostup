@@ -35,6 +35,12 @@ build/
 .vscode/
 
 ### Mac OS ###
-.DS_Store
-
-src/main/resources/lib/*.exe*.exe
+.DS_Store*.exe
+target/
+.idea/
+*.exe
+target/
+.idea/
+*.exe
+target/
+.idea/

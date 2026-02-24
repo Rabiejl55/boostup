@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.GEvenement.Evenement;
 import entities.GEvenement.EvenementFX;
 import entities.GEvenement.Participation;
 import javafx.animation.PauseTransition;
@@ -10,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
 import services.EvenementService.ParticipationService;
+import services.EmailService;
 
 import java.net.URL;
 import java.sql.Date;
@@ -80,12 +82,31 @@ public class ParticipationFrontModalController implements Initializable {
         try {
             ps.ajouter(p);
 
+            // 📧 ENVOI AUTOMATIQUE DE L'EMAIL DE BIENVENUE
+            System.out.println("✅ Participation ajoutée, envoi de l'email de bienvenue...");
+
+            // Conversion EvenementFX -> Evenement pour EmailService
+            Evenement eventForEmail = new Evenement();
+            eventForEmail.setTitre(evenement.getTitre());
+            eventForEmail.setType(evenement.getType());
+            eventForEmail.setDateEvenement(evenement.getDateEvenement());
+            eventForEmail.setLieu(evenement.getLieu());
+            eventForEmail.setDescription(evenement.getDescription());
+            eventForEmail.setCapaciteMax(evenement.getCapaciteMax());
+
+            // Nom utilisateur = nom startup + investisseur
+            String nomUtilisateur = tfStartup.getText().trim() + " / " + tfInvestisseur.getText().trim();
+
+            // Envoi email (thread asynchrone, ne bloque pas l'UI)
+            EmailService.envoyerEmailBienvenue(eventForEmail, nomUtilisateur, null);
+
             // Message de félicitations (alerte système)
             String dateEv = evenement.getDateEvenement() == null ? "-" : evenement.getDateEvenement().toString();
             String lieuEv = (evenement.getLieu() == null || evenement.getLieu().trim().isEmpty()) ? "(lieu non précisé)" : evenement.getLieu().trim();
 
             showSystemInfo(
-                    "🎉 Félicitations !\n\nOn se voit le " + dateEv + " au " + lieuEv + " inchallah 🙂👋"
+                    "🎉 Félicitations !\n\nOn se voit le " + dateEv + " au " + lieuEv + " inchallah 🙂👋\n\n" +
+                    "📧 Un email de confirmation a été envoyé à rayen.amri@esprit.tn"
             );
 
             // Fermer après 600ms (laisse le temps au système de rendre l'UI). L'alerte est modale.

@@ -21,6 +21,8 @@ import javafx.util.Duration;
 import services.ai.PollinationsPosterService;
 import services.ai.LocalPosterGenerator;
 import services.maps.GeocodingService;
+import services.WeatherService;
+import services.WeatherService.WeatherData;
 import utils.QrCodeUtils;
 import utils.maps.LocationParser;
 import utils.maps.MapHtmlBuilder;
@@ -57,6 +59,7 @@ public class EventDetailPremiumController implements Initializable {
 
     @FXML private Label badgeStatut;
     @FXML private Label badgeNote;
+    @FXML private Label lblMeteo; // Météo de l'événement
 
     // Affiche générée (Pollinations)
     @FXML private ProgressIndicator piPoster;
@@ -164,6 +167,9 @@ public class EventDetailPremiumController implements Initializable {
             Image img = loadImage(e.getImage());
             imgEvent.setImage(img);
         }
+
+        // 🌤️ MÉTÉO - Récupération asynchrone
+        chargerMeteo(e.getLieu());
 
         // reset poster à chaque ouverture
         lastPoster = null;
@@ -420,6 +426,11 @@ public class EventDetailPremiumController implements Initializable {
             controller.setSubtitle(subtitle);
             controller.loadUrl(urlToLoad, externalUrl);
 
+            // 🌤️ NOUVEAU : Passer le lieu pour la météo
+            if (current != null && current.getLieu() != null) {
+                controller.setLieu(current.getLieu());
+            }
+
             StackPane root = (StackPane) lblTitre.getScene().getRoot();
             StackPane overlay = buildSimpleOverlay(root, modal);
             controller.setOnClose(() -> root.getChildren().remove(overlay));
@@ -635,5 +646,53 @@ public class EventDetailPremiumController implements Initializable {
     private String safeFileName(String s) {
         if (s == null || s.isBlank()) return "evenement";
         return s.replaceAll("[\\\\/:*?\"<>|]", "-").trim();
+    }
+
+    /**
+     * 🌤️ Charge la météo de manière asynchrone
+     */
+    private void chargerMeteo(String lieu) {
+        if (lblMeteo == null) return;
+
+        // Affichage temporaire
+        Platform.runLater(() -> lblMeteo.setText("🌤️ Chargement météo..."));
+
+        // Récupération asynchrone pour ne pas bloquer l'UI
+        CompletableFuture.supplyAsync(() -> WeatherService.getMeteo(lieu))
+            .thenAccept(meteo -> Platform.runLater(() -> {
+                if (meteo.isSuccess()) {
+                    String emoji = WeatherService.getEmojiMeteo(meteo.getIcon());
+                    String texte = String.format("%s %s • %s",
+                        emoji,
+                        meteo.getTemperature(),
+                        meteo.getDescription()
+                    );
+                    lblMeteo.setText(texte);
+
+                    // Style selon la météo
+                    lblMeteo.setStyle(
+                        "-fx-text-fill: #0d6efd; " +
+                        "-fx-font-weight: 600; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-color: rgba(13,110,253,0.08); " +
+                        "-fx-padding: 8 15; " +
+                        "-fx-background-radius: 10;"
+                    );
+                } else {
+                    lblMeteo.setText("🌤️ Météo non disponible");
+                    lblMeteo.setStyle(
+                        "-fx-text-fill: #6c757d; " +
+                        "-fx-font-size: 12px; " +
+                        "-fx-font-style: italic;"
+                    );
+                }
+            }))
+            .exceptionally(e -> {
+                Platform.runLater(() -> {
+                    lblMeteo.setText("🌤️ —");
+                    lblMeteo.setStyle("-fx-text-fill: #adb5bd; -fx-font-size: 12px;");
+                });
+                return null;
+            });
     }
 }

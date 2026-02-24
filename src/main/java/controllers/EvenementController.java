@@ -3,6 +3,7 @@ package controllers;
 import entities.GEvenement.Evenement;
 import entities.GEvenement.EvenementFX;
 import services.EvenementService.EvenementService;
+import services.SmsService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -331,7 +332,28 @@ public class EvenementController implements Initializable {
         }
 
         try {
+            // 🗑️ Suppression en base de données
             es.supprimer(selected.getId());
+
+            // 📱 ENVOI SMS D'ANNULATION (si Twilio configuré)
+            if (SmsService.estConfigurer()) {
+                System.out.println("📱 Envoi du SMS d'annulation...");
+                // Créer objet Evenement depuis EvenementFX pour passer au service SMS
+                Evenement evt = new Evenement(
+                    selected.getId(),
+                    selected.getTitre(),
+                    selected.getType(),
+                    selected.getDateEvenement(), // Méthode correcte
+                    selected.getLieu(),
+                    selected.getDescription(),
+                    selected.getCapaciteMax(), // Méthode correcte
+                    selected.getImage()
+                );
+                SmsService.envoyerSmsAnnulation(evt);
+            } else {
+                System.out.println("⚠️ SMS non configuré - configure Twilio dans SmsService.java");
+            }
+
             refreshTable();
             clearForm();
 
