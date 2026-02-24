@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.CandidatureFrontController"
+      styleClass="view-root" spacing="0">
+
+    <!-- ── TOP BAR DE VUE ── -->
+    <HBox styleClass="view-topbar" alignment="CENTER_LEFT" spacing="16">
+        <padding><Insets top="20" right="32" bottom="20" left="32"/></padding>
+
+        <VBox spacing="2">
+            <Label text="Candidatures" styleClass="view-title"/>
+            <Label text="Gérez et suivez toutes vos candidatures" styleClass="view-subtitle"/>
+        </VBox>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <!-- Chips stats -->
+        <HBox spacing="8" alignment="CENTER">
+            <HBox styleClass="chip chip-orange" alignment="CENTER" spacing="6">
+                <Label fx:id="lblEnAttente" text="0" styleClass="chip-num"/>
+                <Label text="En attente" styleClass="chip-label"/>
+            </HBox>
+            <HBox styleClass="chip chip-green" alignment="CENTER" spacing="6">
+                <Label fx:id="lblValidees" text="0" styleClass="chip-num"/>
+                <Label text="Validées" styleClass="chip-label"/>
+            </HBox>
+            <HBox styleClass="chip chip-red" alignment="CENTER" spacing="6">
+                <Label fx:id="lblRefusees" text="0" styleClass="chip-num"/>
+                <Label text="Refusées" styleClass="chip-label"/>
+            </HBox>
+        </HBox>
+
+        <!-- Séparateur -->
+        <Separator orientation="VERTICAL" styleClass="topbar-sep"/>
+
+        <!-- Filtre + Recherche + Ajouter -->
+        <ComboBox fx:id="cbFilter" styleClass="view-combo" promptText="Tous" prefWidth="140"/>
+        <TextField fx:id="tfSearch" styleClass="view-search" promptText="🔍  Rechercher…" prefWidth="200"/>
+        <Button fx:id="btnAdd" text="＋  Nouvelle" styleClass="btn-primary" onAction="#openAddDialog"/>
+    </HBox>
+
+    <!-- ── CARTES ── -->
+    <ScrollPane fitToWidth="true" styleClass="view-scroll" VBox.vgrow="ALWAYS">
+        <FlowPane fx:id="cardsFlowPane" hgap="20" vgap="20" alignment="TOP_LEFT">
+            <padding><Insets top="24" right="28" bottom="32" left="28"/></padding>
+        </FlowPane>
+    </ScrollPane>
+
+</VBox>

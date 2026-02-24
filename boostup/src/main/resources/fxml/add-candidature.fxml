@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AddCandidatureController"
+      styleClass="dialog-root" spacing="0">
+
+    <VBox styleClass="dialog-header" spacing="4">
+        <padding><Insets top="28" right="32" bottom="22" left="32"/></padding>
+        <Label text="✦  Nouvelle Candidature" styleClass="dialog-title"/>
+        <Label text="Soumettez votre dossier de candidature" styleClass="dialog-subtitle"/>
+    </VBox>
+
+    <VBox styleClass="dialog-body" spacing="16" VBox.vgrow="ALWAYS">
+        <padding><Insets top="24" right="32" bottom="16" left="32"/></padding>
+
+        <VBox spacing="6">
+            <Label text="Nom du candidat  *" styleClass="field-label"/>
+            <TextField fx:id="tfNomCandidature" styleClass="dialog-input" promptText="Ex : Jean Dupont"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Nom de la startup  *" styleClass="field-label"/>
+            <TextField fx:id="tfNomStartup" styleClass="dialog-input" promptText="Ex : TechVision SAS"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Date de dépôt  *" styleClass="field-label"/>
+            <DatePicker fx:id="dpDate" styleClass="dialog-dp" maxWidth="Infinity"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Commentaire  (optionnel)" styleClass="field-label"/>
+            <TextArea fx:id="taComment" styleClass="dialog-ta" promptText="Décrivez votre projet…"
+                      prefRowCount="3" wrapText="true"/>
+        </VBox>
+
+        <HBox styleClass="info-note" spacing="8" alignment="CENTER_LEFT">
+            <padding><Insets top="4" right="12" bottom="4" left="12"/></padding>
+            <Label text="ℹ  Le score et le statut sont gérés par le back-office après évaluation."
+                   styleClass="info-note-text" wrapText="true"/>
+        </HBox>
+    </VBox>
+
+    <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER_RIGHT">
+        <padding><Insets top="14" right="32" bottom="22" left="32"/></padding>
+        <Button text="Annuler" styleClass="btn-ghost" onAction="#close"/>
+        <Button text="✓  Soumettre" styleClass="btn-primary" onAction="#save"/>
+    </HBox>
+</VBox>

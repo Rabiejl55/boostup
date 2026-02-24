@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AddDossierController"
+      styleClass="dialog-root" spacing="0">
+
+    <VBox styleClass="dialog-header" spacing="4">
+        <padding><Insets top="28" right="32" bottom="22" left="32"/></padding>
+        <Label text="📁  Nouveau Dossier de Candidature" styleClass="dialog-title"/>
+        <Label text="Associez un dossier complet à une candidature existante" styleClass="dialog-subtitle"/>
+    </VBox>
+
+    <VBox styleClass="dialog-body" spacing="16" VBox.vgrow="ALWAYS">
+        <padding><Insets top="22" right="32" bottom="16" left="32"/></padding>
+
+        <VBox spacing="6">
+            <Label text="1 · Nom du dossier  *" styleClass="field-label"/>
+            <TextField fx:id="tfNomDossier" styleClass="dialog-input" promptText="Ex : Dossier TechVision 2026"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="2 · Candidature associée  *" styleClass="field-label"/>
+            <ComboBox fx:id="cbCandidature" styleClass="dialog-combo" maxWidth="Infinity"
+                      promptText="Choisissez la candidature…"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="3 · Description du projet  *" styleClass="field-label"/>
+            <TextArea fx:id="taDescription" styleClass="dialog-ta"
+                      promptText="Décrivez votre projet, ses objectifs…"
+                      prefRowCount="4" wrapText="true"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="4 · Business Plan  (nom de fichier ou lien)" styleClass="field-label"/>
+            <TextField fx:id="tfBusinessPlan" styleClass="dialog-input"
+                       promptText="Ex : business_plan_2026.pdf"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="5 · Date de création  *" styleClass="field-label"/>
+            <DatePicker fx:id="dpDateCreation" styleClass="dialog-dp" maxWidth="Infinity"/>
+        </VBox>
+
+        <HBox styleClass="info-note" spacing="8" alignment="CENTER_LEFT">
+            <padding><Insets top="4" right="12" bottom="4" left="12"/></padding>
+            <Label text="ℹ  L'état sera « INCOMPLET » par défaut, mis à jour par le back-office."
+                   styleClass="info-note-text" wrapText="true"/>
+        </HBox>
+    </VBox>
+
+    <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER_RIGHT">
+        <padding><Insets top="14" right="32" bottom="22" left="32"/></padding>
+        <Button text="Annuler" styleClass="btn-ghost" onAction="#close"/>
+        <Button text="✓  Créer le dossier" styleClass="btn-primary" onAction="#save"/>
+    </HBox>
+</VBox>

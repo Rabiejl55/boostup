@@ -8,36 +8,64 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="450.0" prefWidth="450.0" spacing="12.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<VBox prefHeight="480.0" prefWidth="460.0" spacing="10.0" styleClass="white-bg"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.EvaluationFormController">
-    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+    <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
-    <Label text="Candidature" style="-fx-font-weight: bold;"/>
-    <ComboBox fx:id="candidatureComboBox" promptText="Sélectionnez une candidature" prefWidth="350"/>
+    <!-- Titre du formulaire -->
+    <Label styleClass="section-title" text="📝 Formulaire d'Évaluation" />
 
-    <Label text="Nom de l'évaluation" style="-fx-font-weight: bold;"/>
-    <TextField fx:id="nomEvaluationField" promptText="Ex: Évaluation Q1 2026" prefWidth="350"/>
+    <!-- Candidature -->
+    <Label styleClass="form-label" text="Candidature *" />
+    <ComboBox fx:id="candidatureComboBox" promptText="Sélectionnez une candidature"
+              prefWidth="400" styleClass="form-input" />
 
-    <Label text="Note Innovation"/>
-    <TextField fx:id="noteInnovationField"/>
+    <!-- Nom évaluation -->
+    <Label styleClass="form-label" text="Nom de l'évaluation *" />
+    <TextField fx:id="nomEvaluationField" promptText="Ex: Évaluation Q1 2026"
+               prefWidth="400" styleClass="form-input" />
 
-    <Label text="Note Viabilité"/>
-    <TextField fx:id="noteViabiliteField"/>
+    <!-- Notes -->
+    <HBox spacing="16">
+        <VBox spacing="5">
+            <Label styleClass="form-label" text="Innovation" />
+            <TextField fx:id="noteInnovationField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+        </VBox>
+        <VBox spacing="5">
+            <Label styleClass="form-label" text="Viabilité" />
+            <TextField fx:id="noteViabiliteField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+        </VBox>
+    </HBox>
 
-    <Label text="Note Marché"/>
-    <TextField fx:id="noteMarcheField"/>
+    <HBox spacing="16">
+        <VBox spacing="5">
+            <Label styleClass="form-label" text="Marché" />
+            <TextField fx:id="noteMarcheField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+        </VBox>
+        <VBox spacing="5">
+            <Label styleClass="form-label" text="Équipe" />
+            <TextField fx:id="noteEquipeField" promptText="0-20" prefWidth="185" styleClass="form-input" />
+        </VBox>
+    </HBox>
 
-    <Label text="Note Équipe"/>
-    <TextField fx:id="noteEquipeField"/>
+    <!-- Champs auto-calculés -->
+    <HBox spacing="16">
+        <VBox spacing="5">
+            <Label styleClass="form-label" text="Note Globale (auto)" />
+            <TextField fx:id="noteGlobaleField" editable="false" prefWidth="185"
+                       styleClass="form-input" style="-fx-background-color: #f8f9fa;" />
+        </VBox>
+        <VBox spacing="5">
+            <Label styleClass="form-label" text="Décision (auto)" />
+            <TextField fx:id="decisionField" editable="false" prefWidth="185"
+                       styleClass="form-input" style="-fx-background-color: #f8f9fa;" />
+        </VBox>
+    </HBox>
 
-    <Label text="Note Globale"/>
-    <TextField fx:id="noteGlobaleField" editable="false"/>
-
-    <Label text="Décision"/>
-    <TextField fx:id="decisionField" editable="false"/>
-
-    <HBox spacing="15.0" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
-        <Button text="Sauvegarder" onAction="#saveEvaluation" prefWidth="120"/>
-        <Button text="Annuler" onAction="#closeForm" prefWidth="120"/>
+    <!-- Boutons -->
+    <HBox spacing="15" alignment="CENTER" style="-fx-padding: 15 0 0 0;">
+        <Button text="💾 Sauvegarder" styleClass="btn-add" onAction="#saveEvaluation" prefWidth="160" />
+        <Button text="Annuler" styleClass="secondary-button" onAction="#closeForm" prefWidth="120" />
     </HBox>
 </VBox>
