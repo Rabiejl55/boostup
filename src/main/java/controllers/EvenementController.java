@@ -3,7 +3,8 @@ package controllers;
 import entities.GEvenement.Evenement;
 import entities.GEvenement.EvenementFX;
 import services.EvenementService.EvenementService;
-import services.SmsService;
+import services.TelegramService;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -15,6 +16,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.scene.control.TextFormatter;
 import javafx.stage.FileChooser;
@@ -69,6 +72,7 @@ public class EvenementController implements Initializable {
     @FXML private Button btnActualiser;
     @FXML private Button btnParticipation;
     @FXML private Button btnExportCsv;
+    @FXML private Button btnRecommendationIA;
 
     // === SERVICES & DONNÉES ===
     private EvenementService es = new EvenementService();
@@ -335,23 +339,24 @@ public class EvenementController implements Initializable {
             // 🗑️ Suppression en base de données
             es.supprimer(selected.getId());
 
-            // 📱 ENVOI SMS D'ANNULATION (si Twilio configuré)
-            if (SmsService.estConfigurer()) {
-                System.out.println("📱 Envoi du SMS d'annulation...");
-                // Créer objet Evenement depuis EvenementFX pour passer au service SMS
+            // 📱 ENVOI NOTIFICATION TELEGRAM (si configuré)
+            if (TelegramService.estConfigurer()) {
+                System.out.println("📱 Envoi de la notification Telegram...");
+                // Créer objet Evenement depuis EvenementFX pour passer au service Telegram
                 Evenement evt = new Evenement(
                     selected.getId(),
                     selected.getTitre(),
                     selected.getType(),
-                    selected.getDateEvenement(), // Méthode correcte
+                    selected.getDateEvenement(),
                     selected.getLieu(),
                     selected.getDescription(),
-                    selected.getCapaciteMax(), // Méthode correcte
+                    selected.getCapaciteMax(),
                     selected.getImage()
                 );
-                SmsService.envoyerSmsAnnulation(evt);
+                TelegramService.envoyerNotificationAnnulation(evt);
             } else {
-                System.out.println("⚠️ SMS non configuré - configure Twilio dans SmsService.java");
+                System.out.println("⚠️ Telegram non configuré - configure le bot dans TelegramService.java");
+                System.out.println("📧 Alternative : utilise EmailService.envoyerEmailAnnulation() si besoin");
             }
 
             refreshTable();
@@ -903,6 +908,190 @@ public class EvenementController implements Initializable {
     private void setStatusOk(String msg) {
         if (statusLabel != null) {
             statusLabel.setText(msg);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 🤖 RECOMMANDATION IA - GÉNÉRATION D'ÉVÉNEMENTS
+    // ════════════════════════════════════════════════════════
+
+    /**
+     * Handler du bouton Recommandation IA
+     */
+    @FXML
+    private void handleRecommendationIA() {
+        openAIRecommendationModal();
+    }
+
+    /**
+     * Ouvre la fenêtre modale de recommandation IA
+     */
+    private void openAIRecommendationModal() {
+        try {
+            services.EventGeneratorService generator = new services.EventGeneratorService();
+
+            // Créer la fenêtre modale
+            Stage modal = new Stage();
+            modal.setTitle("🤖 Recommandation IA - Suggestion d'événement");
+            modal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            modal.setWidth(700);
+            modal.setHeight(650);
+
+            // Container principal
+            VBox root = new VBox(20);
+            root.setStyle("-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); " +
+                         "-fx-padding: 30;");
+            root.setAlignment(javafx.geometry.Pos.CENTER);
+
+            // Titre
+            Label title = new Label("🤖 Intelligence Artificielle - Suggestion d'Événement");
+            title.setStyle("-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+
+            Label subtitle = new Label("Notre IA a analysé les tendances et vous propose cet événement");
+            subtitle.setStyle("-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;");
+
+            // Zone blanche pour le formulaire
+            VBox formContainer = new VBox(15);
+            formContainer.setStyle("-fx-background-color: white; -fx-background-radius: 20; " +
+                                  "-fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);");
+            formContainer.setMaxWidth(600);
+
+            // Champs du formulaire
+            TextField tfTitreAI = new TextField();
+            tfTitreAI.setPromptText("Titre");
+            tfTitreAI.setStyle("-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8;");
+
+            TextField tfTypeAI = new TextField();
+            tfTypeAI.setPromptText("Type");
+            tfTypeAI.setStyle("-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8;");
+
+            DatePicker dpDateAI = new DatePicker();
+            dpDateAI.setPromptText("Date");
+            dpDateAI.setStyle("-fx-font-size: 14px;");
+
+            TextField tfLieuAI = new TextField();
+            tfLieuAI.setPromptText("Lieu");
+            tfLieuAI.setStyle("-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8;");
+
+            TextArea taDescAI = new TextArea();
+            taDescAI.setPromptText("Description");
+            taDescAI.setPrefHeight(80);
+            taDescAI.setStyle("-fx-font-size: 13px; -fx-background-radius: 8;");
+
+            TextField tfCapaciteAI = new TextField();
+            tfCapaciteAI.setPromptText("Capacité maximale");
+            tfCapaciteAI.setStyle("-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8;");
+
+            TextField tfImageAI = new TextField();
+            tfImageAI.setPromptText("URL Image");
+            tfImageAI.setStyle("-fx-font-size: 13px; -fx-padding: 8; -fx-background-radius: 8;");
+
+            formContainer.getChildren().addAll(
+                new Label("📋 Titre") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                tfTitreAI,
+                new Label("🎯 Type") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                tfTypeAI,
+                new Label("📅 Date") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                dpDateAI,
+                new Label("📍 Lieu") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                tfLieuAI,
+                new Label("📝 Description") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                taDescAI,
+                new Label("👥 Capacité") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                tfCapaciteAI,
+                new Label("🖼️ Image") {{ setStyle("-fx-font-weight: bold; -fx-text-fill: #1b2a4a;"); }},
+                tfImageAI
+            );
+
+            // Boutons
+            HBox buttons = new HBox(15);
+            buttons.setAlignment(javafx.geometry.Pos.CENTER);
+
+            Button btnValider = new Button("✅ Valider");
+            btnValider.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; " +
+                               "-fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 10; " +
+                               "-fx-cursor: hand; -fx-font-size: 14px;");
+
+            Button btnAutre = new Button("🔄 Autre suggestion");
+            btnAutre.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; " +
+                             "-fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 10; " +
+                             "-fx-cursor: hand; -fx-font-size: 14px;");
+
+            Button btnAnnuler = new Button("❌ Annuler");
+            btnAnnuler.setStyle("-fx-background-color: rgba(255,255,255,0.3); -fx-text-fill: white; " +
+                               "-fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 10; " +
+                               "-fx-cursor: hand; -fx-font-size: 14px;");
+
+            // Fonction pour remplir les champs avec une suggestion
+            Runnable fillSuggestion = () -> {
+                entities.GEvenement.Evenement suggestion = generator.generateEventSuggestion();
+                tfTitreAI.setText(suggestion.getTitre());
+                tfTypeAI.setText(suggestion.getType());
+                dpDateAI.setValue(suggestion.getDateEvenement().toLocalDate());
+                tfLieuAI.setText(suggestion.getLieu());
+                taDescAI.setText(suggestion.getDescription());
+                tfCapaciteAI.setText(String.valueOf(suggestion.getCapaciteMax()));
+                tfImageAI.setText(suggestion.getImage());
+            };
+
+            // Générer la première suggestion
+            fillSuggestion.run();
+
+            // Handler Valider
+            btnValider.setOnAction(e -> {
+                try {
+                    // Créer l'événement
+                    entities.GEvenement.Evenement newEvent = new entities.GEvenement.Evenement();
+                    newEvent.setTitre(tfTitreAI.getText());
+                    newEvent.setType(tfTypeAI.getText());
+                    newEvent.setDateEvenement(java.sql.Date.valueOf(dpDateAI.getValue()));
+                    newEvent.setLieu(tfLieuAI.getText());
+                    newEvent.setDescription(taDescAI.getText());
+                    newEvent.setCapaciteMax(Integer.parseInt(tfCapaciteAI.getText()));
+                    newEvent.setImage(tfImageAI.getText());
+
+                    // Ajouter en base
+                    es.ajouter(newEvent);
+
+                    // Rafraîchir la table
+                    refreshTable();
+
+                    modal.close();
+                    showAlert(Alert.AlertType.INFORMATION, "Succès",
+                             "✅ Événement généré par IA ajouté avec succès !\n\n" +
+                             "📋 " + newEvent.getTitre());
+
+                } catch (Exception ex) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur",
+                             "Impossible d'ajouter l'événement : " + ex.getMessage());
+                }
+            });
+
+            // Handler Autre suggestion
+            btnAutre.setOnAction(e -> fillSuggestion.run());
+
+            // Handler Annuler
+            btnAnnuler.setOnAction(e -> modal.close());
+
+            buttons.getChildren().addAll(btnValider, btnAutre, btnAnnuler);
+
+            // Scroll pour le formulaire
+            ScrollPane scroll = new ScrollPane(formContainer);
+            scroll.setFitToWidth(true);
+            scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+            scroll.setMaxHeight(400);
+
+            root.getChildren().addAll(title, subtitle, scroll, buttons);
+
+            Scene scene = new Scene(root);
+            modal.setScene(scene);
+            modal.show();
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur ouverture modal IA : " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                     "Impossible d'ouvrir la recommandation IA : " + e.getMessage());
         }
     }
 }

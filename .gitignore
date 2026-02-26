@@ -35,12 +35,6 @@ build/
 .vscode/
 
 ### Mac OS ###
-.DS_Store*.exe
-target/
-.idea/
-*.exe
-target/
-.idea/
-*.exe
-target/
-.idea/
+.DS_Storesrc/main/resources/lib/CursorUserSetup-x64-2.5.20.exe
+
+src/main/resources/lib/CursorUserSetup-x64-2.5.20.exesrc/main/resources/lib/CursorUserSetup-x64-2.5.20.exe

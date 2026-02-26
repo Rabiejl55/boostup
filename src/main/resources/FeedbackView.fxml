@@ -2,65 +2,64 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
 <BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f8f9fa;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.FeedbackController">
 
     <!-- Sidebar admin -->
     <left>
-        <VBox prefWidth="280" spacing="10"
-              style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
-                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
-            <padding><Insets top="25" right="18" bottom="20" left="18"/></padding>
+        <VBox prefWidth="280" spacing="10" style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+            <padding><Insets bottom="20" left="18" right="18" top="25" /></padding>
 
             <!-- Logo -->
             <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 5;">
-                <Label text="⚡" style="-fx-font-size: 28px; -fx-text-fill: #e63956; -fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 6, 0, 0, 0);" />
+                <Label style="-fx-font-size: 28px; -fx-text-fill: #e63956; -fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 6, 0, 0, 0);" text="⚡" />
                 <VBox spacing="0">
-                    <Label text="BoostUp" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 800; -fx-font-family: 'Segoe UI';" />
-                    <Label text="Administration" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px; -fx-font-family: 'Segoe UI';" />
+                    <Label style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 800; -fx-font-family: 'Segoe UI';" text="BoostUp" />
+                    <Label style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px; -fx-font-family: 'Segoe UI';" text="Administration" />
                 </VBox>
             </HBox>
 
             <Separator style="-fx-background-color: rgba(255,255,255,0.15); -fx-pref-height: 1;" />
 
             <!-- Profil admin (simple) -->
-            <VBox spacing="12" alignment="CENTER" style="-fx-padding: 15 10;">
+            <VBox alignment="CENTER" spacing="12" style="-fx-padding: 15 10;">
                 <StackPane>
-                    <Circle radius="42" style="-fx-fill: rgba(255,255,255,0.15);
-                                               -fx-stroke: rgba(255,255,255,0.3); -fx-stroke-width: 2;" />
+                    <Circle radius="42" style="-fx-fill: rgba(255,255,255,0.15);                                                -fx-stroke: rgba(255,255,255,0.3); -fx-stroke-width: 2;" />
                     <ImageView fx:id="avatarImageView" fitHeight="72" fitWidth="72" preserveRatio="true">
-                        <effect><DropShadow/></effect>
-                        <image><Image url="@images/logo.png"/></image>
+                        <effect><DropShadow /></effect>
+                        <image><Image url="@images/logo.png" /></image>
                     </ImageView>
-                    <Circle radius="8" style="-fx-fill: #2ecc71; -fx-stroke: #1b2a4a; -fx-stroke-width: 3;"
-                            StackPane.alignment="BOTTOM_RIGHT" translateX="-8" translateY="-5" />
+                    <Circle radius="8" style="-fx-fill: #2ecc71; -fx-stroke: #1b2a4a; -fx-stroke-width: 3;" translateX="-8" translateY="-5" StackPane.alignment="BOTTOM_RIGHT" />
                 </StackPane>
                 <VBox alignment="CENTER" spacing="4">
-                    <Label text="admin" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 700;" />
+                    <Label style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 700;" text="admin" />
                     <HBox alignment="CENTER">
-                        <Label text="ADMIN"
-                               style="-fx-text-fill: white; -fx-font-size: 12px;
-                                      -fx-background-color: rgba(255,255,255,0.2);
-                                      -fx-padding: 4 14; -fx-background-radius: 20;" />
+                        <Label style="-fx-text-fill: white; -fx-font-size: 12px;                                       -fx-background-color: rgba(255,255,255,0.2);                                       -fx-padding: 4 14; -fx-background-radius: 20;" text="ADMIN" />
                     </HBox>
                 </VBox>
-                <HBox spacing="8" alignment="CENTER" style="-fx-padding: 5 0 0 0;">
-                    <Button text="👤 Profil"
-                            style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                                   -fx-background-radius: 8; -fx-padding: 7 16; -fx-font-size: 12px;
-                                   -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.25);
-                                   -fx-border-radius: 8;" />
-                    <Button text="🚪 Quitter" onAction="#handleLogout"
-                            style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: #fca5a5;
-                                   -fx-background-radius: 8; -fx-padding: 7 16; -fx-font-size: 12px;
-                                   -fx-cursor: hand; -fx-border-color: rgba(230,57,86,0.4);
-                                   -fx-border-radius: 8;" />
+                <HBox alignment="CENTER" spacing="8" style="-fx-padding: 5 0 0 0;">
+                    <Button style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;                                    -fx-background-radius: 8; -fx-padding: 7 16; -fx-font-size: 12px;                                    -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.25);                                    -fx-border-radius: 8;" text="👤 Profil" />
+                    <Button onAction="#handleLogout" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: #fca5a5;                                    -fx-background-radius: 8; -fx-padding: 7 16; -fx-font-size: 12px;                                    -fx-cursor: hand; -fx-border-color: rgba(230,57,86,0.4);                                    -fx-border-radius: 8;" text="🚪 Quitter" />
                 </HBox>
             </VBox>
 
@@ -68,21 +67,11 @@
 
             <!-- Menu (handlers existants) -->
             <VBox spacing="3" style="-fx-padding: 5 0;">
-                <Label text="MENU PRINCIPAL" style="-fx-text-fill: rgba(255,255,255,0.5);
-                       -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 5 12 8 12;
-                       -fx-font-family: 'Segoe UI';" />
+                <Label style="-fx-text-fill: rgba(255,255,255,0.5);                        -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 5 12 8 12;                        -fx-font-family: 'Segoe UI';" text="MENU PRINCIPAL" />
 
-                <Button text="👥  Participations" onAction="#handleRetourParticipation" maxWidth="Infinity"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
-                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
-                               -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                <Button maxWidth="Infinity" onAction="#handleRetourParticipation" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;                                -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text="👥  Participations" />
 
-                <Button text="💬  Feedbacks" maxWidth="Infinity"
-                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;
-                               -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
-                               -fx-alignment: CENTER_LEFT;
-                               -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 10;
-                               -fx-font-weight: 600;" />
+                <Button maxWidth="Infinity" style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white;                                -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;                                -fx-alignment: CENTER_LEFT;                                -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 10;                                -fx-font-weight: 600;" text="💬  Feedbacks" />
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
@@ -130,21 +119,24 @@
             <Label layoutX="22.0" layoutY="337.0" styleClass="subtle-label" text="Commentaire:" />
             <TextArea fx:id="taCommentaire" layoutX="120.0" layoutY="319.0" prefHeight="80" prefWidth="275.0" styleClass="form-input" />
 
+            <!-- 🧠 Label Analyse de Sentiment IA -->
+            <Label fx:id="lblSentimentIA" layoutX="120.0" layoutY="405.0" prefWidth="275.0" style="-fx-background-color: #f8f9fa; -fx-padding: 8 12; -fx-background-radius: 8; -fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #6c757d;" text="💬 Tapez un commentaire pour analyse IA..." />
+
             <Label layoutX="416.0" layoutY="328.0" styleClass="subtle-label" text="Note:" />
             <Slider fx:id="sliderNote" layoutX="468.0" layoutY="325.0" majorTickUnit="1" max="5" min="1" minorTickCount="0" prefWidth="220" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="3" />
             <Label fx:id="lblNoteValue" layoutX="699.0" layoutY="328.0" style="-fx-font-weight: bold;" text="3" />
 
-            <Label layoutX="27.0" layoutY="433.0" styleClass="subtle-label" text="Date:" />
-            <DatePicker fx:id="dpDateFeedback" layoutX="120.0" layoutY="428.0" />
+            <Label layoutX="27.0" layoutY="447.0" styleClass="subtle-label" text="Date:" />
+            <DatePicker fx:id="dpDateFeedback" layoutX="122.0" layoutY="442.0" />
 
             <Label layoutX="416.0" layoutY="401.0" styleClass="subtle-label" text="Participation:" />
             <ChoiceBox fx:id="cbParticipation" layoutX="525.0" layoutY="390.0" prefWidth="250" styleClass="form-input" />
 
             <!-- Boutons -->
-            <Button layoutX="27.0" layoutY="469.0" onAction="#handleAjouter" styleClass="btn-primary" text="➕ Ajouter" />
-            <Button layoutX="137.0" layoutY="469.0" onAction="#handleModifier" styleClass="btn-secondary" text="✏️ Modifier" />
-            <Button layoutX="263.0" layoutY="469.0" onAction="#handleSupprimer" styleClass="btn-danger" text="🗑️ Supprimer" />
-            <Button layoutX="404.0" layoutY="469.0" onAction="#handleActualiser" styleClass="btn-warning" text="🔄 Actualiser" />
+            <Button layoutX="27.0" layoutY="488.0" onAction="#handleAjouter" styleClass="btn-primary" text="➕ Ajouter" />
+            <Button layoutX="137.0" layoutY="488.0" onAction="#handleModifier" styleClass="btn-secondary" text="✏️ Modifier" />
+            <Button layoutX="263.0" layoutY="488.0" onAction="#handleSupprimer" styleClass="btn-danger" text="🗑️ Supprimer" />
+            <Button layoutX="400.0" layoutY="488.0" onAction="#handleActualiser" styleClass="btn-warning" text="🔄 Actualiser" />
 
         </AnchorPane>
     </center>

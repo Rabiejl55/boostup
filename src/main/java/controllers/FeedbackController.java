@@ -4,6 +4,8 @@ import entities.GEvenement.Feedback;
 import entities.GEvenement.FeedbackFX;
 import entities.GEvenement.ParticipationOption;
 import services.EvenementService.FeedbackService;
+import services.SentimentAnalysisService;
+import services.SentimentAnalysisService.SentimentResult;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -39,6 +41,9 @@ public class FeedbackController implements Initializable {
     @FXML private Slider sliderNote;
     @FXML private Label lblNoteValue;
     @FXML private DatePicker dpDateFeedback;
+
+    // 🧠 Label pour afficher l'analyse de sentiment IA
+    @FXML private Label lblSentimentIA;
 
     // Remplace le TextField id_participation
     @FXML private ChoiceBox<ParticipationOption> cbParticipation;
@@ -87,6 +92,9 @@ public class FeedbackController implements Initializable {
                 lblNoteValue.setText(String.valueOf(newValue.intValue()));
             }
         });
+
+        // 🧠 ANALYSE DE SENTIMENT IA EN TEMPS RÉEL
+        setupSentimentAnalysis();
 
         // Badges de note (couleurs) au lieu d'un simple chiffre
         setupNoteBadges();
@@ -137,6 +145,60 @@ public class FeedbackController implements Initializable {
                 // Couleur de fond sur la cellule
                 setStyle(getStyle() + " -fx-background-color: " + color + ";");
             }
+        });
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 🧠 ANALYSE DE SENTIMENT IA EN TEMPS RÉEL
+    // ════════════════════════════════════════════════════════
+
+    /**
+     * Configure l'analyse de sentiment automatique lors de la saisie du commentaire
+     */
+    private void setupSentimentAnalysis() {
+        if (taCommentaire == null || lblSentimentIA == null) {
+            System.err.println("⚠️ Commentaire ou label sentiment IA manquant dans FXML");
+            return;
+        }
+
+        // Style initial du label
+        lblSentimentIA.setStyle("-fx-background-color: #f8f9fa; -fx-padding: 8 12; " +
+                               "-fx-background-radius: 8; -fx-font-weight: bold; " +
+                               "-fx-font-size: 13px;");
+        lblSentimentIA.setText("💬 Tapez un commentaire pour analyse IA...");
+
+        // Analyse en temps réel quand l'utilisateur tape
+        taCommentaire.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.trim().isEmpty()) {
+                // Reset quand vide
+                lblSentimentIA.setText("💬 Tapez un commentaire pour analyse IA...");
+                lblSentimentIA.setStyle("-fx-background-color: #f8f9fa; -fx-padding: 8 12; " +
+                                       "-fx-background-radius: 8; -fx-font-weight: bold; " +
+                                       "-fx-font-size: 13px; -fx-text-fill: #6c757d;");
+                return;
+            }
+
+            // Analyse asynchrone pour ne pas bloquer l'UI
+            new Thread(() -> {
+                try {
+                    SentimentResult result = SentimentAnalysisService.analyserSentiment(newValue);
+
+                    // Mise à jour UI sur le thread JavaFX
+                    javafx.application.Platform.runLater(() -> {
+                        lblSentimentIA.setText(result.getEmoji() + " " + result.getLabel() +
+                                              " (" + result.getConfidencePercent() + ")");
+                        lblSentimentIA.setStyle("-fx-background-color: " + result.getColor() + "20; " +
+                                               "-fx-padding: 8 12; -fx-background-radius: 8; " +
+                                               "-fx-font-weight: bold; -fx-font-size: 13px; " +
+                                               "-fx-text-fill: " + result.getColor() + "; " +
+                                               "-fx-border-color: " + result.getColor() + "; " +
+                                               "-fx-border-width: 2; -fx-border-radius: 8;");
+                    });
+
+                } catch (Exception e) {
+                    System.err.println("❌ Erreur analyse sentiment : " + e.getMessage());
+                }
+            }).start();
         });
     }
 

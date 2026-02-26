@@ -12,6 +12,9 @@ public class User {
     private String role;  // Ou vous pourriez utiliser RoleEnum comme type
     private boolean active;
     private LocalDateTime dateCreation;
+    private String fullname;  // Nom complet
+    private String phone;     // Numéro de téléphone
+    private String avatar;    // URL ou chemin de l'avatar
 
     public User() {
     }
@@ -80,6 +83,30 @@ public class User {
 
     public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     @Override

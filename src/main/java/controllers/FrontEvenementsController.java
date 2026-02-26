@@ -26,6 +26,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import services.EvenementService.EvenementService;
+import services.RecommendationService;
+import services.RecommendationNotificationService;
 import utils.MyDatabase;
 
 import java.net.URL;
@@ -51,6 +53,7 @@ public class FrontEvenementsController implements Initializable {
     private GaussianBlur blur;
 
     private final EvenementService es = new EvenementService();
+    private final RecommendationService recommendationService = new RecommendationService();
     private final ObservableList<EvenementFX> data = FXCollections.observableArrayList();
     private final FilteredList<EvenementFX> filtered = new FilteredList<>(data, e -> true);
 
@@ -65,6 +68,9 @@ public class FrontEvenementsController implements Initializable {
         setupCalendarButtonMicroAnimations();
         load();
         render();
+
+        // 🤖 Envoyer les notifications de recommandations IA (asynchrone)
+        sendRecommendationNotificationsAsync();
     }
 
     private void setupTri() {
@@ -180,6 +186,14 @@ public class FrontEvenementsController implements Initializable {
         StackPane imageStack = new StackPane(img);
         imageStack.getStyleClass().add("event-image-stack");
 
+        // 🤖 Badge de recommandation IA (en haut à droite)
+        if (!archived && recommendationService.isRecommended(e.getId())) {
+            Label recoBadge = buildRecommendationBadge(e);
+            StackPane.setAlignment(recoBadge, Pos.TOP_RIGHT);
+            imageStack.getChildren().add(recoBadge);
+        }
+
+        // Badge note (en haut à gauche si tri par note)
         if (isTriNote()) {
             Label badge = buildNoteBadge(e);
             if (badge != null) {
@@ -580,9 +594,9 @@ public class FrontEvenementsController implements Initializable {
     @FXML
     private void handleGoHome() {
         try {
-            URL fxml = getClass().getResource("/HomePageView.fxml");
+            URL fxml = getClass().getResource("/HomePage.fxml");
             if (fxml == null) {
-                setStatus("FXML introuvable: /HomePageView.fxml");
+                setStatus("FXML introuvable: /HomePage.fxml");
                 return;
             }
 
@@ -599,6 +613,77 @@ public class FrontEvenementsController implements Initializable {
             e.printStackTrace();
             setStatus("Impossible d'ouvrir l'accueil: " + e.getMessage());
         }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 🤖 RECOMMANDATION IA
+    // ════════════════════════════════════════════════════════
+
+    /**
+     * Envoie les notifications de recommandations IA de manière asynchrone
+     */
+    private void sendRecommendationNotificationsAsync() {
+        new Thread(() -> {
+            try {
+                // Attendre 2 secondes que l'interface se charge complètement
+                Thread.sleep(2000);
+
+                // Envoyer les notifications
+                RecommendationNotificationService.getInstance().sendRecommendationNotifications();
+
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur envoi notifications recommandations : " + e.getMessage());
+            }
+        }).start();
+    }
+
+    /**
+     * Crée le badge "Recommandé pour vous" avec animation
+     */
+    private Label buildRecommendationBadge(EvenementFX e) {
+        double score = recommendationService.getRecommendationScore(e.getId());
+
+        Label badge = new Label();
+        badge.setMaxWidth(150);
+        badge.setWrapText(true);
+        badge.setAlignment(Pos.CENTER);
+
+        // Style selon le score
+        if (score >= 0.8) {
+            badge.setText("⭐⭐⭐ Pour vous");
+            badge.setStyle("-fx-background-color: linear-gradient(to right, #667eea, #764ba2); " +
+                          "-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; " +
+                          "-fx-padding: 6 12; -fx-background-radius: 15; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(102,126,234,0.5), 8, 0, 0, 2);");
+        } else if (score >= 0.6) {
+            badge.setText("💜 Recommandé");
+            badge.setStyle("-fx-background-color: linear-gradient(to right, #e63956, #ff6b9d); " +
+                          "-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; " +
+                          "-fx-padding: 6 12; -fx-background-radius: 15; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(230,57,86,0.5), 8, 0, 0, 2);");
+        } else {
+            badge.setText("✨ Suggéré");
+            badge.setStyle("-fx-background-color: linear-gradient(to right, #1b2a4a, #2d1b4e); " +
+                          "-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; " +
+                          "-fx-padding: 6 12; -fx-background-radius: 15; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(27,42,74,0.5), 8, 0, 0, 2);");
+        }
+
+        badge.setTranslateX(-8);
+        badge.setTranslateY(8);
+
+        // Animation pulsante
+        ScaleTransition pulse = new ScaleTransition(Duration.millis(1000), badge);
+        pulse.setFromX(1.0);
+        pulse.setFromY(1.0);
+        pulse.setToX(1.1);
+        pulse.setToY(1.1);
+        pulse.setCycleCount(Animation.INDEFINITE);
+        pulse.setAutoReverse(true);
+        pulse.setInterpolator(Interpolator.EASE_BOTH);
+        pulse.play();
+
+        return badge;
     }
 
 }

@@ -52,7 +52,7 @@ public class LoginController {
 
         // User (front-office) -> HomePage
         if ("admin".equals(email) && "user".equals(password)) {
-            openScene("/HomePageView.fxml", "BoostUp - Accueil");
+            openScene("/HomePage.fxml", "BoostUp - Accueil");
             return;
         }
 
@@ -64,14 +64,14 @@ public class LoginController {
 
     @FXML
     private void goToForgotPassword() {
-        // Pas encore implémenté: message UX propre sans casser l'app
-        showMessage("Fonctionnalité 'Mot de passe oublié' bientôt disponible.", false);
+        // ✅ Ouvrir l'interface "Mot de passe oublié"
+        openScene("/forgot-password.fxml", "Mot de passe oublié - BoostUp");
     }
 
     @FXML
     private void goToSignup() {
-        // Pas encore implémenté: message UX propre sans casser l'app
-        showMessage("Inscription bientôt disponible.", false);
+        // ✅ Ouvrir l'interface d'inscription
+        openScene("/signup.fxml", "Inscription - BoostUp");
     }
 
     private void openScene(String fxmlPath, String title) {

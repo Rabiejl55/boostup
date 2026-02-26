@@ -159,6 +159,14 @@
 
             <Button fx:id="btnParticipation" layoutX="536.0" layoutY="520.0" onAction="#handleOuvrirParticipation" styleClass="btn-primary" text="👥 Participation" />
 
+            <!-- 🤖 Bouton Recommandation IA -->
+            <Button fx:id="btnRecommendationIA" layoutX="681.0" layoutY="520.0" onAction="#handleRecommendationIA"
+                    text="🤖 Recommandation IA"
+                    style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;
+                           -fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 8;
+                           -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.3), 10, 0, 0, 3);" />
+
             <!-- Statut -->
             <Label fx:id="statusLabel" layoutX="20.0" layoutY="565.0" styleClass="status-pill" text="Prêt" />
         </AnchorPane>

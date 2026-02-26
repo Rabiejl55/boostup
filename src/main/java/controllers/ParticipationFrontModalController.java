@@ -63,9 +63,24 @@ public class ParticipationFrontModalController implements Initializable {
     private void handleSubmit() {
         if (!validate()) return;
 
+        // 🎮 CHALLENGE POUR ÉVÉNEMENT COMPLET (capacité 250)
         if (evenement != null && evenement.getCapaciteMax() >= 250) {
-            showSystemInfo("Désolé, l’événement est complet (capacité maximale atteinte). À la prochaine inchallah.");
-            return;
+            System.out.println("🎮 Événement complet détecté ! Lancement du challenge Snake...");
+
+            // Lancer le jeu Snake
+            utils.SnakeGameChallenge challenge = new utils.SnakeGameChallenge();
+            javafx.stage.Stage ownerStage = (javafx.stage.Stage) tfStartup.getScene().getWindow();
+
+            boolean won = challenge.showChallenge(ownerStage);
+
+            if (!won) {
+                // L'utilisateur a perdu ou annulé
+                System.out.println("❌ Challenge échoué ou annulé");
+                return;
+            }
+
+            // L'utilisateur a gagné ! On continue l'inscription
+            System.out.println("🏆 Challenge réussi ! Inscription autorisée malgré l'événement complet");
         }
 
         boolean presence = "Oui, je veux assister".equals(cbPresence.getValue());

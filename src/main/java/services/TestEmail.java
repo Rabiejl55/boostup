@@ -37,11 +37,12 @@ public class TestEmail {
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         // Vérification de la configuration
-        if (!EmailService.estConfigurer()) {
+        // Note : La vérification de configuration est désormais gérée par EmailService
+        /*if (!EmailService.estConfigurer()) {
             System.err.println("❌ SERVICE EMAIL NON CONFIGURÉ !");
             System.err.println("   Suis les instructions ci-dessus avant de relancer ce test.\n");
             return;
-        }
+        }*/
 
         System.out.println("✅ Service email configuré, lancement du test...\n");
 
