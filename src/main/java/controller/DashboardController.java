@@ -79,11 +79,59 @@ public class DashboardController {
 
         refreshRate(null);        // charge taux au démarrage
         setupNewsOpenOnDoubleClick();
+        setupNewsCards();
         refreshNews();            // charge news au démarrage
     }
 
     // ================= NEWS =================
 
+    private void setupNewsCards() {
+        if (listNews == null) return;
+
+        listNews.setCellFactory(lv -> new ListCell<>() {
+            private final javafx.scene.image.ImageView img = new javafx.scene.image.ImageView();
+            private final Label title = new Label();
+            private final Label meta = new Label();
+            private final javafx.scene.layout.VBox textBox = new javafx.scene.layout.VBox(4, title, meta);
+            private final javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(10, img, textBox);
+
+            {
+                img.setFitWidth(72);
+                img.setFitHeight(52);
+                img.setPreserveRatio(true);
+
+                title.setStyle("-fx-font-weight: 800; -fx-text-fill: #111827;");
+                meta.setStyle("-fx-text-fill: #64748b; -fx-font-size: 11;");
+
+                root.setStyle("-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 12;");
+                textBox.setFillWidth(true);
+            }
+
+            @Override
+            protected void updateItem(NewsItem it, boolean empty) {
+                super.updateItem(it, empty);
+                if (empty || it == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                title.setText(it.getTitle());
+                meta.setText((it.getSource() == null ? "" : it.getSource()) + " • " + (it.getPubDate() == null ? "" : it.getPubDate()));
+
+                String url = it.getImageUrl();
+                if (url != null && !url.isBlank()) {
+                    img.setImage(new javafx.scene.image.Image(url, true)); // background loading
+                    img.setVisible(true);
+                    img.setManaged(true);
+                } else {
+                    img.setVisible(false);
+                    img.setManaged(false);
+                }
+
+                setGraphic(root);
+            }
+        });
+    }
     @FXML
     private void refreshNews() {
         String query = (tfNewsQuery != null && !tfNewsQuery.getText().isBlank())

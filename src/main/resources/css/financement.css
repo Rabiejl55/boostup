@@ -611,3 +611,12 @@
     -fx-background-color: #E6EEFF;
     -fx-background-radius: 12;
 }
+.dialog-pane {
+    -fx-background-color: #f0f2f5;
+}
+.dialog-pane .header-panel {
+    -fx-background-color: transparent;
+}
+.dialog-pane .content {
+    -fx-background-color: transparent;
+}

@@ -25,7 +25,7 @@
                 <Label text="Statut Projet:"/>
                 <ComboBox fx:id="cbStatutProjet" prefWidth="150"/>
 
-                <Button fx:id="btnRefreshStats" text="Rafraîchir" onAction="#refresh"/>
+
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="lblStatsToast" text="" visible="false" managed="false"/>
             </HBox>

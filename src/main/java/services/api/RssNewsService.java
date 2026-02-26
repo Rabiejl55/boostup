@@ -81,9 +81,8 @@ public class RssNewsService {
         List<NewsItem> out = new ArrayList<>();
         if (xml == null || xml.isBlank()) return out;
 
-        // Important: Google News RSS peut contenir des caractères spéciaux/CDATA
         javax.xml.parsers.DocumentBuilderFactory dbf = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(false); // ✅ plus simple pour RSS Google
+        dbf.setNamespaceAware(false);
         dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
         javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
@@ -94,24 +93,61 @@ public class RssNewsService {
         for (int i = 0; i < items.getLength() && out.size() < limit; i++) {
             org.w3c.dom.Element item = (org.w3c.dom.Element) items.item(i);
 
-            String title = textOf(item, "title");
-            String link  = textOf(item, "link");
-            String date  = textOf(item, "pubDate");
-            String source = textOf(item, "source"); // parfois vide
+            String title  = textOf(item, "title");
+            String link   = textOf(item, "link");
+            String date   = textOf(item, "pubDate");
+            String source = textOf(item, "source");
+            String desc   = textOf(item, "description");
 
-            // fallback si link vide: guid
-            if (link == null || link.isBlank()) {
-                link = textOf(item, "guid");
-            }
-
+            if (link == null || link.isBlank()) link = textOf(item, "guid");
             if (title == null) title = "";
             if (link == null) link = "";
 
-            // Si ton NewsItem a un constructeur différent, adapte ici
-            out.add(new NewsItem(title.trim(), link.trim(), source == null ? "" : source.trim(), date == null ? "" : date.trim()));
+            String imageUrl = extractImageUrl(item, desc);
+
+            NewsItem ni = new NewsItem(
+                    title.trim(),
+                    link.trim(),
+                    source == null ? "" : source.trim(),
+                    date == null ? "" : date.trim()
+            );
+            // ✅ nouveau champ
+            ni.setImageUrl(imageUrl);
+
+            out.add(ni);
         }
         return out;
     }
+
+    private static String extractImageUrl(org.w3c.dom.Element item, String descriptionHtml) {
+        // 1) media:content url=
+        String url = firstAttr(item, "media:content", "url");
+        if (!isBlank(url)) return url;
+
+        // 2) media:thumbnail url=
+        url = firstAttr(item, "media:thumbnail", "url");
+        if (!isBlank(url)) return url;
+
+        // 3) <img src="..."> dans description
+        if (!isBlank(descriptionHtml)) {
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("<img[^>]+src\\s*=\\s*\"([^\"]+)\"", java.util.regex.Pattern.CASE_INSENSITIVE)
+                    .matcher(descriptionHtml);
+            if (m.find()) return m.group(1);
+        }
+
+        return ""; // pas d’image
+    }
+
+    private static String firstAttr(org.w3c.dom.Element parent, String tagName, String attr) {
+        org.w3c.dom.NodeList nl = parent.getElementsByTagName(tagName);
+        if (nl == null || nl.getLength() == 0) return "";
+        org.w3c.dom.Node n = nl.item(0);
+        if (!(n instanceof org.w3c.dom.Element el)) return "";
+        return el.getAttribute(attr);
+    }
+
+    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 
     private static String textOf(org.w3c.dom.Element parent, String tag) {
         org.w3c.dom.NodeList nl = parent.getElementsByTagName(tag);
@@ -120,4 +156,6 @@ public class RssNewsService {
         if (n == null) return "";
         return n.getTextContent();
     }
+
+
 }

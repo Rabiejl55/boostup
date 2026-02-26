@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
+import javafx.animation.PauseTransition;
 
 public class StatsFinancementController {
 
@@ -54,6 +55,7 @@ public class StatsFinancementController {
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
     private final Map<String, Integer> labelToProjetId = new HashMap<>();
     private Integer selectedProjetId = null; // choisi via click sur bar chart
+    private final PauseTransition autoRefreshDebounce = new PauseTransition(Duration.millis(400));
 
     @FXML
     public void initialize() {
@@ -75,9 +77,17 @@ public class StatsFinancementController {
 
         // Styles ListView alertes + premier refresh
         setupAlertesListView();
+        installAutoRefresh();
         refresh();
     }
 
+    private void installAutoRefresh() {
+        autoRefreshDebounce.setOnFinished(e -> refresh());
+
+        dpFrom.valueProperty().addListener((obs, o, n) -> autoRefreshDebounce.playFromStart());
+        dpTo.valueProperty().addListener((obs, o, n) -> autoRefreshDebounce.playFromStart());
+        cbStatutProjet.valueProperty().addListener((obs, o, n) -> autoRefreshDebounce.playFromStart());
+    }
     // ===================== ALERTES LISTVIEW STYLE =====================
 
     private void setupAlertesListView() {

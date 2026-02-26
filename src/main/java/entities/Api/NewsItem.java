@@ -1,26 +1,36 @@
 package entities.Api;
 
 public class NewsItem {
-    private final String title;
-    private final String link;
-    private final String pubDate;
-    private final String source;
+    private String title;
+    private String link;
+    private String source;
+    private String pubDate;
 
-    public NewsItem(String title, String link, String pubDate, String source) {
+    private String imageUrl; // ✅ NEW
+
+    public NewsItem(String title, String link, String source, String pubDate) {
+        this(title, link, source, pubDate, "");
+    }
+
+    public NewsItem(String title, String link, String source, String pubDate, String imageUrl) {
         this.title = title;
         this.link = link;
-        this.pubDate = pubDate;
         this.source = source;
+        this.pubDate = pubDate;
+        this.imageUrl = (imageUrl == null) ? "" : imageUrl;
     }
 
     public String getTitle() { return title; }
     public String getLink() { return link; }
-    public String getPubDate() { return pubDate; }
     public String getSource() { return source; }
+    public String getPubDate() { return pubDate; }
+    public String getImageUrl() { return imageUrl; }
 
     @Override
     public String toString() {
-        // ce qui s'affiche dans la ListView
-        return title + (source != null && !source.isBlank() ? " — " + source : "");
+        return title; // garde simple (ListView custom cell affichera le reste)
+    }
+
+    public void setImageUrl(String imageUrl) {
     }
 }
