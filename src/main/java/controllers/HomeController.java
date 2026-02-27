@@ -35,6 +35,8 @@ import entities.GAccompagnement.Session;
 import services.AccompagnementService.CoachService;
 import services.AccompagnementService.DomaineService;
 import services.AccompagnementService.SessionService;
+import services.AccompagnementService.QuoteService;
+import java.util.Random;
 import javafx.embed.swing.SwingFXUtils;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -139,6 +141,11 @@ public class HomeController {
     private final SessionService sessionService = new SessionService();
     private final CoachService coachService = new CoachService();
     private final DomaineService domaineService = new DomaineService();
+    @FXML
+    private Label quoteLabel;
+
+    @FXML
+    private Label authorLabel;
 
     @FXML
     public void initialize() {
@@ -150,6 +157,11 @@ public class HomeController {
             chargerSessions();
             chargerCoaches();
             chargerComboBoxDomaines();
+            QuoteService quoteService = new QuoteService();
+            quoteService.fetchQuote();
+
+            quoteLabel.setText("“" + quoteService.getContent() + "”");
+            authorLabel.setText("- " + quoteService.getAuthor());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -697,4 +709,23 @@ public class HomeController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleDiscoverClick(ActionEvent event) {
+        int index = new Random().nextInt(quotes.size());
+        quoteLabel.setText(quotes.get(index));
+        authorLabel.setText(authors.get(index));
+    }
+
+
+    private List<String> quotes = List.of(
+            "La seule limite à notre épanouissement de demain est nos doutes d’aujourd’hui.",
+            "Le succès n’est pas la clé du bonheur. Le bonheur est la clé du succès.",
+            "Tout ce que vous pouvez imaginer est réel."
+    );
+
+    private List<String> authors = List.of(
+            "Franklin D. Roosevelt",
+            "Albert Schweitzer",
+            "Pablo Picasso"
+    );
 }

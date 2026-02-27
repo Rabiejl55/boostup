@@ -194,6 +194,30 @@
                   style="-fx-padding: 30 40 50 40;">
 
                 <!-- HERO -->
+                <VBox spacing="15" styleClass="content-padding section-spacing">
+
+                    <!-- Titre principal -->
+                    <Label text="Bienvenue sur le Front Office"
+                           styleClass="welcome-title" />
+
+                    <!-- Sous-titre -->
+                    <Label text="Explorez tous les services, domaines, sessions et nos meilleurs coachs"
+                           styleClass="welcome-subtitle" />
+
+                    <!-- Citation motivation -->
+                    <VBox spacing="5" style="-fx-background-color: rgba(59,130,246,0.05); -fx-padding: 15; -fx-background-radius: 12px;">
+                        <Label fx:id="quoteLabel"
+                               wrapText="true"
+                               style="-fx-font-size: 16px; -fx-font-weight: 600; -fx-text-fill: #1b2a4a;" />
+                        <Label fx:id="authorLabel"
+                               style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                    </VBox>
+
+                    <!-- Bouton dynamique “Découvrir” -->
+                    <Button text="✨ Découvrir"
+                            styleClass="neon-button"
+                            onAction="#handleDiscoverClick" />
+                </VBox>
                 <VBox spacing="15">
                     <Label text="Bienvenue sur le Front Office"
                            style="-fx-font-size: 28px;

@@ -1,20 +1,23 @@
 package controllers;
+
+import services.AccompagnementService.SuggestionAPI;
+import services.AccompagnementService.ProfanityDetectorAPI;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.io.IOException;
+
 public class FeedbackController {
 
     @FXML private HBox starBox;
@@ -58,38 +61,68 @@ public class FeedbackController {
     private void highlightStars(int upTo) {
         for (int i = 0; i < starBox.getChildren().size(); i++) {
             ImageView star = (ImageView) starBox.getChildren().get(i);
-            if (i < upTo) star.setImage(starFilled);
-            else star.setImage(starEmpty);
+            star.setImage(i < upTo ? starFilled : starEmpty);
         }
     }
 
     @FXML
     private void handleSendFeedback() {
         String commentText = commentTextArea.getText().trim();
+
         if (rating == 0 && commentText.isEmpty()) {
             showAlert("Veuillez mettre une note ou écrire un commentaire !");
             return;
         }
 
-        // Ajouter le commentaire dans la page
-        VBox commentBox = new VBox();
-        commentBox.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
-        commentBox.setSpacing(5);
+        // Vérification langage inapproprié dans un thread séparé
+        new Thread(() -> {
+            boolean containsBadWords = ProfanityDetectorAPI.hasBadWords(commentText);
 
-        Label ratingLabel = new Label("⭐".repeat(rating));
-        ratingLabel.setStyle("-fx-font-size: 14px;");
+            Platform.runLater(() -> {
+                if (containsBadWords) {
+                    showAlert("Commentaire refusé : langage inapproprié");
+                } else {
+                    // Créer la boîte du commentaire
+                    VBox commentBox = new VBox();
+                    commentBox.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+                    commentBox.setSpacing(5);
 
-        Label commentLabel = new Label(commentText);
-        commentLabel.setWrapText(true);
-        commentLabel.setStyle("-fx-font-size: 13px;");
+                    // Label pour le rating
+                    Label ratingLabel = new Label("⭐".repeat(rating));
+                    ratingLabel.setStyle("-fx-font-size: 14px;");
 
-        commentBox.getChildren().addAll(ratingLabel, commentLabel);
-        commentsContainer.getChildren().add(0, commentBox); // ajout en tête
+                    // Label pour le commentaire
+                    Label commentLabel = new Label(commentText);
+                    commentLabel.setWrapText(true);
+                    commentLabel.setStyle("-fx-font-size: 13px;");
 
-        // Réinitialiser formulaire
-        rating = 0;
-        highlightStars(0);
-        commentTextArea.clear();
+                    // --- Suggestion automatique ---
+                    String correctedText = SuggestionAPI.getCorrectedText(commentText);
+                    Label suggestionLabel = new Label("Phrase corrigée :\n" + correctedText);
+                    suggestionLabel.setWrapText(true);
+                    suggestionLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555555;");
+
+                    // Ajouter les labels à la VBox
+                    commentBox.getChildren().addAll(ratingLabel, commentLabel, suggestionLabel);
+
+                    // Ajouter à l'UI
+                    commentsContainer.getChildren().add(0, commentBox);
+
+                    // Réinitialiser formulaire
+                    rating = 0;
+                    highlightStars(0);
+                    commentTextArea.clear();
+
+                    // Sauvegarde en base (à compléter)
+                    saveFeedback(commentText);
+                }
+            });
+        }).start();
+    }
+
+    private void saveFeedback(String feedback) {
+        // Ici, ajoute ton code pour enregistrer le feedback en base
+        System.out.println("Feedback sauvegardé : " + feedback);
     }
 
     private void showAlert(String message) {
@@ -98,14 +131,12 @@ public class FeedbackController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     @FXML
     private void handleHomeClick(ActionEvent event) {
         try {
-            // Charger Home.fxml
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Home.fxml"));
-            // Récupérer la fenêtre actuelle
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            // Remplacer la scène
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
@@ -113,15 +144,13 @@ public class FeedbackController {
         }
     }
 
-    // Bouton Feedback (optionnel si tu restes sur la même page)
     @FXML
     private void handleFeedbackClick(ActionEvent event) {
-        // Si tu veux rester sur Feedback.fxml, tu peux laisser vide
+        // Rester sur Feedback.fxml
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // Exemple simple
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Déconnexion");
         alert.setHeaderText(null);
