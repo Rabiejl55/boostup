@@ -7,82 +7,111 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ExchangeRateService {
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
+            .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    // petit cache en mémoire (évite spam API)
-    private static final Map<String, CachedRates> CACHE = new ConcurrentHashMap<>();
-    private static final long CACHE_MS = 5 * 60 * 1000; // 5 minutes
+    // --- API #1 (ECB/Frankfurter) : fiable pour EUR, USD, GBP, etc.
+    private static final String FRANKFURTER = "https://api.frankfurter.app/latest";
 
-    public static double rate(String from, String to) throws Exception {
-        from = norm(from);
-        to = norm(to);
+    // --- API #2 (HexaRate) : beaucoup de devises (fallback), sans API key
+    private static final String HEXARATE = "https://hexarate.paikama.co/api/rates";
 
-        JSONObject rates = getRatesJson(from);
-        if (!rates.has(to)) {
-            throw new IllegalArgumentException("Devise cible non supportée: " + to);
-        }
-        return rates.getDouble(to);
-    }
-
-    public static double convert(double amount, String from, String to) throws Exception {
-        return amount * rate(from, to);
-    }
-
-    // (compat) si tu veux garder eur->usd
+    // ✅ Gardée pour compatibilité avec ton DashboardController
     public static double eurToUsdRate() throws Exception {
-        return rate("EUR", "USD");
+        return getRate("EUR", "USD");
     }
+
+    // ✅ Gardée pour compatibilité
     public static double convertEurToUsd(double eur) throws Exception {
-        return convert(eur, "EUR", "USD");
+        return eur * eurToUsdRate();
     }
 
-    // ---------------- internals ----------------
+    // ✅ Nouveau : conversion générique
+    public static double convert(double amount, String from, String to) throws Exception {
+        return amount * getRate(from, to);
+    }
 
-    private static JSONObject getRatesJson(String base) throws Exception {
-        CachedRates cached = CACHE.get(base);
-        long now = System.currentTimeMillis();
-        if (cached != null && (now - cached.timeMs) < CACHE_MS) {
-            return cached.rates;
+    // ✅ Exemple demandé : TND -> QAR
+    public static double tndToQarRate() throws Exception {
+        return getRate("TND", "QAR");
+    }
+
+    /**
+     * Retourne le taux "from -> to".
+     * 1) essaie Frankfurter
+     * 2) si non supporté / erreur => fallback HexaRate
+     */
+    public static double getRate(String from, String to) throws Exception {
+        String f = norm(from);
+        String t = norm(to);
+
+        // 1) Try Frankfurter
+        try {
+            return getRateFromFrankfurter(f, t);
+        } catch (Exception ignored) {
+            // 2) fallback
+            return getRateFromHexaRate(f, t);
         }
+    }
 
-        String url = "https://open.er-api.com/v6/latest/" + base; // ex: /latest/TND => rates.QAR موجودة :contentReference[oaicite:1]{index=1}
+    private static double getRateFromFrankfurter(String from, String to) throws Exception {
+        String url = FRANKFURTER + "?from=" + from + "&to=" + to;
+
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(20))
                 .header("Accept", "application/json")
+                .header("User-Agent", "JavaFX-App/1.0")
                 .GET()
                 .build();
 
         HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+
         if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
-            throw new RuntimeException("HTTP " + resp.statusCode() + " => " + resp.body());
+            throw new RuntimeException("Frankfurter HTTP " + resp.statusCode() + " => " + resp.body());
         }
 
         JSONObject json = new JSONObject(resp.body());
-        if (!"success".equalsIgnoreCase(json.optString("result"))) {
-            throw new RuntimeException("API error: " + json.optString("error-type", "unknown"));
+        JSONObject rates = json.getJSONObject("rates");
+
+        if (!rates.has(to)) {
+            throw new RuntimeException("Frankfurter ne retourne pas " + to);
+        }
+        return rates.getDouble(to);
+    }
+
+    private static double getRateFromHexaRate(String from, String to) throws Exception {
+        // ex: https://hexarate.paikama.co/api/rates/TND/QAR/latest
+        String url = HEXARATE + "/" + from + "/" + to + "/latest";
+
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(20))
+                .header("Accept", "application/json")
+                .header("User-Agent", "JavaFX-App/1.0")
+                .GET()
+                .build();
+
+        HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+
+        if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
+            throw new RuntimeException("HexaRate HTTP " + resp.statusCode() + " => " + resp.body());
         }
 
-        JSONObject rates = json.getJSONObject("rates");
-        CACHE.put(base, new CachedRates(rates, now));
-        return rates;
+        JSONObject json = new JSONObject(resp.body());
+        JSONObject data = json.getJSONObject("data");
+
+        // "mid" = taux de conversion
+        return data.getDouble("mid");
     }
 
-    private static String norm(String ccy) {
-        if (ccy == null) throw new IllegalArgumentException("Devise null");
-        return ccy.trim().toUpperCase();
-    }
-
-    private static class CachedRates {
-        final JSONObject rates;
-        final long timeMs;
-        CachedRates(JSONObject rates, long timeMs) { this.rates = rates; this.timeMs = timeMs; }
+    private static String norm(String s) {
+        if (s == null) return "";
+        return s.trim().toUpperCase();
     }
 }

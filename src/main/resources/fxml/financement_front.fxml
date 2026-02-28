@@ -8,7 +8,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="controller.FinancementFrontController"
-            stylesheets="@../css/financement.css,@../css/dashboard.css"
+            stylesheets="@../css/theme.css"
             styleClass="root"
             prefWidth="1400" prefHeight="800">
 
@@ -225,12 +225,94 @@
 
                         <!-- INVESTOR PANEL -->
                         <VBox fx:id="investorPanel" styleClass="premium-section" spacing="14" HBox.hgrow="ALWAYS">
+
                             <HBox alignment="CENTER_LEFT">
                                 <Label text="Côté Investisseur" styleClass="section-title-premium"/>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="Offres &amp; opportunités" styleClass="section-desc"/>
+                                <Label text="Portefeuille • Stratégie • Recommandations" styleClass="section-desc"/>
                             </HBox>
 
+                            <!-- ========== PORTFOLIO + STRATEGY (NEW) ========== -->
+                            <VBox styleClass="domain-card" spacing="12">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="📊 Mon portefeuille" styleClass="card-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="lbPortfolioHint" text="" styleClass="card-subtitle"/>
+                                </HBox>
+
+                                <!-- Portfolio KPIs -->
+                                <HBox spacing="10">
+                                    <VBox styleClass="stat-card-premium" spacing="6">
+                                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                        <Label text="Budget annuel" styleClass="stat-label"/>
+                                        <Label fx:id="lbBudgetAnnuel" text="—" styleClass="stat-value"/>
+                                    </VBox>
+
+                                    <VBox styleClass="stat-card-premium" spacing="6">
+                                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                        <Label text="Total investi" styleClass="stat-label"/>
+                                        <Label fx:id="lbTotalInvesti" text="—" styleClass="stat-value"/>
+                                    </VBox>
+
+                                    <VBox styleClass="stat-card-premium" spacing="6">
+                                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                        <Label text="Budget restant" styleClass="stat-label"/>
+                                        <Label fx:id="lbBudgetRestant" text="—" styleClass="stat-value"/>
+                                    </VBox>
+
+                                    <VBox styleClass="stat-card-premium" spacing="6">
+                                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                        <Label text="Deals" styleClass="stat-label"/>
+                                        <Label fx:id="lbNbDeals" text="—" styleClass="stat-value"/>
+                                    </VBox>
+
+                                    <VBox styleClass="stat-card-premium" spacing="6">
+                                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                        <Label text="Diversification" styleClass="stat-label"/>
+                                        <Label fx:id="lbDiversification" text="—" styleClass="stat-value"/>
+                                    </VBox>
+                                </HBox>
+
+                                <Separator/>
+
+                                <!-- Strategy form -->
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="🎯 Ma stratégie" styleClass="card-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="lbStrategySaved" text="" styleClass="card-subtitle"/>
+                                </HBox>
+
+                                <GridPane hgap="12" vgap="10">
+                                    <Label text="Secteurs préférés (séparés par ,)" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                    <TextField fx:id="tfPrefSectors" promptText="FinTech, SaaS, HealthTech..." styleClass="search-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                                    <Label text="Stade préféré" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                    <ComboBox fx:id="cbPrefStage" promptText="Seed / Series A..." styleClass="premium-combo"
+                                              GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                                    <Label text="Ticket min (DT)" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                    <TextField fx:id="tfTicketMin" promptText="Ex: 5000" styleClass="search-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                                    <Label text="Ticket max (DT)" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                    <TextField fx:id="tfTicketMax" promptText="Ex: 80000" styleClass="search-field"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                                    <Label text="Risque max" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                        <Slider fx:id="slRiskMax" min="0" max="100" value="60" prefWidth="220"/>
+                                        <Label fx:id="lbRiskValue" text="60/100" styleClass="card-subtitle"/>
+                                    </HBox>
+                                </GridPane>
+
+                                <HBox spacing="10" alignment="CENTER_RIGHT">
+                                    <Button text="Enregistrer stratégie" styleClass="search-btn" onAction="#saveStrategy"/>
+                                    <Button text="Réinitialiser" styleClass="secondary-action" onAction="#resetStrategy"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- old offer card stays (optional) -->
                             <VBox styleClass="domain-card" spacing="10">
                                 <HBox alignment="CENTER_LEFT">
                                     <Label text="Offre #INV-88" styleClass="card-title"/>
@@ -248,7 +330,9 @@
                                 </HBox>
                             </VBox>
 
+                            <!-- RECOMMENDATIONS / OPPORTUNITIES LIST -->
                             <ListView fx:id="lvInvestorItems" styleClass="premium-list" VBox.vgrow="ALWAYS"/>
+
                         </VBox>
 
                     </HBox>

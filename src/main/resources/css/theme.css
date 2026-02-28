@@ -424,3 +424,48 @@
 .btn-ai:hover {
     -fx-background-color: linear-gradient(to right, #2563eb, #1d4ed8);
 }
+.score-chip {
+    -fx-background-color: #ffe4e6;
+    -fx-text-fill: #b91c1c;
+    -fx-padding: 6 12;
+    -fx-background-radius: 999;
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+}
+
+.score-pill{
+    -fx-padding: 8 14 8 14;
+    -fx-background-color: rgba(255, 99, 99, 0.12);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255, 99, 99, 0.35);
+}
+.score-pill-title{
+    -fx-font-size: 12;
+    -fx-text-fill: #7a1f1f;
+    -fx-font-weight: 600;
+}
+.score-pill-value{
+    -fx-font-size: 13;
+    -fx-text-fill: #b91c1c;
+    -fx-font-weight: 800;
+}
+.score-badge {
+    -fx-background-color: rgba(59,130,246,0.12);
+    -fx-text-fill: #1d4ed8;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(59,130,246,0.25);
+}
+
+.score-bar {
+    -fx-accent: #1d4ed8;
+    -fx-padding: 0 0 0 0;
+}
+
+.score-explain {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+}

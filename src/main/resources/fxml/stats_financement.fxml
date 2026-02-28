@@ -16,21 +16,23 @@
             </padding>
 
             <!-- Filters -->
-            <HBox spacing="12">
+            <HBox spacing="12" alignment="CENTER_LEFT">
                 <Label text="Du:"/>
                 <DatePicker fx:id="dpFrom"/>
+
                 <Label text="Au:"/>
                 <DatePicker fx:id="dpTo"/>
 
                 <Label text="Statut Projet:"/>
                 <ComboBox fx:id="cbStatutProjet" prefWidth="150"/>
 
-
                 <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Toast / loading -->
                 <Label fx:id="lblStatsToast" text="" visible="false" managed="false"/>
             </HBox>
 
-            <!-- KPI cards -->
+            <!-- KPI cards + Alertes -->
             <HBox spacing="12">
                 <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
                     <Label text="Total Levé"/>
@@ -51,11 +53,9 @@
                     <Label text="Taux Financement"/>
                     <Label fx:id="lblKpiTauxFinancement" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
                 </VBox>
+
                 <VBox spacing="10" prefWidth="400">
                     <Label text="Alertes Projet" styleClass="section-title"/>
-                    <HBox spacing="10">
-                        <Button text="🔄 Rafraîchir alertes" onAction="#refreshAlertes"/>
-                    </HBox>
                     <ListView fx:id="lvAlertes" prefHeight="200"/>
                 </VBox>
             </HBox>
@@ -89,7 +89,8 @@
             </BarChart>
 
             <!-- Pie: modes paiement -->
-            <PieChart fx:id="pieModesPaiement" GridPane.columnIndex="1" GridPane.rowIndex="0" title="Modes de paiement (VALIDEE)"/>
+            <PieChart fx:id="pieModesPaiement" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                      title="Modes de paiement (VALIDEE)"/>
 
             <!-- Line: évolution -->
             <LineChart fx:id="lineEvolution" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.ProjetDetailsController"
+            stylesheets="@../css/theme.css"
+            styleClass="root"
+            prefWidth="1200" prefHeight="760">
+
+    <top>
+        <VBox spacing="10" styleClass="premium-section">
+            <padding>
+                <Insets top="14" right="14" bottom="14" left="14"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button text="← Retour" onAction="#goBack" styleClass="secondary-action"/>
+                <VBox spacing="2">
+                    <Label fx:id="lblTitle" text="Projet" styleClass="section-title-premium"/>
+                    <Label fx:id="lblSub" text="Statut • Budget • Levé" styleClass="section-desc"/>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <VBox alignment="CENTER_RIGHT" spacing="2">
+                    <Label text="Maturité" styleClass="section-desc"/>
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <ProgressBar fx:id="pbMaturity" prefWidth="180"/>
+                        <Label fx:id="lblMaturity" text="0/100" styleClass="section-badge"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+
+            <Label fx:id="lblToast" text="" visible="false" managed="false" styleClass="toastInfo"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE" styleClass="premium-section">
+            <tabs>
+
+                <Tab text="Overview">
+                    <VBox spacing="12">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+
+                        <Label fx:id="lblDesc" wrapText="true"/>
+                        <HBox spacing="12">
+                            <VBox styleClass="stat-card-premium" spacing="6" prefWidth="220">
+                                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                                <Label text="Budget"/>
+                                <Label fx:id="lblBudget" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox styleClass="stat-card-premium" spacing="6" prefWidth="220">
+                                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                                <Label text="Total levé"/>
+                                <Label fx:id="lblLeve" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox styleClass="stat-card-premium" spacing="6" prefWidth="220">
+                                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                                <Label text="Reste"/>
+                                <Label fx:id="lblReste" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Documents">
+                    <BorderPane>
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+
+                        <top>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <ComboBox fx:id="cbDocType" prefWidth="220" />
+                                <Button text="➕ Ajouter document" onAction="#uploadDocument" styleClass="search-btn"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblDocsHint" text="Ajoute pitch deck, business plan, états financiers..." styleClass="section-desc"/>
+                            </HBox>
+                        </top>
+
+                        <center>
+                            <TableView fx:id="tableDocs" styleClass="premium-section">
+                                <columns>
+                                    <TableColumn fx:id="colDocType" text="Type" prefWidth="160"/>
+                                    <TableColumn fx:id="colDocName" text="Fichier" prefWidth="420"/>
+                                    <TableColumn fx:id="colDocDate" text="Upload" prefWidth="180"/>
+                                    <TableColumn fx:id="colDocActions" text="Actions" prefWidth="160"/>
+                                </columns>
+                            </TableView>
+                        </center>
+                    </BorderPane>
+                </Tab>
+
+                <Tab text="Checklist">
+                    <BorderPane>
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+
+                        <top>
+                            <Label text="Coche ce qui est validé. Le score maturité se met à jour automatiquement."
+                                   styleClass="section-desc"/>
+                        </top>
+                        <center>
+                            <ListView fx:id="lvChecklist" styleClass="premium-list"/>
+                        </center>
+                    </BorderPane>
+                </Tab>
+
+                <Tab text="Historique investissements">
+                    <BorderPane>
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+
+                        <center>
+                            <TableView fx:id="tableInv">
+                                <columns>
+                                    <TableColumn fx:id="colInvDate" text="Date" prefWidth="170"/>
+                                    <TableColumn fx:id="colInvMontant" text="Montant" prefWidth="160"/>
+                                    <TableColumn fx:id="colInvStatut" text="Statut" prefWidth="140"/>
+                                    <TableColumn fx:id="colInvUser" text="Investisseur" prefWidth="240"/>
+                                </columns>
+                            </TableView>
+                        </center>
+                    </BorderPane>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>

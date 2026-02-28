@@ -1,7 +1,13 @@
 package services.api;
 
 import entities.Api.NewsItem;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -15,7 +21,7 @@ import java.util.List;
 public class RssNewsService {
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()
-            .followRedirects(HttpClient.Redirect.NORMAL) // ✅ suit 301/302 automatiquement
+            .followRedirects(HttpClient.Redirect.NORMAL)
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
@@ -27,135 +33,115 @@ public class RssNewsService {
                 URLEncoder.encode(q, StandardCharsets.UTF_8) +
                 "&hl=fr&gl=TN&ceid=TN:fr";
 
-        String xml = fetchWithRedirectFallback(url);
-
-        // ⚠️ Ici tu gardes TON parsing actuel RSS -> List<NewsItem>
-        // Je te laisse la méthode parseRss(...) comme tu l’avais déjà.
+        String xml = fetch(url);
         return parseRss(xml, limit);
     }
 
-    private static String fetchWithRedirectFallback(String url) throws Exception {
+    private static String fetch(String url) throws Exception {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(20))
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) JavaFX-App/1.0") // ✅ évite certains 302
+                .header("User-Agent", "Mozilla/5.0 JavaFX-App/1.0")
                 .header("Accept", "application/rss+xml, application/xml;q=0.9, */*;q=0.8")
                 .GET()
                 .build();
 
         HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
-
-        // ✅ Si malgré followRedirects on reçoit encore un redirect
-        if (resp.statusCode() == 301 || resp.statusCode() == 302 || resp.statusCode() == 303
-                || resp.statusCode() == 307 || resp.statusCode() == 308) {
-
-            String location = resp.headers().firstValue("location").orElse("");
-            if (location.isBlank()) {
-                throw new RuntimeException("HTTP " + resp.statusCode() + " (redirect sans Location)");
-            }
-
-            HttpRequest req2 = HttpRequest.newBuilder()
-                    .uri(URI.create(location.startsWith("http") ? location : "https://news.google.com" + location))
-                    .timeout(Duration.ofSeconds(20))
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) JavaFX-App/1.0")
-                    .header("Accept", "application/rss+xml, application/xml;q=0.9, */*;q=0.8")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> resp2 = CLIENT.send(req2, HttpResponse.BodyHandlers.ofString());
-            if (resp2.statusCode() < 200 || resp2.statusCode() >= 300) {
-                throw new RuntimeException("HTTP " + resp2.statusCode() + " => " + resp2.body());
-            }
-            return resp2.body();
-        }
-
         if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
             throw new RuntimeException("HTTP " + resp.statusCode() + " => " + resp.body());
         }
-
         return resp.body();
     }
 
-    // ✅ Garde ton parsing RSS existant ici
     private static List<NewsItem> parseRss(String xml, int limit) throws Exception {
         List<NewsItem> out = new ArrayList<>();
         if (xml == null || xml.isBlank()) return out;
 
-        javax.xml.parsers.DocumentBuilderFactory dbf = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(false);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
         dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
-        javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
+        DocumentBuilder db = dbf.newDocumentBuilder();
         org.w3c.dom.Document doc = db.parse(new org.xml.sax.InputSource(new java.io.StringReader(xml)));
         doc.getDocumentElement().normalize();
 
-        org.w3c.dom.NodeList items = doc.getElementsByTagName("item");
+        NodeList items = doc.getElementsByTagName("item");
         for (int i = 0; i < items.getLength() && out.size() < limit; i++) {
-            org.w3c.dom.Element item = (org.w3c.dom.Element) items.item(i);
+            Element item = (Element) items.item(i);
 
-            String title  = textOf(item, "title");
-            String link   = textOf(item, "link");
-            String date   = textOf(item, "pubDate");
-            String source = textOf(item, "source");
-            String desc   = textOf(item, "description");
+            String title = textOf(item, "title").trim();
+            String link  = textOf(item, "link").trim();
+            String date  = textOf(item, "pubDate").trim();
+            String source = textOf(item, "source").trim();
 
-            if (link == null || link.isBlank()) link = textOf(item, "guid");
-            if (title == null) title = "";
-            if (link == null) link = "";
+            if (link.isBlank()) link = textOf(item, "guid").trim();
 
-            String imageUrl = extractImageUrl(item, desc);
+            // 1) Essayer image depuis RSS
+            String img = extractRssImage(item);
 
-            NewsItem ni = new NewsItem(
-                    title.trim(),
-                    link.trim(),
-                    source == null ? "" : source.trim(),
-                    date == null ? "" : date.trim()
-            );
-            // ✅ nouveau champ
-            ni.setImageUrl(imageUrl);
+            // 2) fallback og:image (lent) => on le fait seulement si pas d’image
+            if (img.isBlank() && !link.isBlank()) {
+                img = tryFetchOgImage(link);
+            }
 
-            out.add(ni);
+            out.add(new NewsItem(
+                    title.isBlank() ? "Sans titre" : title,
+                    link,
+                    source,
+                    date,
+                    img
+            ));
         }
         return out;
     }
 
-    private static String extractImageUrl(org.w3c.dom.Element item, String descriptionHtml) {
-        // 1) media:content url=
-        String url = firstAttr(item, "media:content", "url");
-        if (!isBlank(url)) return url;
-
-        // 2) media:thumbnail url=
-        url = firstAttr(item, "media:thumbnail", "url");
-        if (!isBlank(url)) return url;
-
-        // 3) <img src="..."> dans description
-        if (!isBlank(descriptionHtml)) {
-            java.util.regex.Matcher m = java.util.regex.Pattern
-                    .compile("<img[^>]+src\\s*=\\s*\"([^\"]+)\"", java.util.regex.Pattern.CASE_INSENSITIVE)
-                    .matcher(descriptionHtml);
-            if (m.find()) return m.group(1);
+    private static String extractRssImage(Element item) {
+        // Google News: parfois media:thumbnail
+        NodeList thumbs = item.getElementsByTagNameNS("*", "thumbnail");
+        if (thumbs != null && thumbs.getLength() > 0) {
+            org.w3c.dom.Node n = thumbs.item(0);
+            if (n != null && n.getAttributes() != null && n.getAttributes().getNamedItem("url") != null) {
+                return n.getAttributes().getNamedItem("url").getNodeValue();
+            }
         }
 
-        return ""; // pas d’image
+        // parfois enclosure url=
+        NodeList encl = item.getElementsByTagName("enclosure");
+        if (encl != null && encl.getLength() > 0) {
+            org.w3c.dom.Node n = encl.item(0);
+            if (n != null && n.getAttributes() != null && n.getAttributes().getNamedItem("url") != null) {
+                return n.getAttributes().getNamedItem("url").getNodeValue();
+            }
+        }
+
+        return "";
     }
 
-    private static String firstAttr(org.w3c.dom.Element parent, String tagName, String attr) {
-        org.w3c.dom.NodeList nl = parent.getElementsByTagName(tagName);
-        if (nl == null || nl.getLength() == 0) return "";
-        org.w3c.dom.Node n = nl.item(0);
-        if (!(n instanceof org.w3c.dom.Element el)) return "";
-        return el.getAttribute(attr);
+    private static String tryFetchOgImage(String url) {
+        try {
+            Document d = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 JavaFX-App/1.0")
+                    .timeout(6000)
+                    .followRedirects(true)
+                    .get();
+
+            String og = d.select("meta[property=og:image]").attr("content");
+            if (og != null && !og.isBlank()) return og.trim();
+
+            String tw = d.select("meta[name=twitter:image]").attr("content");
+            if (tw != null && !tw.isBlank()) return tw.trim();
+
+            return "";
+        } catch (Exception ignored) {
+            return "";
+        }
     }
 
-    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
-
-    private static String textOf(org.w3c.dom.Element parent, String tag) {
-        org.w3c.dom.NodeList nl = parent.getElementsByTagName(tag);
+    private static String textOf(Element parent, String tag) {
+        NodeList nl = parent.getElementsByTagName(tag);
         if (nl == null || nl.getLength() == 0) return "";
         org.w3c.dom.Node n = nl.item(0);
         if (n == null) return "";
-        return n.getTextContent();
+        return n.getTextContent() == null ? "" : n.getTextContent();
     }
-
-
 }

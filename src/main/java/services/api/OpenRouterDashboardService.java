@@ -37,7 +37,7 @@ public class OpenRouterDashboardService {
                         "- 2 risques";
 
         JSONObject body = new JSONObject();
-        body.put("model", "mistralai/mistral-7b-instruct"); // gratuit
+        body.put("model", "openai/gpt-4o-mini"); // gratuit
         body.put("messages", new JSONArray()
                 .put(new JSONObject()
                         .put("role", "user")
