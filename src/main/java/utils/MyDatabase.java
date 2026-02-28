@@ -6,30 +6,22 @@ import java.sql.SQLException;
 
 public class MyDatabase {
 
-    private final String USER = "root";
-    private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/boostup?useSSL=false&serverTimezone=UTC";
-
     private static MyDatabase instance;
-    private Connection connection;
+
+    // ⚠️ Mets tes infos DB ici
+    private static final String URL  = "jdbc:mysql://localhost:3306/boostup?useSSL=false&serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
     private MyDatabase() {}
 
-    public static MyDatabase getInstance() {
-        if (instance == null) {
-            instance = new MyDatabase();
-        }
+    public static synchronized MyDatabase getInstance() {
+        if (instance == null) instance = new MyDatabase();
         return instance;
     }
 
-    public Connection getConnection() {
-        try {
-            if (connection == null || connection.isClosed()) {
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            }
-            return connection;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erreur DB: " + e.getMessage(), e);
-        }
+    /** Retourne TOUJOURS une connexion valide (nouvelle). */
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }

@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -17,12 +18,15 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import utils.MyDatabase;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Objects;
+
 
 public class FinancementFrontController {
 
@@ -75,7 +79,7 @@ public class FinancementFrontController {
     @FXML private Slider slRiskMax;
     @FXML private Label lbRiskValue;
     @FXML private Label lbStrategySaved;
-
+    @FXML private BorderPane root;
     // ===== Data =====
     private final ObservableList<FinItem> startupAll = FXCollections.observableArrayList();
     private final ObservableList<FinItem> investorAll = FXCollections.observableArrayList();
@@ -548,7 +552,24 @@ public class FinancementFrontController {
     // Sidebar navigation
     // ===============================
 
-    @FXML private void goDashboard() { System.out.println("Navigation : Dashboard"); }
+    @FXML
+    private void goDashboard() {
+        switchScene("/fxml/dashboard.fxml");
+    }
+
+    private void switchScene(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent newRoot = loader.load();
+
+            Scene scene = root.getScene();
+            if (scene != null) scene.setRoot(newRoot);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @FXML private void goFinancement() { System.out.println("Vous êtes déjà sur Financement"); }
     @FXML private void goAccompagnement() { System.out.println("Navigation: Accompagnement"); }
     @FXML private void goEvenements() { System.out.println("Navigation: Événements"); }

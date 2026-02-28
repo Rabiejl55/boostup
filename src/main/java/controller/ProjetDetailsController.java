@@ -21,6 +21,7 @@ import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
+import javafx.scene.Scene;
 
 public class ProjetDetailsController {
 
@@ -62,16 +63,17 @@ public class ProjetDetailsController {
     private final DecimalFormat money = new DecimalFormat("#,##0.00");
 
     private int idProjet;
-    private int currentUserId;
+    private int currentUserId=8;
     private Runnable onBack;
     private HostServices hostServices;
     public void setHostServices(HostServices hs) { this.hostServices = hs; }
 
     /** ✅ appelé par l’écran parent avant affichage */
     /** Appelé par l’écran parent avant affichage */
-    public void init(int idProjet, int currentUserId, Runnable onBack) {
+
+    public void init(int idProjet, int userId, Runnable onBack) {
         this.idProjet = idProjet;
-        // si tu veux vraiment utiliser le user passé, remplace CURRENT_USER_ID final par une variable
+        this.currentUserId = userId;
         this.onBack = onBack;
         reloadAllAsync();
     }
@@ -258,6 +260,13 @@ public class ProjetDetailsController {
             @Override protected DocsScore call() throws Exception {
                 List<ProjetDocument> docs = dd.getDocuments(idProjet);
                 int score = dd.computeMaturityScore(idProjet);
+                if(score >= 70){
+                    pbMaturity.setStyle("-fx-accent: #22c55e;");
+                } else if(score >= 40){
+                    pbMaturity.setStyle("-fx-accent: #f59e0b;");
+                } else {
+                    pbMaturity.setStyle("-fx-accent: #ef4444;");
+                }
                 DocsScore ds = new DocsScore();
                 ds.docs = docs;
                 ds.score = score;

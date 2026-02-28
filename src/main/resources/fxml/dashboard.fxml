@@ -82,14 +82,6 @@
         </VBox>
     </left>
 
-    <!-- ===================== TOP BAR ===================== -->
-    <top>
-        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
-            <Label text="BoostUp" styleClass="logo-label"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblAdminEmail" text="admin@boostup.tn" styleClass="badge"/>
-        </HBox>
-    </top>
 
     <!-- ===================== CONTENT ===================== -->
     <center>

@@ -7,9 +7,10 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+            fx:id="root"
             fx:controller="controller.FinancementFrontController"
             stylesheets="@../css/theme.css"
-            styleClass="root"
+            styleClass="app-root"
             prefWidth="1400" prefHeight="800">
 
     <!-- ToggleGroup doit être dans fx:define -->
@@ -19,87 +20,36 @@
 
     <!-- ============ SIDEBAR ============ -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="280">
-            <padding>
-                <Insets top="0" right="0" bottom="0" left="0"/>
-            </padding>
-
-            <!-- Header premium -->
-            <VBox styleClass="sidebar-header" spacing="6">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Region styleClass="logo-badge" prefWidth="34" prefHeight="34"/>
-                    <VBox spacing="2">
-                        <Label text="BoostUp" styleClass="sidebar-title"/>
-                        <Label text="Espace utilisateur" styleClass="sidebar-subtitle"/>
-                    </VBox>
-                </HBox>
-                <Label text="Innovate • Fund • Grow" styleClass="sidebar-motto"/>
+        <VBox styleClass="sidebar" prefWidth="240">
+            <VBox spacing="2" style="-fx-padding: 22 20 10 20;">
+                <Label text="⚡ BoostUp" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 800;"/>
+                <Label text="Espace utilisateur" styleClass="sidebar-subtitle"/>
             </VBox>
 
-            <!-- Menu -->
-            <VBox styleClass="sidebar-menu" spacing="6">
-                <Label text="MODULES" styleClass="menu-section-label"/>
+            <Region styleClass="sidebar-sep"/>
 
-                <Button text="Dashboard" styleClass="menu-item-active" onAction="#goDashboard"/>
-                <Button text="Financement" styleClass="menu-item-active" onAction="#goFinancement"/>
-                <Button text="Accompagnement" styleClass="menu-item" onAction="#goAccompagnement"/>
-                <Button text="Événements" styleClass="menu-item" onAction="#goEvenements"/>
-                <Button text="Candidature" styleClass="menu-item" onAction="#goCandidature"/>
-            </VBox>
+            <!-- Boutons sidebar (dashboard style) -->
+            <Button text="Dashboard" styleClass="sidebar-btn" onAction="#goDashboard"/>
+            <Button text="Financement" styleClass="sidebar-btn active" onAction="#goFinancement"/>
+            <Button text="Accompagnement" styleClass="sidebar-btn" onAction="#goAccompagnement"/>
+            <Button text="Événements" styleClass="sidebar-btn" onAction="#goEvenements"/>
+            <Button text="Candidature" styleClass="sidebar-btn" onAction="#goCandidature"/>
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <!-- Footer -->
-            <VBox styleClass="sidebar-footer" spacing="10">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
+            <Region styleClass="sidebar-sep"/>
 
-                <Label text="Version 1.0" styleClass="version-text"/>
-                <Button text="Déconnexion" styleClass="search-btn" onAction="#logout"/>
-            </VBox>
+            <Button text="Déconnexion" styleClass="sidebar-btn danger" onAction="#logout"/>
         </VBox>
     </left>
 
-    <!-- ============ TOP BAR ============ -->
-    <top>
-        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="16">
-            <padding>
-                <Insets top="14" right="18" bottom="14" left="18"/>
-            </padding>
-
-            <VBox spacing="2">
-                <Label text="Financement" styleClass="app-title"/>
-                <Label text="Demandes • Offres • Matching" styleClass="app-subtitle"/>
-            </VBox>
-
-            <Region HBox.hgrow="ALWAYS"/>
-
-            <!-- Search -->
-            <HBox styleClass="search-container" alignment="CENTER_LEFT" spacing="10">
-                <Label text="🔎" styleClass="search-icon"/>
-                <TextField fx:id="tfSearch"
-                           promptText="Rechercher (startup, secteur, montant...)"
-                           styleClass="search-field"/>
-                <Button text="Rechercher" styleClass="search-btn" onAction="#applyFilters"/>
-            </HBox>
-
-            <!-- User profile -->
-            <HBox styleClass="user-profile" spacing="12" alignment="CENTER_LEFT">
-                <Region styleClass="avatar-circle" prefWidth="34" prefHeight="34"/>
-                <VBox spacing="0">
-                    <Label fx:id="lbUserName" text="Utilisateur" styleClass="user-name"/>
-                    <Label fx:id="lbUserRole" text="Startup" styleClass="user-status"/>
-                </VBox>
-            </HBox>
-        </HBox>
-    </top>
 
     <!-- ============ MAIN CONTENT ============ -->
     <center>
         <ScrollPane fitToWidth="true" styleClass="main-scroll">
             <content>
-                <VBox styleClass="main-content" spacing="22">
+
+                <VBox styleClass="main-content" spacing="16" maxWidth="1100">
 
                     <!-- HERO -->
                     <VBox styleClass="hero-section" spacing="10">
@@ -155,6 +105,7 @@
                                 </VBox>
                             </HBox>
                         </VBox>
+
 
                     </HBox>
 
