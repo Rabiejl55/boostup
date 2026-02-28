@@ -30,7 +30,7 @@ public class AppF extends Application {
 
         // Mettre la scène dans la fenêtre
         stage.setScene(scene);
-        stage.setTitle("Test Interface CSS");
+        stage.setTitle("Module financement");
         stage.show();
     }
 

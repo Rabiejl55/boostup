@@ -28,6 +28,11 @@
 
                 <Region HBox.hgrow="ALWAYS"/>
 
+                <!-- Actions -->
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="📋 Copier résumé" onAction="#copyResume" styleClass="secondary-action"/>
+                </HBox>
+
                 <VBox alignment="CENTER_RIGHT" spacing="4">
                     <Label text="Maturité" styleClass="section-desc"/>
                     <HBox spacing="10" alignment="CENTER_RIGHT">

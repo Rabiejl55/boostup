@@ -22,6 +22,10 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
 import javafx.scene.Scene;
+import javafx.animation.PauseTransition;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.util.Duration;
 
 public class ProjetDetailsController {
 
@@ -479,5 +483,84 @@ public class ProjetDetailsController {
         double montant;
         String statut;
         String userLabel;
+    }
+
+    @FXML
+    private void copyResume() {
+        try {
+            String title = safeText(lblTitle);
+            String sub = safeText(lblSub);
+
+            String budget = safeText(lblBudget);
+            String leve = safeText(lblLeve);
+            String reste = safeText(lblReste);
+
+            String maturity = safeText(lblMaturity); // "0/100" etc.
+
+            // Checklist: cochés / total (si tu as une ListView avec CheckBox / items)
+            int total = (lvChecklist != null && lvChecklist.getItems() != null) ? lvChecklist.getItems().size() : 0;
+            int checked = countCheckedChecklist();
+
+            String resume =
+                    "📌 " + title + "\n"
+                            + sub + "\n\n"
+                            + "Budget: " + budget + "\n"
+                            + "Total levé: " + leve + "\n"
+                            + "Reste: " + reste + "\n"
+                            + "Maturité: " + maturity + "\n"
+                            + "Checklist: " + checked + "/" + total + "\n";
+
+            ClipboardContent content = new ClipboardContent();
+            content.putString(resume);
+            Clipboard.getSystemClipboard().setContent(content);
+
+            showToast("Résumé copié ✅", "toastSuccess");
+        } catch (Exception ex) {
+            showToast("Impossible de copier ❌", "toastError");
+            ex.printStackTrace();
+        }
+    }
+
+    private int countCheckedChecklist() {
+        if (lvChecklist == null || lvChecklist.getItems() == null) return 0;
+
+        int checked = 0;
+
+        // ✅ Cas 1: tes items sont des CheckBox directement
+        for (Object it : lvChecklist.getItems()) {
+            if (it instanceof CheckBox cb && cb.isSelected()) checked++;
+        }
+
+        // ✅ Cas 2 (le plus courant en projet): tu as un modèle ChecklistItem { boolean done; }
+        // -> Décommente et adapte si ton modèle existe
+    /*
+    for (ChecklistItem it : lvChecklist.getItems()) {
+        if (it.isDone()) checked++;
+    }
+    */
+
+        return checked;
+    }
+
+    private void showToast(String msg, String cssClass) {
+        if (lblToast == null) return;
+
+        lblToast.setText(msg);
+        lblToast.getStyleClass().removeAll("toastInfo", "toastSuccess", "toastError");
+        lblToast.getStyleClass().add(cssClass);
+
+        lblToast.setManaged(true);
+        lblToast.setVisible(true);
+
+        PauseTransition pt = new PauseTransition(Duration.seconds(2.2));
+        pt.setOnFinished(e -> {
+            lblToast.setVisible(false);
+            lblToast.setManaged(false);
+        });
+        pt.playFromStart();
+    }
+
+    private String safeText(Label l) {
+        return (l == null || l.getText() == null) ? "" : l.getText().trim();
     }
 }
