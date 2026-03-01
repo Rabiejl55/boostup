@@ -26,35 +26,33 @@
         <VBox spacing="6" VBox.vgrow="ALWAYS">
             <padding><Insets top="22" right="14" bottom="22" left="14"/></padding>
 
-            <Label text="GESTION" styleClass="sidebar-section-lbl">
+            <Label text="NAVIGATION" styleClass="sidebar-section-lbl">
                 <padding><Insets left="10" bottom="6"/></padding>
             </Label>
 
-            <Button fx:id="btnNavCandidatures"
-                    text="📋   Candidatures"
+            <Button text="📊   Dashboard"
                     styleClass="nav-item"
                     maxWidth="Infinity"
-                    onAction="#goToCandidatures"/>
+                    onAction="#goToDashboard"/>
 
-            <Button fx:id="btnNavDossiers"
-                    text="📁   Dossiers"
-                    styleClass="nav-item"
-                    maxWidth="Infinity"
-                    onAction="#goToDossiers"/>
-
-            <Button fx:id="btnNavEvaluations"
-                    text="⭐   Évaluations"
-                    styleClass="nav-item, nav-item-active"
-                    maxWidth="Infinity"
-                    onAction="#goToEvaluations"/>
+            <Region styleClass="sidebar-sep">
+                <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
+            </Region>
+            <Label text="GESTION" styleClass="sidebar-section-lbl">
+                <padding><Insets left="10" bottom="6"/></padding>
+            </Label>
+            <Button text="📋   Candidatures" styleClass="nav-item"
+                    maxWidth="Infinity" onAction="#goToCandidatures"/>
+            <Button text="📁   Dossiers" styleClass="nav-item"
+                    maxWidth="Infinity" onAction="#goToDossiers"/>
+            <Button text="⭐   Évaluations" styleClass="nav-item, nav-item-active"
+                    maxWidth="Infinity" onAction="#goToEvaluations"/>
 
             <Region VBox.vgrow="ALWAYS"/>
             <Region styleClass="sidebar-sep"/>
 
-            <Button text="← Retour au menu"
-                    styleClass="btn-ghost"
-                    maxWidth="Infinity"
-                    onAction="#goBackToMenu">
+            <Button text="← Retour au menu" styleClass="btn-ghost"
+                    maxWidth="Infinity" onAction="#goBackToMenu">
                 <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
             </Button>
 
@@ -74,16 +72,32 @@
             <padding><Insets top="20" right="32" bottom="20" left="32"/></padding>
             <VBox spacing="2">
                 <Label text="Évaluations" styleClass="view-title"/>
-                <Label text="Gérez les évaluations et les décisions d'admission" styleClass="view-subtitle"/>
+                <Label text="Gérez les évaluations et exportez les rapports PDF"
+                       styleClass="view-subtitle"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button fx:id="addButton"     styleClass="btn-primary" onAction="#openAddForm"  text="＋  Ajouter"/>
-            <Button fx:id="refreshButton" styleClass="btn-refresh" onAction="#refreshTable" text="⟳  Rafraîchir">
-                <HBox.margin><Insets left="8"/></HBox.margin>
+
+            <!-- ✨ NOUVEAU — Export PDF dans la topbar (désactivé si rien sélectionné) -->
+            <Button fx:id="btnExportPdf"
+                    text="📄  Exporter PDF"
+                    onAction="#exporterPdf"
+                    disable="true"
+                    style="-fx-background-color: linear-gradient(to right, #0f1923, #1a2640);
+                           -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;
+                           -fx-padding: 8 16; -fx-background-radius: 9px; -fx-cursor: hand;
+                           -fx-border-color: rgba(79,98,232,0.5); -fx-border-radius: 9px;
+                           -fx-border-width: 1.5px;
+                           -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.3), 8, 0, 0, 2);"/>
+
+            <Button fx:id="addButton"     styleClass="btn-primary"
+                    onAction="#openAddForm"  text="＋  Ajouter"/>
+            <Button fx:id="refreshButton" styleClass="btn-refresh"
+                    onAction="#refreshTable" text="⟳  Rafraîchir">
+                <HBox.margin><Insets left="4"/></HBox.margin>
             </Button>
         </HBox>
 
-        <!-- Tableau + boutons (contenu original) -->
+        <!-- Tableau + boutons -->
         <VBox VBox.vgrow="ALWAYS" spacing="16">
             <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
 
@@ -97,11 +111,26 @@
                     <TableColumn fx:id="noteGlobaleColumn"    prefWidth="120" text="Globale"/>
                     <TableColumn fx:id="decisionColumn"       prefWidth="154" text="Décision"/>
                 </columns>
+                <placeholder>
+                    <Label text="Aucune évaluation disponible"
+                           style="-fx-text-fill:#9ca3af; -fx-font-size:13px;"/>
+                </placeholder>
             </TableView>
 
             <HBox alignment="CENTER_LEFT" spacing="12">
-                <Button fx:id="editButton" styleClass="action-button" onAction="#openEditForm" text="✏  Modifier"/>
-                <Button fx:id="hideButton" styleClass="btn-block"     onAction="#hideSelected" text="🙈  Cacher"/>
+                <Button fx:id="editButton" styleClass="action-button"
+                        onAction="#openEditForm" text="✏  Modifier"/>
+                <Button fx:id="hideButton" styleClass="btn-block"
+                        onAction="#hideSelected" text="🙈  Cacher"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <!-- ✨ Bouton PDF aussi en bas pour accès rapide -->
+                <Button text="📄  Exporter le rapport PDF"
+                        onAction="#exporterPdf"
+                        style="-fx-background-color: #f7f8fc; -fx-text-fill: #1e2746;
+                               -fx-font-size:12px; -fx-font-weight:700;
+                               -fx-padding:8 16; -fx-background-radius:9px;
+                               -fx-border-color:#dce0f0; -fx-border-radius:9px;
+                               -fx-border-width:1.5px; -fx-cursor:hand;"/>
             </HBox>
         </VBox>
     </VBox>

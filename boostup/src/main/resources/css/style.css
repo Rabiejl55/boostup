@@ -2401,3 +2401,52 @@
     -fx-translate-y: 0;
     -fx-effect: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DASHBOARD — KPI CARDS & CHART CARDS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.kpi-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14px;
+    -fx-border-color: -boostup-border;
+    -fx-border-radius: 14px;
+    -fx-border-width: 1.5px;
+    -fx-effect: dropshadow(gaussian, rgba(30,39,70,0.06), 12, 0, 0, 3);
+}
+
+.kpi-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.14), 18, 0, 0, 5);
+    -fx-border-color: rgba(79,98,232,0.3);
+    -fx-translate-y: -1px;
+}
+
+.kpi-number {
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -boostup-text;
+}
+
+.kpi-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -boostup-muted;
+}
+
+.kpi-icon {
+    -fx-min-width: 44px;
+    -fx-min-height: 44px;
+    -fx-max-width: 44px;
+    -fx-max-height: 44px;
+    -fx-background-radius: 12px;
+    -fx-alignment: center;
+}
+
+.chart-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14px;
+    -fx-border-color: -boostup-border;
+    -fx-border-radius: 14px;
+    -fx-border-width: 1.5px;
+    -fx-effect: dropshadow(gaussian, rgba(30,39,70,0.06), 12, 0, 0, 3);
+}

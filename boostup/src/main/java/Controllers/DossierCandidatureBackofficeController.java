@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -49,6 +50,11 @@ public class DossierCandidatureBackofficeController implements Initializable {
 
     // Recherche
     @FXML private TextField searchField;
+
+    // ── Tri ───────────────────────────────────────────────────────
+    // critère : "nom" | "date" | "etat"  ;  ordre : asc/desc
+    private String  sortCritere = "nom";
+    private boolean sortAsc     = true;
 
     // ── État interne ──────────────────────────────────────────────
     private final DossierCandidatureService service = new DossierCandidatureService();
@@ -91,14 +97,31 @@ public class DossierCandidatureBackofficeController implements Initializable {
     }
 
     private void filterAndRender(String query) {
+        // ── Filtrage ──────────────────────────────────────────────
         List<DossierCandidature> filtered = allDossiers.stream()
                 .filter(d -> query == null || query.isBlank()
                         || d.getNomDossier().toLowerCase().contains(query.toLowerCase())
                         || d.getNomCandidature().toLowerCase().contains(query.toLowerCase()))
                 .collect(Collectors.toList());
 
+        // ── Tri ───────────────────────────────────────────────────
+        Comparator<DossierCandidature> cmp = switch (sortCritere) {
+            case "date" -> Comparator.comparing(
+                    d -> d.getDateCreation() != null ? d.getDateCreation() : new java.sql.Date(0));
+            case "etat" -> Comparator.comparing(
+                    d -> d.getEtat() != null ? d.getEtat() : "");
+            default     -> Comparator.comparing(
+                    d -> d.getNomDossier() != null ? d.getNomDossier().toLowerCase() : "");
+        };
+        if (!sortAsc) cmp = cmp.reversed();
+        filtered.sort(cmp);
+
+        // ── Compteur ──────────────────────────────────────────────
         if (lblCount != null) {
-            lblCount.setText(filtered.size() + " dossier" + (filtered.size() > 1 ? "s" : ""));
+            int shown = filtered.size(), total = allDossiers.size();
+            lblCount.setText(shown == total
+                    ? total + " dossier" + (total > 1 ? "s" : "")
+                    : shown + " / " + total + " dossier" + (total > 1 ? "s" : ""));
         }
 
         dossierListContainer.getChildren().clear();
@@ -111,6 +134,29 @@ public class DossierCandidatureBackofficeController implements Initializable {
                 filtered.stream().noneMatch(d -> d.getIdDossier() == selectedDossier.getIdDossier())) {
             showDetail(null);
         }
+    }
+
+    // ── Méthodes de tri appelées depuis le FXML ───────────────────
+
+    @FXML
+    private void trierParNom() {
+        if ("nom".equals(sortCritere)) sortAsc = !sortAsc;
+        else { sortCritere = "nom"; sortAsc = true; }
+        filterAndRender(searchField != null ? searchField.getText() : "");
+    }
+
+    @FXML
+    private void trierParDate() {
+        if ("date".equals(sortCritere)) sortAsc = !sortAsc;
+        else { sortCritere = "date"; sortAsc = false; } // desc par défaut (plus récent en premier)
+        filterAndRender(searchField != null ? searchField.getText() : "");
+    }
+
+    @FXML
+    private void trierParEtat() {
+        if ("etat".equals(sortCritere)) sortAsc = !sortAsc;
+        else { sortCritere = "etat"; sortAsc = true; }
+        filterAndRender(searchField != null ? searchField.getText() : "");
     }
 
     // ── Construit une ligne/carte dans la liste gauche ──────────
@@ -332,6 +378,10 @@ public class DossierCandidatureBackofficeController implements Initializable {
 
     // ── Navigation sidebar ────────────────────────────────────────
 
+    @FXML private void goToDashboard() {
+        openView("/fxml/DashboardBackofficeView.fxml", "Dashboard");
+    }
+
     @FXML private void goToCandidatures() {
         openView("/fxml/CandidatureBackofficeView.fxml", "Candidatures");
     }
@@ -339,10 +389,6 @@ public class DossierCandidatureBackofficeController implements Initializable {
     @FXML private void goToEvaluations() {
         openView("/fxml/EvaluationBackofficeView.fxml", "Évaluations");
     }
-    @FXML private void goBackToMenu() {
-        ((Stage) dossierListContainer.getScene().getWindow()).close();
-    }
-
     private void openView(String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

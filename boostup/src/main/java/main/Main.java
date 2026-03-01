@@ -91,18 +91,18 @@ public class Main extends Application {
         }
     }
 
-    // ─── Ouverture Back Office ────────────────────────────────────────────────
+    // ─── Ouverture Back Office → Dashboard directement ───────────────────────
     private void openBackOffice(Stage stage) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/MenuBackoffice.fxml"));
-            Scene scene = new Scene(loader.load(), 600, 500);
+                    getClass().getResource("/fxml/DashboardBackofficeView.fxml"));
+            Scene scene = new Scene(loader.load(), 1200, 750);
             loadCss(scene);
-            stage.setTitle("BOOSTUP — Back Office");
+            stage.setTitle("BOOSTUP — Back Office — Dashboard");
             stage.setScene(scene);
             stage.setResizable(true);
-            stage.setMinWidth(600);
-            stage.setMinHeight(500);
+            stage.setMinWidth(900);
+            stage.setMinHeight(600);
             stage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
