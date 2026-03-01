@@ -1,62 +1,62 @@
 package Controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
-import java.io.IOException;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.URL;
+
+/**
+ * MenuBackofficeController
+ * Gère les clics sur les 3 cartes du menu d'accueil.
+ * Chaque clic ouvre une nouvelle fenêtre (avec sidebar navy intégrée).
+ */
 public class MenuBackofficeController {
 
-    @FXML
-    private void openCandidatures() {
-        openView("/fxml/CandidatureBackofficeView.fxml", "Candidatures");
+    @FXML public void openCandidatures() {
+        openWindow("/fxml/CandidatureBackofficeView.fxml", "Candidatures");
     }
 
-    @FXML
-    private void openDossiers() {
-        openView("/fxml/DossierCandidatureBackofficeView.fxml", "Dossiers");
+    @FXML public void openDossiers() {
+        openWindow("/fxml/DossierCandidatureBackofficeView.fxml", "Dossiers");
     }
 
-    @FXML
-    private void openEvaluations() {
-        openView("/fxml/EvaluationBackofficeView.fxml", "Évaluations");
+    @FXML public void openEvaluations() {
+        openWindow("/fxml/EvaluationBackofficeView.fxml", "Évaluations");
     }
 
-    /**
-     * Méthode unique et fiable pour charger une vue
-     */
-    private void openView(String fxmlPath, String title) {
+    private void openWindow(String fxmlPath, String title) {
         try {
-            // Récupérer la Stage actuelle AVANT de charger le nouveau FXML
-            Stage currentStage = (Stage) javafx.stage.Window.getWindows().get(0);
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Scene newScene = new Scene(loader.load(), 1000, 700);
+            HBox root = loader.load();
+            Scene scene = new Scene(root, 1200, 750);
+            loadCss(scene);
 
-            // Changer la scène
-            currentStage.setScene(newScene);
-            currentStage.setTitle("BoostUp - Backoffice - " + title);
-            currentStage.centerOnScreen();
-
-            // Réappliquer le CSS
-            String css = getClass().getResource("/css/style.css").toExternalForm();
-            if (css != null) {
-                newScene.getStylesheets().add(css);
-            }
-
-            // Rafraîchissement automatique pour la vue Candidatures
-            if (fxmlPath.contains("CandidatureBackofficeView.fxml")) {
-                CandidatureBackofficeController ctrl = loader.getController();
-                ctrl.refreshTable();
-            }
+            Stage stage = new Stage();
+            stage.setTitle("BOOSTUP — Back Office — " + title);
+            stage.setScene(scene);
+            stage.setMinWidth(900);
+            stage.setMinHeight(600);
+            stage.centerOnScreen();
+            stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Erreur de chargement du FXML : " + fxmlPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erreur inattendue lors du changement de vue");
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setTitle("Erreur"); a.setHeaderText(null);
+            a.setContentText("Impossible d'ouvrir la fenêtre : " + e.getMessage());
+            a.showAndWait();
+        }
+    }
+
+    private void loadCss(Scene scene) {
+        for (String path : new String[]{"/style.css", "/css/style.css"}) {
+            URL css = getClass().getResource(path);
+            if (css != null) { scene.getStylesheets().add(css.toExternalForm()); return; }
         }
     }
 }

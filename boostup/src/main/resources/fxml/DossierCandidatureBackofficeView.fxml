@@ -1,49 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="0" styleClass="light-bg"
-      xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.DossierCandidatureBackofficeController">
+<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.DossierCandidatureBackofficeController"
+      styleClass="app-shell" spacing="0">
 
-    <!-- Barre supérieure -->
-    <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="15">
-        <Label styleClass="logo-label" text="🚀 BoostUp" />
-        <Label styleClass="logo-label" text="›" style="-fx-opacity: 0.6;" />
-        <Label styleClass="logo-label" text="Dossiers des Candidatures" />
-    </HBox>
+    <!-- ══ SIDEBAR ══ -->
+    <VBox styleClass="sidebar" spacing="0" minWidth="240" maxWidth="240">
+        <VBox styleClass="sidebar-brand" spacing="6" alignment="CENTER_LEFT">
+            <padding><Insets top="32" right="24" bottom="28" left="24"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="⚙️" style="-fx-font-size:26px;"/>
+                <VBox spacing="1">
+                    <Label text="BOOSTUP" styleClass="sidebar-brand-name"/>
+                    <Label text="Administration" styleClass="sidebar-brand-sub"/>
+                </VBox>
+            </HBox>
+        </VBox>
 
-    <!-- Contenu principal -->
-    <VBox VBox.vgrow="ALWAYS" spacing="16" style="-fx-padding: 20 25 20 25;">
+        <Region styleClass="sidebar-sep"/>
 
-        <!-- En-tête de section -->
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label styleClass="page-title" text="Dossiers des Candidatures" />
-            <HBox HBox.hgrow="ALWAYS" />
+        <VBox spacing="6" VBox.vgrow="ALWAYS">
+            <padding><Insets top="22" right="14" bottom="22" left="14"/></padding>
+
+            <Label text="GESTION" styleClass="sidebar-section-lbl">
+                <padding><Insets left="10" bottom="6"/></padding>
+            </Label>
+
+            <Button fx:id="btnNavCandidatures"
+                    text="📋   Candidatures"
+                    styleClass="nav-item"
+                    maxWidth="Infinity"
+                    onAction="#goToCandidatures"/>
+
+            <Button fx:id="btnNavDossiers"
+                    text="📁   Dossiers"
+                    styleClass="nav-item, nav-item-active"
+                    maxWidth="Infinity"
+                    onAction="#goToDossiers"/>
+
+            <Button fx:id="btnNavEvaluations"
+                    text="⭐   Évaluations"
+                    styleClass="nav-item"
+                    maxWidth="Infinity"
+                    onAction="#goToEvaluations"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Region styleClass="sidebar-sep"/>
+
+            <Button text="← Retour au menu"
+                    styleClass="btn-ghost"
+                    maxWidth="Infinity"
+                    onAction="#goBackToMenu">
+                <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
+            </Button>
+
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets top="10" bottom="4"/></padding>
+                <Label text="BOOSTUP  ·  v1.0" styleClass="sidebar-footer-lbl"/>
+                <Label text="Back Office" styleClass="sidebar-footer-lbl"/>
+            </VBox>
+        </VBox>
+    </VBox>
+
+    <!-- ══ CONTENU ══ -->
+    <VBox HBox.hgrow="ALWAYS" styleClass="view-root" spacing="0">
+
+        <!-- Top Bar -->
+        <HBox styleClass="view-topbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="20" right="32" bottom="20" left="32"/></padding>
+            <VBox spacing="2">
+                <Label text="Dossiers" styleClass="view-title"/>
+                <Label text="Consultez et supervisez les dossiers de candidature"
+                       styleClass="view-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button styleClass="btn-refresh" onAction="#refreshTable" text="⟳  Rafraîchir"/>
         </HBox>
 
         <!-- Tableau -->
-        <TableView fx:id="dossierTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
-            <columns>
-                <!-- idColumn masquée -->
-                <TableColumn fx:id="idColumn" minWidth="0.0" prefWidth="0.0" visible="false" />
-                <TableColumn fx:id="nomCandidatureColumn" prefWidth="160" text="Nom Candidature" />
-                <TableColumn fx:id="descriptionColumn" prefWidth="200" text="Description Projet" />
-                <TableColumn fx:id="businessPlanColumn" prefWidth="160" text="Business Plan" />
-                <TableColumn fx:id="dateCreationColumn" prefWidth="140" text="Date Création" />
-                <TableColumn fx:id="etatColumn" prefWidth="120" text="État" />
-                <TableColumn fx:id="visibleColumn" prefWidth="100" text="Visible" />
-            </columns>
-        </TableView>
+        <VBox VBox.vgrow="ALWAYS" spacing="16">
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
 
-        <!-- Barre d'actions -->
-        <HBox alignment="CENTER" spacing="12">
-            <Button fx:id="hideButton" styleClass="btn-block" onAction="#hideSelected" text="Cacher" />
-            <Button fx:id="refreshButton" styleClass="btn-refresh" onAction="#refreshTable" text="Rafraîchir" />
-            <Button fx:id="backButton" styleClass="secondary-button" onAction="#goBackToMenu" text="← Retour au menu" />
-        </HBox>
+            <TableView fx:id="dossierTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="nomCandidatureColumn" text="Nom Candidature"    prefWidth="180"/>
+                    <TableColumn fx:id="nomDossierColumn"     text="Nom Dossier"        prefWidth="160"/>
+                    <TableColumn fx:id="descriptionColumn"    text="Description Projet" prefWidth="220"/>
+                    <TableColumn fx:id="businessPlanColumn"   text="Business Plan"      prefWidth="160"/>
+                    <TableColumn fx:id="dateCreationColumn"   text="Date Création"      prefWidth="120"/>
+                    <TableColumn fx:id="etatColumn"           text="État"               prefWidth="100"/>
+                </columns>
+            </TableView>
 
+            <!-- ── Barre d'actions ── -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+
+                <!-- Bouton Cacher (existant) -->
+                <Button fx:id="hideButton"
+                        styleClass="btn-block"
+                        onAction="#hideSelected"
+                        text="🙈  Cacher"/>
+
+                <!-- ✨ Bouton Analyser IA (NOUVEAU) -->
+                <Button fx:id="btnAnalyserIA"
+                        styleClass="btn-ia"
+                        onAction="#analyserAvecIA"
+                        text="🤖  Analyser avec l'IA"
+                        disable="true"/>
+
+                <!-- Info -->
+                <Label text="← Sélectionnez un dossier pour l'analyser"
+                       style="-fx-font-size:11px; -fx-text-fill:#9ca3af; -fx-font-style:italic;"/>
+
+            </HBox>
+        </VBox>
     </VBox>
-</VBox>
+</HBox>

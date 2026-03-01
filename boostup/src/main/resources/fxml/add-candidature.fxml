@@ -21,16 +21,28 @@
             <Label text="Nom du candidat  *" styleClass="field-label"/>
             <TextField fx:id="tfNomCandidature" styleClass="dialog-input" promptText="Ex : Jean Dupont"/>
         </VBox>
+
         <VBox spacing="6">
             <Label text="Nom de la startup  *" styleClass="field-label"/>
             <TextField fx:id="tfNomStartup" styleClass="dialog-input" promptText="Ex : TechVision SAS"/>
         </VBox>
+
+        <!-- ✅ NOUVEAU — Email de contact -->
+        <VBox spacing="6">
+            <Label text="Email de contact  *" styleClass="field-label"/>
+            <TextField fx:id="tfEmail" styleClass="dialog-input"
+                       promptText="Ex : contact@techvision.com"/>
+            <Label text="📧  Vous recevrez les notifications de statut à cette adresse."
+                   style="-fx-font-size:11px; -fx-text-fill:#6b7280; -fx-font-style:italic;"/>
+        </VBox>
+
         <VBox spacing="6">
             <Label text="Date de dépôt  *" styleClass="field-label"/>
             <DatePicker fx:id="dpDate" styleClass="dialog-dp" maxWidth="Infinity"/>
         </VBox>
+
         <VBox spacing="6">
-            <Label text="Commentaire " styleClass="field-label"/>
+            <Label text="Commentaire  *" styleClass="field-label"/>
             <TextArea fx:id="taComment" styleClass="dialog-ta" promptText="Décrivez votre projet…"
                       prefRowCount="3" wrapText="true"/>
         </VBox>

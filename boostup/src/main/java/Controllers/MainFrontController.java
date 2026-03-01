@@ -13,7 +13,9 @@ import java.util.ResourceBundle;
 
 /**
  * Contrôleur principal lié à MainFrontView.fxml.
- * Joue également le rôle d'AppController en implémentant refreshSidebarStats().
+ *
+ * ✅ Plus besoin de démarrer LocalHttpServer ici —
+ *    le QR Code utilise Netlify (URL statique, aucun serveur local requis).
  */
 public class MainFrontController implements Initializable {
 
@@ -21,22 +23,20 @@ public class MainFrontController implements Initializable {
     @FXML private Button    btnNavCandidatures;
     @FXML private Button    btnNavDossiers;
 
-    // Référence vers soi-même en tant qu'AppController
-    // pour pouvoir l'injecter dans les sous-contrôleurs
     private final AppController selfAsApp = new AppController() {
         @Override
         public void refreshSidebarStats() {
-            // Ajoutez ici la logique si vous avez des compteurs
-            // dans MainFrontView.fxml (Labels dans la sidebar, etc.)
+            // À compléter si compteurs dans la sidebar
         }
     };
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        showCandidatures(); // Vue par défaut au démarrage
+        // ✅ Aucun serveur à démarrer — on affiche directement la vue
+        showCandidatures();
     }
 
-    // ─── Navigation ──────────────────────────────────────────────────────────
+    // ─── Navigation ──────────────────────────────────────────────
 
     @FXML
     public void showCandidatures() {
@@ -72,7 +72,7 @@ public class MainFrontController implements Initializable {
         }
     }
 
-    // ─── Helpers ─────────────────────────────────────────────────────────────
+    // ─── Helpers ─────────────────────────────────────────────────
 
     private void setActive(Button active, Button... others) {
         active.getStyleClass().removeAll("nav-item", "nav-item-active");

@@ -18,17 +18,17 @@ public class AddCandidatureController implements Initializable {
 
     @FXML private TextField  tfNomCandidature;
     @FXML private TextField  tfNomStartup;
+    @FXML private TextField  tfEmail;          // ✅ NOUVEAU
     @FXML private DatePicker dpDate;
     @FXML private TextArea   taComment;
 
-    // Compteurs de caractères (fx:id à ajouter dans le FXML)
     @FXML private Label lblCountNom;
     @FXML private Label lblCountStartup;
     @FXML private Label lblCountComment;
 
     private static final int MAX_NOM     = 50;
     private static final int MAX_STARTUP = 50;
-    private static final int MAX_COMMENT = 300;
+    private static final int MAX_COMMENT = 3000;
     private static final int MIN_NOM     = 3;
     private static final int MIN_STARTUP = 2;
     private static final LocalDate MIN_DATE = LocalDate.of(2026, 2, 23);
@@ -69,39 +69,47 @@ public class AddCandidatureController implements Initializable {
             validateNomLive(tfNomStartup, val, MIN_STARTUP);
         });
 
+        // ✅ Validation live email
+        tfEmail.textProperty().addListener((obs, old, val) -> {
+            if (val == null || val.isBlank()) {
+                tfEmail.setStyle("");
+            } else if (val.matches("^[\\w.+\\-]+@[\\w\\-]+\\.[a-zA-Z]{2,}$")) {
+                tfEmail.setStyle("-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
+            } else {
+                tfEmail.setStyle("-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
+            }
+        });
+
         // Limite commentaire
         taComment.textProperty().addListener((obs, old, val) -> {
             if (val != null && val.length() > MAX_COMMENT) taComment.setText(old);
         });
     }
 
-    // ── Compteur pour TextField ───────────────────────────────────────────────
     private void setupCounter(TextField tf, Label lbl, int max) {
         if (lbl == null) return;
         lbl.setText("0/" + max + " caractères");
         tf.textProperty().addListener((obs, old, val) -> {
             int len = val == null ? 0 : val.length();
             lbl.setText(len + "/" + max + " caractères");
-            lbl.setStyle(len == 0       ? "-fx-text-fill:#9ca3af;" :
-                    len < max / 2  ? "-fx-text-fill:#f59e0b;" :
+            lbl.setStyle(len == 0      ? "-fx-text-fill:#9ca3af;" :
+                    len < max / 2 ? "-fx-text-fill:#f59e0b;" :
                             "-fx-text-fill:#10b981;");
         });
     }
 
-    // ── Compteur pour TextArea ────────────────────────────────────────────────
     private void setupCounter(TextArea ta, Label lbl, int max) {
         if (lbl == null) return;
         lbl.setText("0/" + max + " caractères");
         ta.textProperty().addListener((obs, old, val) -> {
             int len = val == null ? 0 : val.length();
             lbl.setText(len + "/" + max + " caractères");
-            lbl.setStyle(len == 0       ? "-fx-text-fill:#9ca3af;" :
-                    len < max / 2  ? "-fx-text-fill:#f59e0b;" :
+            lbl.setStyle(len == 0      ? "-fx-text-fill:#9ca3af;" :
+                    len < max / 2 ? "-fx-text-fill:#f59e0b;" :
                             "-fx-text-fill:#10b981;");
         });
     }
 
-    // ── Bordure live selon longueur ───────────────────────────────────────────
     private void validateNomLive(TextField tf, String val, int min) {
         if (val == null || val.trim().isEmpty())
             tf.setStyle("");
@@ -129,67 +137,71 @@ public class AddCandidatureController implements Initializable {
 
     @FXML
     private void save() {
-        // ── 1. Tous les champs obligatoires ──────────────────────────────────
         String nom     = tfNomCandidature.getText() == null ? "" : tfNomCandidature.getText().trim();
         String startup = tfNomStartup.getText()     == null ? "" : tfNomStartup.getText().trim();
+        String email   = tfEmail.getText()          == null ? "" : tfEmail.getText().trim(); // ✅
         String comment = taComment.getText()        == null ? "" : taComment.getText().trim();
 
+        // ── Champs obligatoires ───────────────────────────────────
         if (nom.isEmpty()) {
             highlight(tfNomCandidature);
-            showWarn("Champ obligatoire", "Le nom de la candidature est requis.");
-            return;
+            showWarn("Champ obligatoire", "Le nom de la candidature est requis."); return;
         }
         if (startup.isEmpty()) {
             highlight(tfNomStartup);
-            showWarn("Champ obligatoire", "Le nom de la startup est requis.");
-            return;
-        }
-        if (comment.isEmpty()) {
-            showWarn("Champ obligatoire", "Le commentaire est requis.");
-            return;
-        }
-        if (dpDate.getValue() == null) {
-            showWarn("Champ obligatoire", "La date de dépôt est requise.");
-            return;
+            showWarn("Champ obligatoire", "Le nom de la startup est requis."); return;
         }
 
-        // ── 2. Longueurs minimales ────────────────────────────────────────────
+        // ✅ Email obligatoire + validation format
+        if (email.isEmpty()) {
+            highlight(tfEmail);
+            showWarn("Champ obligatoire", "L'email de contact est requis."); return;
+        }
+        if (!email.matches("^[\\w.+\\-]+@[\\w\\-]+\\.[a-zA-Z]{2,}$")) {
+            highlight(tfEmail);
+            showWarn("Email invalide", "Veuillez saisir une adresse email valide.\nEx : contact@startup.com"); return;
+        }
+
+        if (comment.isEmpty()) {
+            showWarn("Champ obligatoire", "Le commentaire est requis."); return;
+        }
+        if (dpDate.getValue() == null) {
+            showWarn("Champ obligatoire", "La date de dépôt est requise."); return;
+        }
+
+        // ── Longueurs minimales ───────────────────────────────────
         if (nom.length() < MIN_NOM) {
             highlight(tfNomCandidature);
-            showWarn("Champ invalide", "Le nom doit contenir au moins " + MIN_NOM + " caractères.");
-            return;
+            showWarn("Champ invalide", "Le nom doit contenir au moins " + MIN_NOM + " caractères."); return;
         }
         if (nom.matches("[0-9]+")) {
             highlight(tfNomCandidature);
-            showWarn("Champ invalide", "Le nom ne peut pas être uniquement des chiffres.");
-            return;
+            showWarn("Champ invalide", "Le nom ne peut pas être uniquement des chiffres."); return;
         }
         if (startup.length() < MIN_STARTUP) {
             highlight(tfNomStartup);
-            showWarn("Champ invalide", "Le nom de la startup doit contenir au moins " + MIN_STARTUP + " caractères.");
-            return;
+            showWarn("Champ invalide", "Le nom de la startup doit contenir au moins " + MIN_STARTUP + " caractères."); return;
         }
         if (dpDate.getValue().isBefore(MIN_DATE)) {
-            showWarn("Date invalide", "La date ne peut pas être antérieure au 23/02/2026.");
-            return;
+            showWarn("Date invalide", "La date ne peut pas être antérieure au 23/02/2026."); return;
         }
 
-        // ── 3. Unicité nomCandidature ─────────────────────────────────────────
+        // ── Unicité nomCandidature ────────────────────────────────
         try {
             if (service.existsNomCandidature(nom, 0)) {
                 highlight(tfNomCandidature);
-                showWarn("Nom déjà utilisé", "Une candidature avec ce nom existe déjà. Veuillez en choisir un autre.");
-                return;
+                showWarn("Nom déjà utilisé",
+                        "Une candidature avec ce nom existe déjà. Veuillez en choisir un autre."); return;
             }
         } catch (SQLException ex) {
-            showWarn("Erreur", "Impossible de vérifier l'unicité : " + ex.getMessage());
-            return;
+            showWarn("Erreur", "Impossible de vérifier l'unicité : " + ex.getMessage()); return;
         }
 
-        // ── 4. Sauvegarde ─────────────────────────────────────────────────────
+        // ── Sauvegarde ────────────────────────────────────────────
         Candidature c = new Candidature();
         c.setNomCandidature(nom);
         c.setNomStartup(startup);
+        c.setEmailContact(email);   // ✅ NOUVEAU
         c.setDateDepot(Date.valueOf(dpDate.getValue()));
         c.setStatut("EN_ATTENTE");
         c.setScore(null);

@@ -1,40 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" prefHeight="500.0" prefWidth="600.0" spacing="24.0"
+<!--
+    MenuBackoffice.fxml — Page d'accueil du Back Office
+    Design original conservé : fond dégradé + 3 cartes de navigation
+    Chaque carte ouvre une NOUVELLE FENÊTRE avec sidebar navy (design front office)
+-->
+<VBox alignment="CENTER" prefHeight="750.0" prefWidth="1200.0" spacing="24.0"
       styleClass="gradient-bg"
       xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.MenuBackofficeController">
-    <padding><Insets bottom="60.0" left="60.0" right="60.0" top="60.0" /></padding>
+    <padding><Insets bottom="60.0" left="120.0" right="120.0" top="60.0"/></padding>
 
     <!-- Logo / Titre -->
     <VBox alignment="CENTER" spacing="6">
-        <Label styleClass="page-title" text="🚀 BoostUp" />
-        <Label styleClass="page-subtitle" text="Panneau d'administration" />
+        <Label styleClass="page-title" text="🚀 BoostUp"/>
+        <Label styleClass="page-subtitle" text="Panneau d'administration"/>
     </VBox>
 
-    <!-- Cartes de navigation -->
+    <!-- Cartes de navigation (design original conservé) -->
     <VBox alignment="CENTER" spacing="16" style="-fx-padding: 20 0 0 0;">
 
-        <VBox styleClass="action-card" onMouseClicked="#openCandidatures" prefWidth="340" alignment="CENTER" spacing="6">
-            <Label text="📋" style="-fx-font-size: 28px;" />
-            <Label text="Gestion des Candidatures" styleClass="section-title" />
-            <Label text="Consulter et gérer les candidatures" styleClass="page-subtitle" />
+        <VBox styleClass="action-card" onMouseClicked="#openCandidatures"
+              maxWidth="Infinity" prefWidth="1000" alignment="CENTER" spacing="6">
+            <Label text="📋" style="-fx-font-size: 28px;"/>
+            <Label text="Gestion des Candidatures" styleClass="section-title"/>
+            <Label text="Consulter et gérer les candidatures" styleClass="page-subtitle"/>
         </VBox>
 
-        <VBox styleClass="action-card" onMouseClicked="#openDossiers" prefWidth="340" alignment="CENTER" spacing="6">
-            <Label text="📁" style="-fx-font-size: 28px;" />
-            <Label text="Gestion des Dossiers" styleClass="section-title" />
-            <Label text="Consulter et gérer les dossiers" styleClass="page-subtitle" />
+        <VBox styleClass="action-card" onMouseClicked="#openDossiers"
+              maxWidth="Infinity" prefWidth="1000" alignment="CENTER" spacing="6">
+            <Label text="📁" style="-fx-font-size: 28px;"/>
+            <Label text="Gestion des Dossiers" styleClass="section-title"/>
+            <Label text="Consulter et gérer les dossiers" styleClass="page-subtitle"/>
         </VBox>
 
-        <VBox styleClass="action-card" onMouseClicked="#openEvaluations" prefWidth="340" alignment="CENTER" spacing="6">
-            <Label text="⭐" style="-fx-font-size: 28px;" />
-            <Label text="Gestion des Évaluations" styleClass="section-title" />
-            <Label text="Ajouter et modifier les évaluations" styleClass="page-subtitle" />
+        <VBox styleClass="action-card" onMouseClicked="#openEvaluations"
+              maxWidth="Infinity" prefWidth="1000" alignment="CENTER" spacing="6">
+            <Label text="⭐" style="-fx-font-size: 28px;"/>
+            <Label text="Gestion des Évaluations" styleClass="section-title"/>
+            <Label text="Ajouter et modifier les évaluations" styleClass="page-subtitle"/>
         </VBox>
 
     </VBox>

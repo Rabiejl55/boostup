@@ -1,50 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="0" styleClass="light-bg"
-      xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.EvaluationBackofficeController">
+<HBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.EvaluationBackofficeController"
+      styleClass="app-shell" spacing="0">
 
-    <!-- Barre supérieure -->
-    <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="15">
-        <Label styleClass="logo-label" text="🚀 BoostUp" />
-        <Label styleClass="logo-label" text="›" style="-fx-opacity: 0.6;" />
-        <Label styleClass="logo-label" text="Évaluations" />
-    </HBox>
+    <!-- ══ SIDEBAR ══ -->
+    <VBox styleClass="sidebar" spacing="0" minWidth="240" maxWidth="240">
+        <VBox styleClass="sidebar-brand" spacing="6" alignment="CENTER_LEFT">
+            <padding><Insets top="32" right="24" bottom="28" left="24"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="⚙️" style="-fx-font-size:26px;"/>
+                <VBox spacing="1">
+                    <Label text="BOOSTUP" styleClass="sidebar-brand-name"/>
+                    <Label text="Administration" styleClass="sidebar-brand-sub"/>
+                </VBox>
+            </HBox>
+        </VBox>
 
-    <!-- Contenu principal -->
-    <VBox VBox.vgrow="ALWAYS" spacing="16" style="-fx-padding: 20 25 20 25;">
+        <Region styleClass="sidebar-sep"/>
 
-        <!-- En-tête de section -->
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label styleClass="page-title" text="Évaluations" />
-            <HBox HBox.hgrow="ALWAYS" />
-        </HBox>
+        <VBox spacing="6" VBox.vgrow="ALWAYS">
+            <padding><Insets top="22" right="14" bottom="22" left="14"/></padding>
 
-        <!-- Tableau -->
-        <TableView fx:id="evaluationTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
-            <columns>
-                <TableColumn fx:id="nomCandidatureColumn" prefWidth="155" text="Candidature" />
-                <TableColumn fx:id="noteInnovationColumn" prefWidth="110" text="Innovation" />
-                <TableColumn fx:id="noteViabiliteColumn" prefWidth="123" text="Viabilité" />
-                <TableColumn fx:id="noteMarcheColumn" prefWidth="120" text="Marché" />
-                <TableColumn fx:id="noteEquipeColumn" prefWidth="123" text="Équipe" />
-                <TableColumn fx:id="noteGlobaleColumn" prefWidth="120" text="Globale" />
-                <TableColumn fx:id="decisionColumn" prefWidth="154" text="Décision" />
-            </columns>
-        </TableView>
+            <Label text="GESTION" styleClass="sidebar-section-lbl">
+                <padding><Insets left="10" bottom="6"/></padding>
+            </Label>
 
-        <!-- Barre d'actions -->
-        <HBox alignment="CENTER" spacing="12">
-            <Button fx:id="addButton" styleClass="btn-add" onAction="#openAddForm" text="+ Ajouter" />
-            <Button fx:id="editButton" styleClass="action-button" onAction="#openEditForm" text="✏ Modifier" />
-            <Button fx:id="hideButton" styleClass="btn-block" onAction="#hideSelected" text="Cacher" />
-            <Button fx:id="refreshButton" styleClass="btn-refresh" onAction="#refreshTable" text="Rafraîchir" />
-            <Button fx:id="backButton" styleClass="secondary-button" onAction="#goBackToMenu" text="← Retour au menu" />
-        </HBox>
+            <Button fx:id="btnNavCandidatures"
+                    text="📋   Candidatures"
+                    styleClass="nav-item"
+                    maxWidth="Infinity"
+                    onAction="#goToCandidatures"/>
 
+            <Button fx:id="btnNavDossiers"
+                    text="📁   Dossiers"
+                    styleClass="nav-item"
+                    maxWidth="Infinity"
+                    onAction="#goToDossiers"/>
+
+            <Button fx:id="btnNavEvaluations"
+                    text="⭐   Évaluations"
+                    styleClass="nav-item, nav-item-active"
+                    maxWidth="Infinity"
+                    onAction="#goToEvaluations"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Region styleClass="sidebar-sep"/>
+
+            <Button text="← Retour au menu"
+                    styleClass="btn-ghost"
+                    maxWidth="Infinity"
+                    onAction="#goBackToMenu">
+                <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
+            </Button>
+
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets top="10" bottom="4"/></padding>
+                <Label text="BOOSTUP  ·  v1.0" styleClass="sidebar-footer-lbl"/>
+                <Label text="Back Office" styleClass="sidebar-footer-lbl"/>
+            </VBox>
+        </VBox>
     </VBox>
-</VBox>
+
+    <!-- ══ CONTENU ══ -->
+    <VBox HBox.hgrow="ALWAYS" styleClass="view-root" spacing="0">
+
+        <!-- Top Bar -->
+        <HBox styleClass="view-topbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="20" right="32" bottom="20" left="32"/></padding>
+            <VBox spacing="2">
+                <Label text="Évaluations" styleClass="view-title"/>
+                <Label text="Gérez les évaluations et les décisions d'admission" styleClass="view-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="addButton"     styleClass="btn-primary" onAction="#openAddForm"  text="＋  Ajouter"/>
+            <Button fx:id="refreshButton" styleClass="btn-refresh" onAction="#refreshTable" text="⟳  Rafraîchir">
+                <HBox.margin><Insets left="8"/></HBox.margin>
+            </Button>
+        </HBox>
+
+        <!-- Tableau + boutons (contenu original) -->
+        <VBox VBox.vgrow="ALWAYS" spacing="16">
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+            <TableView fx:id="evaluationTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="nomCandidatureColumn" prefWidth="155" text="Candidature"/>
+                    <TableColumn fx:id="noteInnovationColumn" prefWidth="110" text="Innovation"/>
+                    <TableColumn fx:id="noteViabiliteColumn"  prefWidth="123" text="Viabilité"/>
+                    <TableColumn fx:id="noteMarcheColumn"     prefWidth="120" text="Marché"/>
+                    <TableColumn fx:id="noteEquipeColumn"     prefWidth="123" text="Équipe"/>
+                    <TableColumn fx:id="noteGlobaleColumn"    prefWidth="120" text="Globale"/>
+                    <TableColumn fx:id="decisionColumn"       prefWidth="154" text="Décision"/>
+                </columns>
+            </TableView>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button fx:id="editButton" styleClass="action-button" onAction="#openEditForm" text="✏  Modifier"/>
+                <Button fx:id="hideButton" styleClass="btn-block"     onAction="#hideSelected" text="🙈  Cacher"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</HBox>

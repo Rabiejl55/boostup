@@ -5,9 +5,14 @@ import entities.GCandidature.Evaluation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import services.CandidatureService.CandidatureService;
+import services.CandidatureService.DossierCandidatureService;
 import services.CandidatureService.EvaluationService;
 import utils.AlertUtils;
 
@@ -15,6 +20,7 @@ import java.sql.SQLException;
 
 public class EvaluationFormController {
 
+    // ── Champs FXML existants ──────────────────────────────────────
     @FXML private ComboBox<Candidature> candidatureComboBox;
     @FXML private TextField             nomEvaluationField;
     @FXML private TextField             noteInnovationField;
@@ -23,22 +29,29 @@ public class EvaluationFormController {
     @FXML private TextField             noteEquipeField;
     @FXML private TextField             noteGlobaleField;   // lecture seule
     @FXML private TextField             decisionField;      // lecture seule
+    @FXML private Label                 lblIndicateur;
 
-    // Indicateur coloré global (fx:id à ajouter dans le FXML)
-    @FXML private Label lblIndicateur;
-
-    // Labels d'erreur sous chaque note (fx:id à ajouter dans le FXML)
+    // Labels d'erreur sous chaque note
     @FXML private Label lblErrInnovation;
     @FXML private Label lblErrViabilite;
     @FXML private Label lblErrMarche;
     @FXML private Label lblErrEquipe;
 
+    // ✨ Bouton IA (nouveau)
+    @FXML private Button btnAnalyseIA;
+
+    // ── Services ──────────────────────────────────────────────────
     private Evaluation evaluation;
     private EvaluationBackofficeController parentController;
 
-    private final EvaluationService  service           = new EvaluationService();
-    private final CandidatureService candidatureService = new CandidatureService();
-    private final ObservableList<Candidature> candidatures = FXCollections.observableArrayList();
+    private final EvaluationService          service           = new EvaluationService();
+    private final CandidatureService         candidatureService = new CandidatureService();
+    private final DossierCandidatureService  dossierService    = new DossierCandidatureService();
+    private final ObservableList<Candidature> candidatures     = FXCollections.observableArrayList();
+
+    // ══════════════════════════════════════════════════════════════
+    //  INITIALISATION
+    // ══════════════════════════════════════════════════════════════
 
     @FXML
     private void initialize() {
@@ -57,17 +70,14 @@ public class EvaluationFormController {
             }
         });
 
-        // Note globale et décision en lecture seule
         noteGlobaleField.setEditable(false);
         decisionField.setEditable(false);
 
-        // Setup des champs de notes : float entre 0 et 10
         setupNoteField(noteInnovationField, lblErrInnovation);
         setupNoteField(noteViabiliteField,  lblErrViabilite);
         setupNoteField(noteMarcheField,     lblErrMarche);
         setupNoteField(noteEquipeField,     lblErrEquipe);
 
-        // Recalcul automatique à chaque saisie
         noteInnovationField.textProperty().addListener((o, a, b) -> updateAutoFields());
         noteViabiliteField .textProperty().addListener((o, a, b) -> updateAutoFields());
         noteMarcheField    .textProperty().addListener((o, a, b) -> updateAutoFields());
@@ -76,7 +86,95 @@ public class EvaluationFormController {
         updateIndicateur(null);
     }
 
-    // ── Setup note : accepte float 0.0 → 10.0, bloque les lettres ────────────
+    // ══════════════════════════════════════════════════════════════
+    //  🤖 INTÉGRATION IA — NOUVEAU
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Ouvre le panneau AnalyseIA en modal.
+     * Quand l'utilisateur clique "Appliquer les notes", les 4 champs
+     * de notes sont pré-remplis automatiquement.
+     */
+    @FXML
+    private void ouvrirAnalyseIA() {
+        // Une candidature doit être sélectionnée pour contextualiser l'analyse
+        if (candidatureComboBox.getValue() == null) {
+            AlertUtils.showError("Candidature requise",
+                    "Veuillez d'abord sélectionner une candidature pour lancer l'analyse IA.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/AnalyseIAPanel.fxml"));
+            Parent root = loader.load();
+            AnalyseIAPanelController iaCtrl = loader.getController();
+
+            Candidature cand = candidatureComboBox.getValue();
+
+            // ── Récupérer la description du dossier lié à cette candidature ──
+            String description  = null;
+            String businessPlan = null;
+            try {
+                var dossiers = dossierService.getAllDossiers(false);
+                for (var d : dossiers) {
+                    if (d.getIdCandidature() == cand.getIdCandidature()) {
+                        description  = d.getDescriptionProjet();
+                        businessPlan = d.getBusinessPlan();
+                        break; // on prend le premier dossier trouvé
+                    }
+                }
+            } catch (SQLException ex) {
+                // Pas bloquant — l'IA analysera avec les infos disponibles
+            }
+
+            // ── Pré-remplir le contexte IA ──
+            iaCtrl.setContexte(
+                    cand.getNomStartup(),   // nom de la startup
+                    description,            // description du projet (depuis le dossier)
+                    businessPlan            // business plan (depuis le dossier)
+            );
+
+            // ── Callback : les notes suggérées sont reportées dans les champs ──
+            iaCtrl.setOnNotesApplied(notes -> {
+                // notes = [innovation, viabilité, marché, équipe]
+                if (!notes[0].equals("—")) {
+                    noteInnovationField.setText(notes[0]);
+                }
+                if (!notes[1].equals("—")) {
+                    noteViabiliteField.setText(notes[1]);
+                }
+                if (!notes[2].equals("—")) {
+                    noteMarcheField.setText(notes[2]);
+                }
+                if (!notes[3].equals("—")) {
+                    noteEquipeField.setText(notes[3]);
+                }
+                // Feedback visuel sur le bouton IA
+                btnAnalyseIA.setText("✅  Notes appliquées");
+                btnAnalyseIA.setDisable(true);
+            });
+
+            // ── Ouvrir en modal ──
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(nomEvaluationField.getScene().getWindow());
+            stage.setTitle("🤖 Analyse IA  —  " + cand.getNomStartup());
+            stage.setScene(new Scene(root));
+            stage.setMinWidth(660);
+            stage.setMinHeight(520);
+            stage.show();
+
+        } catch (Exception e) {
+            AlertUtils.showError("Erreur IA",
+                    "Impossible d'ouvrir le panneau IA :\n" + e.getMessage());
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  VALIDATION LIVE (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
     private void setupNoteField(TextField tf, Label errLbl) {
         tf.textProperty().addListener((obs, old, val) -> {
             if (val == null || val.isEmpty()) {
@@ -84,12 +182,10 @@ public class EvaluationFormController {
                 setErrLabel(errLbl, "");
                 return;
             }
-            // Autoriser uniquement chiffres, point/virgule (saisie en cours)
             if (!val.matches("[0-9]*[.,]?[0-9]*")) {
                 tf.setText(old);
                 return;
             }
-            // Remplacer virgule par point pour le parsing
             String normalized = val.replace(",", ".");
             try {
                 double note = Double.parseDouble(normalized);
@@ -97,11 +193,9 @@ public class EvaluationFormController {
                     tf.setText(old);
                     setErrLabel(errLbl, "⚠ Entre 0 et 10");
                 } else {
-                    // Bordure verte ≥ 7.5, rouge < 7.5
-                    if (note >= 7.5)
-                        tf.setStyle("-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
-                    else
-                        tf.setStyle("-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
+                    tf.setStyle(note >= 7.5
+                            ? "-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;"
+                            : "-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
                     setErrLabel(errLbl, "");
                 }
             } catch (NumberFormatException ignored) {
@@ -116,20 +210,23 @@ public class EvaluationFormController {
         lbl.setStyle(msg.isEmpty() ? "" : "-fx-text-fill:#e63946; -fx-font-size:11px;");
     }
 
-    // ── Recalcul note globale + décision + indicateur ─────────────────────────
+    // ══════════════════════════════════════════════════════════════
+    //  CALCUL AUTO NOTE GLOBALE (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
     private void updateAutoFields() {
         Double inn  = parseFloat(noteInnovationField.getText());
         Double viab = parseFloat(noteViabiliteField.getText());
         Double mar  = parseFloat(noteMarcheField.getText());
         Double eq   = parseFloat(noteEquipeField.getText());
 
-        // Mettre à jour l'entité Evaluation
-        evaluation.setNoteInnovation(inn  != null ? inn.intValue()  : null);
-        evaluation.setNoteViabilite(viab  != null ? viab.intValue() : null);
-        evaluation.setNoteMarche(mar      != null ? mar.intValue()  : null);
-        evaluation.setNoteEquipe(eq       != null ? eq.intValue()   : null);
+        if (evaluation != null) {
+            evaluation.setNoteInnovation(inn  != null ? inn.intValue()  : null);
+            evaluation.setNoteViabilite(viab  != null ? viab.intValue() : null);
+            evaluation.setNoteMarche(mar      != null ? mar.intValue()  : null);
+            evaluation.setNoteEquipe(eq       != null ? eq.intValue()   : null);
+        }
 
-        // Calcul manuel de la moyenne avec les valeurs float réelles
         double sum = 0; int count = 0;
         if (inn  != null) { sum += inn;  count++; }
         if (viab != null) { sum += viab; count++; }
@@ -138,10 +235,12 @@ public class EvaluationFormController {
 
         if (count > 0) {
             double globale = sum / count;
-            evaluation.setNoteGlobale(globale);
-            String decision = globale >= 7.5 ? "ACCEPTEE" : "REFUSEE";
-            evaluation.setDecision(decision);
+            if (evaluation != null) {
+                evaluation.setNoteGlobale(globale);
+                evaluation.setDecision(globale >= 7.5 ? "ACCEPTEE" : "REFUSEE");
+            }
             noteGlobaleField.setText(String.format("%.2f", globale));
+            String decision = globale >= 7.5 ? "ACCEPTEE" : "REFUSEE";
             decisionField.setText(decision);
             styleDecision(decision);
             updateIndicateur(globale);
@@ -153,7 +252,6 @@ public class EvaluationFormController {
         }
     }
 
-    // ── Indicateur coloré global ───────────────────────────────────────────────
     private void updateIndicateur(Double note) {
         if (lblIndicateur == null) return;
         if (note == null) {
@@ -178,12 +276,15 @@ public class EvaluationFormController {
                 : "-fx-text-fill:#e63946; -fx-font-weight:bold;");
     }
 
-    // ── Parse float robuste (accepte virgule ou point) ────────────────────────
     private Double parseFloat(String s) {
         if (s == null || s.trim().isEmpty()) return null;
         try { return Double.parseDouble(s.trim().replace(",", ".")); }
         catch (NumberFormatException e) { return null; }
     }
+
+    // ══════════════════════════════════════════════════════════════
+    //  CHARGEMENT DONNÉES (inchangé)
+    // ══════════════════════════════════════════════════════════════
 
     private void loadCandidatures() {
         try {
@@ -208,7 +309,8 @@ public class EvaluationFormController {
         if (evaluation.getIdCandidature() > 0) {
             for (Candidature c : candidatures) {
                 if (c.getIdCandidature() == evaluation.getIdCandidature()) {
-                    candidatureComboBox.setValue(c); break;
+                    candidatureComboBox.setValue(c);
+                    break;
                 }
             }
         }
@@ -220,9 +322,12 @@ public class EvaluationFormController {
         updateAutoFields();
     }
 
+    // ══════════════════════════════════════════════════════════════
+    //  SAUVEGARDE (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
     @FXML
     private void saveEvaluation() {
-        // ── 1. Tous les champs obligatoires ──────────────────────────────────
         if (candidatureComboBox.getValue() == null) {
             AlertUtils.showError("Champ obligatoire", "Veuillez sélectionner une candidature.");
             return;
@@ -233,19 +338,16 @@ public class EvaluationFormController {
             return;
         }
         if (noteInnovationField.getText().isEmpty() || noteViabiliteField.getText().isEmpty()
-                || noteMarcheField.getText().isEmpty()     || noteEquipeField.getText().isEmpty()) {
+                || noteMarcheField.getText().isEmpty()  || noteEquipeField.getText().isEmpty()) {
             AlertUtils.showError("Champs obligatoires", "Toutes les notes doivent être renseignées.");
             return;
         }
-
-        // ── 2. Validité des notes (0-10) ──────────────────────────────────────
         if (!isNoteValid(noteInnovationField) || !isNoteValid(noteViabiliteField)
                 || !isNoteValid(noteMarcheField)     || !isNoteValid(noteEquipeField)) {
             AlertUtils.showError("Notes invalides", "Toutes les notes doivent être des nombres entre 0 et 10.");
             return;
         }
 
-        // ── 3. Unicité nomEvaluation ──────────────────────────────────────────
         try {
             if (service.existsNomEvaluation(nomEval, evaluation.getIdEvaluation())) {
                 AlertUtils.showError("Nom déjà utilisé", "Une évaluation avec ce nom existe déjà.");
@@ -256,7 +358,6 @@ public class EvaluationFormController {
             return;
         }
 
-        // ── 4. Sauvegarde ─────────────────────────────────────────────────────
         evaluation.setNomEvaluation(nomEval);
         evaluation.setIdCandidature(candidatureComboBox.getValue().getIdCandidature());
 
@@ -280,7 +381,8 @@ public class EvaluationFormController {
         return val != null && val >= 0 && val <= 10;
     }
 
-    @FXML private void closeForm() {
+    @FXML
+    private void closeForm() {
         ((Stage) noteInnovationField.getScene().getWindow()).close();
     }
 

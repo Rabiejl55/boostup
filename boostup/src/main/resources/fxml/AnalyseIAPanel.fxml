@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AnalyseIAPanelController"
+      styleClass="dialog-root"
+      spacing="0"
+      prefWidth="700"
+      style="-fx-background-color: #0d1117;">
+
+    <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+    <VBox spacing="0"
+          style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f1923, #1a2640);
+                 -fx-border-color: transparent transparent #1e3a5f transparent;
+                 -fx-border-width: 0 0 1.5 0;">
+        <padding><Insets top="28" right="32" bottom="24" left="32"/></padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="18">
+
+            <!-- Icône IA animée -->
+            <StackPane minWidth="52" minHeight="52" maxWidth="52" maxHeight="52"
+                       style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #4f62e8, #7c3aed);
+                              -fx-background-radius: 16px;
+                              -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.6), 18, 0, 0, 4);">
+                <Label text="🤖" style="-fx-font-size: 22px;"/>
+            </StackPane>
+
+            <!-- Titres -->
+            <VBox spacing="5">
+                <Label text="Analyse IA du Business Plan"
+                       style="-fx-font-size: 20px;
+                              -fx-font-weight: 900;
+                              -fx-text-fill: white;
+                              -fx-font-family: 'Georgia';"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="⚡"
+                           style="-fx-font-size: 11px;"/>
+                    <Label text="Powered by Google Gemini 1.5 Flash"
+                           style="-fx-font-size: 12px;
+                                  -fx-text-fill: rgba(150,180,255,0.75);
+                                  -fx-font-weight: 500;"/>
+                </HBox>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Badge GEMINI FREE -->
+            <VBox alignment="CENTER">
+                <Label text="GEMINI FREE"
+                       style="-fx-background-color: rgba(79,98,232,0.18);
+                              -fx-text-fill: #818cf8;
+                              -fx-font-size: 10px;
+                              -fx-font-weight: 800;
+                              -fx-background-radius: 20px;
+                              -fx-border-color: rgba(79,98,232,0.45);
+                              -fx-border-radius: 20px;
+                              -fx-border-width: 1.5px;
+                              -fx-padding: 5 14 5 14;
+                              -fx-letter-spacing: 1px;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- ══ BODY ════════════════════════════════════════════════════ -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background: #0d1117;
+                       -fx-background-color: #0d1117;
+                       -fx-border-color: transparent;">
+        <VBox spacing="20"
+              style="-fx-background-color: #0d1117;">
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+            <!-- ── Contexte transmis ── -->
+            <VBox spacing="10">
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="📄"
+                           style="-fx-font-size: 14px;"/>
+                    <Label text="CONTEXTE TRANSMIS À L'IA"
+                           style="-fx-font-size: 11px;
+                                  -fx-font-weight: 800;
+                                  -fx-text-fill: #4f62e8;
+                                  -fx-letter-spacing: 1px;"/>
+                </HBox>
+                <TextArea fx:id="taContexte"
+                          prefRowCount="5"
+                          wrapText="true"
+                          promptText="La description du projet et le business plan seront analysés…"
+                          style="-fx-background-color: #161b22;
+                                 -fx-border-color: #1e3a5f;
+                                 -fx-border-radius: 12px;
+                                 -fx-background-radius: 12px;
+                                 -fx-border-width: 1.5px;
+                                 -fx-font-size: 13px;
+                                 -fx-text-fill: #c9d1d9;
+                                 -fx-prompt-text-fill: #4a5568;
+                                 -fx-padding: 12 14;
+                                 -fx-control-inner-background: #161b22;"/>
+            </VBox>
+
+            <!-- ── Boutons d'analyse ── -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+
+                <Button fx:id="btnAnalyser"
+                        text="🚀  Analyse complète"
+                        onAction="#lancerAnalyse"
+                        style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4f62e8, #7c3aed);
+                               -fx-text-fill: white;
+                               -fx-font-size: 13px;
+                               -fx-font-weight: 700;
+                               -fx-padding: 11 22;
+                               -fx-background-radius: 12px;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.5), 12, 0, 0, 3);"/>
+
+                <Button fx:id="btnAnalyseRapide"
+                        text="⚡  Analyse rapide"
+                        onAction="#lancerAnalyseRapide"
+                        style="-fx-background-color: #161b22;
+                               -fx-text-fill: #a0aec0;
+                               -fx-font-size: 13px;
+                               -fx-font-weight: 600;
+                               -fx-padding: 11 22;
+                               -fx-background-radius: 12px;
+                               -fx-border-color: #1e3a5f;
+                               -fx-border-radius: 12px;
+                               -fx-border-width: 1.5px;
+                               -fx-cursor: hand;"/>
+
+                <ProgressIndicator fx:id="spinner"
+                                   prefWidth="24" prefHeight="24"
+                                   visible="false"
+                                   style="-fx-progress-color: #4f62e8;"/>
+
+                <Label fx:id="lblStatut" text=""
+                       style="-fx-font-size: 12px;
+                              -fx-text-fill: #4f62e8;
+                              -fx-font-style: italic;
+                              -fx-font-weight: 500;"/>
+            </HBox>
+
+            <!-- ══ RÉSULTATS ══════════════════════════════════════════ -->
+            <VBox fx:id="paneResultats" spacing="18" visible="false" managed="false">
+
+                <!-- ── Bandeau décision ── -->
+                <HBox fx:id="bandeauDecision"
+                      alignment="CENTER_LEFT" spacing="20"
+                      style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #0f1f3a, #1a2d4a);
+                             -fx-background-radius: 16px;
+                             -fx-border-color: #1e3a5f;
+                             -fx-border-radius: 16px;
+                             -fx-border-width: 1.5px;
+                             -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.15), 14, 0, 0, 4);">
+                    <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+                    <Label fx:id="lblDecisionIcon" text="✅"
+                           style="-fx-font-size: 38px;"/>
+
+                    <VBox spacing="6">
+                        <Label fx:id="lblDecision" text="PROMETTEUSE"
+                               styleClass="badge-validee"
+                               style="-fx-font-size: 15px;"/>
+                        <Label fx:id="lblScoreEstime" text="Score estimé : —/10"
+                               style="-fx-font-size: 12px;
+                                      -fx-text-fill: #8892b0;
+                                      -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <!-- Notes suggérées -->
+                    <VBox spacing="8" alignment="CENTER_RIGHT">
+                        <Label text="NOTES SUGGÉRÉES"
+                               style="-fx-font-size: 9px;
+                                      -fx-font-weight: 800;
+                                      -fx-text-fill: #4a5568;
+                                      -fx-letter-spacing: 1px;"/>
+                        <HBox spacing="10" alignment="CENTER">
+
+                            <!-- Innovation -->
+                            <VBox alignment="CENTER" spacing="4"
+                                  style="-fx-background-color: rgba(79,98,232,0.12);
+                                         -fx-background-radius: 12px;
+                                         -fx-border-color: rgba(79,98,232,0.3);
+                                         -fx-border-radius: 12px;
+                                         -fx-border-width: 1.5px;
+                                         -fx-padding: 8 14;
+                                         -fx-min-width: 60px;">
+                                <Label fx:id="lblNoteInnov" text="—"
+                                       style="-fx-font-size: 20px;
+                                              -fx-font-weight: 900;
+                                              -fx-text-fill: #818cf8;"/>
+                                <Label text="Innov."
+                                       style="-fx-font-size: 10px;
+                                              -fx-font-weight: 700;
+                                              -fx-text-fill: #4a5568;"/>
+                            </VBox>
+
+                            <!-- Viabilité -->
+                            <VBox alignment="CENTER" spacing="4"
+                                  style="-fx-background-color: rgba(16,185,129,0.12);
+                                         -fx-background-radius: 12px;
+                                         -fx-border-color: rgba(16,185,129,0.3);
+                                         -fx-border-radius: 12px;
+                                         -fx-border-width: 1.5px;
+                                         -fx-padding: 8 14;
+                                         -fx-min-width: 60px;">
+                                <Label fx:id="lblNoteViab" text="—"
+                                       style="-fx-font-size: 20px;
+                                              -fx-font-weight: 900;
+                                              -fx-text-fill: #10b981;"/>
+                                <Label text="Viab."
+                                       style="-fx-font-size: 10px;
+                                              -fx-font-weight: 700;
+                                              -fx-text-fill: #4a5568;"/>
+                            </VBox>
+
+                            <!-- Marché -->
+                            <VBox alignment="CENTER" spacing="4"
+                                  style="-fx-background-color: rgba(245,158,11,0.12);
+                                         -fx-background-radius: 12px;
+                                         -fx-border-color: rgba(245,158,11,0.3);
+                                         -fx-border-radius: 12px;
+                                         -fx-border-width: 1.5px;
+                                         -fx-padding: 8 14;
+                                         -fx-min-width: 60px;">
+                                <Label fx:id="lblNoteMarche" text="—"
+                                       style="-fx-font-size: 20px;
+                                              -fx-font-weight: 900;
+                                              -fx-text-fill: #f59e0b;"/>
+                                <Label text="Marché"
+                                       style="-fx-font-size: 10px;
+                                              -fx-font-weight: 700;
+                                              -fx-text-fill: #4a5568;"/>
+                            </VBox>
+
+                            <!-- Équipe -->
+                            <VBox alignment="CENTER" spacing="4"
+                                  style="-fx-background-color: rgba(124,58,237,0.12);
+                                         -fx-background-radius: 12px;
+                                         -fx-border-color: rgba(124,58,237,0.3);
+                                         -fx-border-radius: 12px;
+                                         -fx-border-width: 1.5px;
+                                         -fx-padding: 8 14;
+                                         -fx-min-width: 60px;">
+                                <Label fx:id="lblNoteEquipe" text="—"
+                                       style="-fx-font-size: 20px;
+                                              -fx-font-weight: 900;
+                                              -fx-text-fill: #a78bfa;"/>
+                                <Label text="Équipe"
+                                       style="-fx-font-size: 10px;
+                                              -fx-font-weight: 700;
+                                              -fx-text-fill: #4a5568;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- ── Résumé ── -->
+                <VBox spacing="10"
+                      style="-fx-background-color: rgba(79,98,232,0.07);
+                             -fx-background-radius: 14px;
+                             -fx-border-color: rgba(79,98,232,0.2);
+                             -fx-border-radius: 14px;
+                             -fx-border-width: 1.5px;">
+                    <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📋"
+                               style="-fx-font-size: 13px;"/>
+                        <Label text="RÉSUMÉ DU PROJET"
+                               style="-fx-font-size: 10px;
+                                      -fx-font-weight: 800;
+                                      -fx-text-fill: #818cf8;
+                                      -fx-letter-spacing: 1px;"/>
+                    </HBox>
+                    <Label fx:id="lblResume" wrapText="true"
+                           style="-fx-font-size: 13px;
+                                  -fx-text-fill: #c9d1d9;
+                                  -fx-line-spacing: 3px;"/>
+                </VBox>
+
+                <!-- ── Points forts + Risques ── -->
+                <HBox spacing="14">
+
+                    <!-- Points forts -->
+                    <VBox spacing="10" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: rgba(16,185,129,0.07);
+                                 -fx-background-radius: 14px;
+                                 -fx-border-color: rgba(16,185,129,0.25);
+                                 -fx-border-radius: 14px;
+                                 -fx-border-width: 1.5px;">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="✅"
+                                   style="-fx-font-size: 13px;"/>
+                            <Label text="POINTS FORTS"
+                                   style="-fx-font-size: 10px;
+                                          -fx-font-weight: 800;
+                                          -fx-text-fill: #10b981;
+                                          -fx-letter-spacing: 1px;"/>
+                        </HBox>
+                        <VBox fx:id="vboxPointsForts" spacing="6"/>
+                    </VBox>
+
+                    <!-- Risques -->
+                    <VBox spacing="10" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: rgba(239,68,68,0.07);
+                                 -fx-background-radius: 14px;
+                                 -fx-border-color: rgba(239,68,68,0.25);
+                                 -fx-border-radius: 14px;
+                                 -fx-border-width: 1.5px;">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="⚠️"
+                                   style="-fx-font-size: 13px;"/>
+                            <Label text="RISQUES"
+                                   style="-fx-font-size: 10px;
+                                          -fx-font-weight: 800;
+                                          -fx-text-fill: #ef4444;
+                                          -fx-letter-spacing: 1px;"/>
+                        </HBox>
+                        <VBox fx:id="vboxPointsFaibles" spacing="6"/>
+                    </VBox>
+                </HBox>
+
+                <!-- ── Recommandations ── -->
+                <VBox spacing="10"
+                      style="-fx-background-color: rgba(245,158,11,0.07);
+                             -fx-background-radius: 14px;
+                             -fx-border-color: rgba(245,158,11,0.25);
+                             -fx-border-radius: 14px;
+                             -fx-border-width: 1.5px;">
+                    <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="💡"
+                               style="-fx-font-size: 13px;"/>
+                        <Label text="RECOMMANDATIONS"
+                               style="-fx-font-size: 10px;
+                                      -fx-font-weight: 800;
+                                      -fx-text-fill: #f59e0b;
+                                      -fx-letter-spacing: 1px;"/>
+                    </HBox>
+                    <VBox fx:id="vboxRecommandations" spacing="6"/>
+                </VBox>
+
+                <!-- ── Actions post-analyse ── -->
+                <HBox spacing="12" alignment="CENTER_RIGHT">
+                    <Button fx:id="btnAppliquerNotes"
+                            text="📊  Appliquer les notes"
+                            onAction="#appliquerNotes"
+                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #10b981, #059669);
+                                   -fx-text-fill: white;
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: 700;
+                                   -fx-padding: 10 20;
+                                   -fx-background-radius: 10px;
+                                   -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.4), 10, 0, 0, 2);"/>
+                    <Button fx:id="btnCopierAnalyse"
+                            text="📋  Copier l'analyse"
+                            onAction="#copierAnalyse"
+                            style="-fx-background-color: #161b22;
+                                   -fx-text-fill: #a0aec0;
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: 600;
+                                   -fx-padding: 10 20;
+                                   -fx-background-radius: 10px;
+                                   -fx-border-color: #1e3a5f;
+                                   -fx-border-radius: 10px;
+                                   -fx-border-width: 1.5px;
+                                   -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ══ ZONE ERREUR ════════════════════════════════════════ -->
+            <HBox fx:id="paneErreur" visible="false" managed="false"
+                  alignment="CENTER_LEFT" spacing="14"
+                  style="-fx-background-color: rgba(239,68,68,0.08);
+                         -fx-background-radius: 14px;
+                         -fx-border-color: rgba(239,68,68,0.35);
+                         -fx-border-radius: 14px;
+                         -fx-border-width: 1.5px;">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <Label text="❌"
+                       style="-fx-font-size: 20px;"/>
+                <Label fx:id="lblErreur" wrapText="true"
+                       style="-fx-font-size: 12px;
+                              -fx-text-fill: #fc8181;
+                              -fx-font-weight: 500;"/>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+    <HBox alignment="CENTER_RIGHT" spacing="14"
+          style="-fx-background-color: #0f1923;
+                 -fx-border-color: #1e3a5f transparent transparent transparent;
+                 -fx-border-width: 1.5 0 0 0;">
+        <padding><Insets top="16" right="32" bottom="16" left="32"/></padding>
+        <Label text="ℹ  L'IA suggère des notes — l'évaluateur reste décisionnaire."
+               style="-fx-font-size: 11px;
+                      -fx-text-fill: #4a5568;
+                      -fx-font-style: italic;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="✕  Fermer" onAction="#fermer"
+                style="-fx-background-color: #161b22;
+                       -fx-text-fill: #a0aec0;
+                       -fx-font-size: 13px;
+                       -fx-font-weight: 600;
+                       -fx-padding: 9 20;
+                       -fx-background-radius: 10px;
+                       -fx-border-color: #1e3a5f;
+                       -fx-border-radius: 10px;
+                       -fx-border-width: 1.5px;
+                       -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>

@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 
 public class AddDossierController implements Initializable {
 
+    // ── Champs FXML existants ──────────────────────────────────────
     @FXML private TextField             tfNomDossier;
     @FXML private ComboBox<Candidature> cbCandidature;
     @FXML private TextArea              taDescription;
@@ -28,30 +29,35 @@ public class AddDossierController implements Initializable {
     @FXML private Button                btnParcourir;
     @FXML private DatePicker            dpDateCreation;
 
+    // ── Widgets de progression (optionnels — présents dans le FXML ou non) ──
     @FXML private ProgressBar pbCompletude;
     @FXML private Label       lblCompletude;
     @FXML private Label       lblCountNom;
     @FXML private Label       lblCountDescription;
     @FXML private Label       lblCountBp;
 
+    // ── Constantes de validation ───────────────────────────────────
     private static final int MAX_NOM  = 100;
     private static final int MIN_NOM  = 3;
     private static final int MIN_DESC = 20;
-    private static final int MAX_DESC = 500;
+    private static final int MAX_DESC = 3000;
     private static final int MAX_BP   = 255;
 
+
+    // ── Services ──────────────────────────────────────────────────
     private final DossierCandidatureService service     = new DossierCandidatureService();
     private final CandidatureService        candService = new CandidatureService();
     private boolean saved = false;
+
+    // ══════════════════════════════════════════════════════════════
+    //  INITIALISATION
+    // ══════════════════════════════════════════════════════════════
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         dpDateCreation.setValue(LocalDate.now());
 
-        // ✅ CORRECTION : false → charge TOUTES les candidatures sans filtre visible
-        // Ainsi les candidatures masquées du front (visible=0) sont quand même
-        // disponibles pour être associées à un dossier dans le back-office.
-        // Si vous voulez uniquement visible=1, remplacez false par true.
+        // Charger toutes les candidatures (false = sans filtre visible)
         try {
             List<Candidature> cands = candService.getAllCandidatures(false);
             cbCandidature.setItems(FXCollections.observableArrayList(cands));
@@ -59,6 +65,7 @@ public class AddDossierController implements Initializable {
             err("Erreur", "Impossible de charger les candidatures : " + ex.getMessage());
         }
 
+        // Affichage des candidatures dans la ComboBox
         cbCandidature.setCellFactory(p -> new ListCell<>() {
             @Override protected void updateItem(Candidature c, boolean empty) {
                 super.updateItem(c, empty);
@@ -73,10 +80,12 @@ public class AddDossierController implements Initializable {
             }
         });
 
+        // Compteurs de caractères
         setupCounter(tfNomDossier,   lblCountNom,         MAX_NOM);
         setupCounter(taDescription,  lblCountDescription, MAX_DESC);
         setupCounter(tfBusinessPlan, lblCountBp,          MAX_BP);
 
+        // Listeners validation live + progression
         tfNomDossier.textProperty().addListener((o, old, val) -> {
             if (val != null && val.length() > MAX_NOM) { tfNomDossier.setText(old); return; }
             validateNomLive();
@@ -97,33 +106,41 @@ public class AddDossierController implements Initializable {
         updateProgress();
     }
 
+    // ══════════════════════════════════════════════════════════════
+    //  PARCOURIR (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
     @FXML
     private void browseFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir un fichier Business Plan");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Fichiers PDF",    "*.pdf"),
-                new FileChooser.ExtensionFilter("Documents Word",  "*.docx", "*.doc"),
-                new FileChooser.ExtensionFilter("Présentations",   "*.pptx"),
+                new FileChooser.ExtensionFilter("Fichiers PDF",     "*.pdf"),
+                new FileChooser.ExtensionFilter("Documents Word",   "*.docx", "*.doc"),
+                new FileChooser.ExtensionFilter("Présentations",    "*.pptx"),
                 new FileChooser.ExtensionFilter("Tous les fichiers","*.*")
         );
         Stage stage = (Stage) tfBusinessPlan.getScene().getWindow();
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             tfBusinessPlan.setText(file.getAbsolutePath());
-            tfBusinessPlan.setStyle("-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
+            tfBusinessPlan.setStyle(
+                    "-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
         }
     }
 
+    // ══════════════════════════════════════════════════════════════
+    //  PROGRESSION (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
     private void updateProgress() {
         int score = 0;
-        if (tfNomDossier.getText()    != null && tfNomDossier.getText().trim().length()    >= MIN_NOM)  score++;
-        if (cbCandidature.getValue()  != null)                                                           score++;
-        // Description optionnelle → non comptée dans la progression
-        if (tfBusinessPlan.getText()  != null && !tfBusinessPlan.getText().trim().isEmpty())             score++;
-        if (dpDateCreation.getValue() != null)                                                           score++;
+        if (tfNomDossier.getText()    != null && tfNomDossier.getText().trim().length() >= MIN_NOM) score++;
+        if (cbCandidature.getValue()  != null)                                                      score++;
+        if (tfBusinessPlan.getText()  != null && !tfBusinessPlan.getText().trim().isEmpty())        score++;
+        if (dpDateCreation.getValue() != null)                                                      score++;
 
-        double ratio = score / 4.0; // 4 champs obligatoires (description optionnelle)
+        double ratio = score / 4.0;
         if (pbCompletude != null) {
             pbCompletude.setProgress(ratio);
             pbCompletude.setStyle(ratio < 0.4 ? "-fx-accent:#e63946;" :
@@ -131,20 +148,28 @@ public class AddDossierController implements Initializable {
         }
         if (lblCompletude != null) {
             lblCompletude.setText("Complétude : " + (int)(ratio * 100) + "%");
-            lblCompletude.setStyle(ratio < 0.4 ? "-fx-text-fill:#e63946; -fx-font-weight:bold;" :
-                    ratio < 0.8 ? "-fx-text-fill:#f59e0b; -fx-font-weight:bold;" :
-                            "-fx-text-fill:#10b981; -fx-font-weight:bold;");
+            lblCompletude.setStyle(ratio < 0.4
+                    ? "-fx-text-fill:#e63946; -fx-font-weight:bold;"
+                    : ratio < 0.8
+                    ? "-fx-text-fill:#f59e0b; -fx-font-weight:bold;"
+                    : "-fx-text-fill:#10b981; -fx-font-weight:bold;");
         }
     }
+
+    // ══════════════════════════════════════════════════════════════
+    //  VALIDATION LIVE (inchangé)
+    // ══════════════════════════════════════════════════════════════
 
     private void validateNomLive() {
         String val = tfNomDossier.getText();
         if (val == null || val.trim().isEmpty())
             tfNomDossier.setStyle("");
         else if (val.trim().length() < MIN_NOM)
-            tfNomDossier.setStyle("-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
+            tfNomDossier.setStyle(
+                    "-fx-border-color:#e63946; -fx-border-width:2; -fx-border-radius:8;");
         else
-            tfNomDossier.setStyle("-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
+            tfNomDossier.setStyle(
+                    "-fx-border-color:#10b981; -fx-border-width:2; -fx-border-radius:8;");
     }
 
     private void validateBpLive() {
@@ -158,14 +183,19 @@ public class AddDossierController implements Initializable {
                 : "-fx-border-color:#f59e0b; -fx-border-width:2; -fx-border-radius:8;");
     }
 
+    // ══════════════════════════════════════════════════════════════
+    //  COMPTEURS (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
     private void setupCounter(TextField tf, Label lbl, int max) {
         if (lbl == null) return;
         lbl.setText("0/" + max);
         tf.textProperty().addListener((o, a, b) -> {
             int len = b == null ? 0 : b.length();
             lbl.setText(len + "/" + max);
-            lbl.setStyle(len == 0      ? "-fx-text-fill:#9ca3af;" :
-                    len < max / 2 ? "-fx-text-fill:#f59e0b;" : "-fx-text-fill:#10b981;");
+            lbl.setStyle(len == 0       ? "-fx-text-fill:#9ca3af;" :
+                    len < max / 2  ? "-fx-text-fill:#f59e0b;" :
+                            "-fx-text-fill:#10b981;");
         });
     }
 
@@ -175,26 +205,34 @@ public class AddDossierController implements Initializable {
         ta.textProperty().addListener((o, a, b) -> {
             int len = b == null ? 0 : b.length();
             lbl.setText(len + "/" + max);
-            lbl.setStyle(len == 0      ? "-fx-text-fill:#9ca3af;" :
-                    len < max / 2 ? "-fx-text-fill:#f59e0b;" : "-fx-text-fill:#10b981;");
+            lbl.setStyle(len == 0       ? "-fx-text-fill:#9ca3af;" :
+                    len < max / 2  ? "-fx-text-fill:#f59e0b;" :
+                            "-fx-text-fill:#10b981;");
         });
     }
 
-    @FXML private void save() {
+    // ══════════════════════════════════════════════════════════════
+    //  SAUVEGARDE (inchangé)
+    // ══════════════════════════════════════════════════════════════
+
+    @FXML
+    private void save() {
         String nom  = tfNomDossier.getText()   == null ? "" : tfNomDossier.getText().trim();
         String desc = taDescription.getText()  == null ? "" : taDescription.getText().trim();
         String bp   = tfBusinessPlan.getText() == null ? "" : tfBusinessPlan.getText().trim();
 
-        // Tous les champs obligatoires
-        if (nom.isEmpty())                       { highlight(tfNomDossier);   err("Champ obligatoire", "Le nom du dossier est requis."); return; }
-        if (cbCandidature.getValue() == null)    {                             err("Champ obligatoire", "Veuillez sélectionner une candidature."); return; }
-        // Description optionnelle
-        if (bp.isEmpty())                        { highlight(tfBusinessPlan); err("Champ obligatoire", "Le Business Plan est requis (fichier PDF ou URL)."); return; }
-        if (dpDateCreation.getValue() == null)   {                             err("Champ obligatoire", "La date de création est requise."); return; }
+        // Champs obligatoires
+        if (nom.isEmpty())                    { highlight(tfNomDossier);   err("Champ obligatoire", "Le nom du dossier est requis."); return; }
+        if (cbCandidature.getValue() == null) {                             err("Champ obligatoire", "Veuillez sélectionner une candidature."); return; }
+        if (bp.isEmpty())                     { highlight(tfBusinessPlan); err("Champ obligatoire", "Le Business Plan est requis (fichier PDF ou URL)."); return; }
+        if (dpDateCreation.getValue() == null){                             err("Champ obligatoire", "La date de création est requise."); return; }
 
-        // Longueurs minimales
-        if (nom.length() < MIN_NOM)              { highlight(tfNomDossier); err("Champ invalide", "Le nom doit contenir au moins " + MIN_NOM + " caractères."); return; }
-        // Pas de longueur minimale pour la description
+        // Longueur minimale nom
+        if (nom.length() < MIN_NOM) {
+            highlight(tfNomDossier);
+            err("Champ invalide", "Le nom doit contenir au moins " + MIN_NOM + " caractères.");
+            return;
+        }
 
         // Validation Business Plan
         boolean isFile = new File(bp).exists();
@@ -202,11 +240,12 @@ public class AddDossierController implements Initializable {
         boolean isExt  = bp.matches("(?i).*\\.(pdf|docx|doc|pptx|xlsx)$");
         if (!isFile && !isUrl && !isExt) {
             highlight(tfBusinessPlan);
-            err("Business Plan invalide", "Choisissez un fichier via 'Parcourir' ou entrez une URL valide (http/https).");
+            err("Business Plan invalide",
+                    "Choisissez un fichier via 'Parcourir' ou entrez une URL valide (http/https).");
             return;
         }
 
-        // Unicité nomDossier
+        // Unicité du nom
         try {
             if (service.existsNomDossier(nom, 0)) {
                 highlight(tfNomDossier);
@@ -218,7 +257,7 @@ public class AddDossierController implements Initializable {
             return;
         }
 
-        // Sauvegarde — visible toujours = true
+        // Construction de l'entité
         DossierCandidature d = new DossierCandidature();
         d.setNomDossier(nom);
         d.setIdCandidature(cbCandidature.getValue().getIdCandidature());
@@ -226,7 +265,7 @@ public class AddDossierController implements Initializable {
         d.setBusinessPlan(bp);
         d.setDateCreation(Date.valueOf(dpDateCreation.getValue()));
         d.setEtat("INCOMPLET");
-        d.setVisible(true); // ✅ toujours visible=1 à la création
+        d.setVisible(true);
 
         try {
             service.addDossier(d);
@@ -237,7 +276,12 @@ public class AddDossierController implements Initializable {
         }
     }
 
-    @FXML private void close() {
+    // ══════════════════════════════════════════════════════════════
+    //  UTILITAIRES
+    // ══════════════════════════════════════════════════════════════
+
+    @FXML
+    private void close() {
         ((Stage) tfNomDossier.getScene().getWindow()).close();
     }
 
@@ -248,8 +292,11 @@ public class AddDossierController implements Initializable {
         tf.textProperty().addListener((o, a, b) -> tf.setStyle(""));
     }
 
-    private void err(String t, String m) {
+    private void err(String titre, String message) {
         Alert a = new Alert(Alert.AlertType.WARNING);
-        a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait();
+        a.setTitle(titre);
+        a.setHeaderText(null);
+        a.setContentText(message);
+        a.showAndWait();
     }
 }

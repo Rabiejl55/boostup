@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -25,16 +26,16 @@ import java.util.stream.Collectors;
 
 public class CandidatureFrontController implements Initializable {
 
-    @FXML private FlowPane     cardsFlowPane;
-    @FXML private Button       btnAdd;
-    @FXML private TextField    tfSearch;
+    @FXML private FlowPane         cardsFlowPane;
+    @FXML private Button           btnAdd;
+    @FXML private TextField        tfSearch;
     @FXML private ComboBox<String> cbFilter;
-    @FXML private Label        lblEnAttente;
-    @FXML private Label        lblValidees;
-    @FXML private Label        lblRefusees;
+    @FXML private Label            lblEnAttente;
+    @FXML private Label            lblValidees;
+    @FXML private Label            lblRefusees;
 
-    private final CandidatureService service  = new CandidatureService();
-    private final DateTimeFormatter  fmt      = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final CandidatureService service = new CandidatureService();
+    private final DateTimeFormatter  fmt     = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final LocalDate          MIN_DATE = LocalDate.of(2026, 2, 23);
     private List<Candidature>        all;
     private AppController            appController;
@@ -81,8 +82,12 @@ public class CandidatureFrontController implements Initializable {
         }).collect(Collectors.toList());
 
         cardsFlowPane.getChildren().clear();
-        if (filtered.isEmpty()) cardsFlowPane.getChildren().add(buildEmptyState("📭", "Aucune candidature", "Ajoutez une candidature ou modifiez la recherche."));
-        else filtered.forEach(c -> cardsFlowPane.getChildren().add(buildCard(c)));
+        if (filtered.isEmpty()) {
+            cardsFlowPane.getChildren().add(
+                    buildEmptyState("📭", "Aucune candidature", "Ajoutez une candidature ou modifiez la recherche."));
+        } else {
+            filtered.forEach(c -> cardsFlowPane.getChildren().add(buildCard(c)));
+        }
     }
 
     // ─── Carte ───────────────────────────────────────────────────────────────
@@ -133,7 +138,9 @@ public class CandidatureFrontController implements Initializable {
         body.getChildren().add(row("📅", "Date de dépôt", dp));
 
         // Score — lecture seule
-        Label scoreLabel = new Label(c.getScore() == null ? "En attente d'évaluation" : String.format("%.2f / 10", c.getScore()));
+        Label scoreLabel = new Label(c.getScore() == null
+                ? "En attente d'évaluation"
+                : String.format("%.2f / 10", c.getScore()));
         scoreLabel.getStyleClass().add("score-ro");
         scoreLabel.setTooltip(new Tooltip("Calculé automatiquement par le back-office"));
         body.getChildren().add(row("⭐", "Score", scoreLabel));
@@ -148,32 +155,94 @@ public class CandidatureFrontController implements Initializable {
         body.getChildren().addAll(lbCmt, ta);
         card.getChildren().add(body);
 
-        // Footer
+        // ══ Footer avec bouton QR ══════════════════════════════════
         HBox footer = new HBox(8);
         footer.setPadding(new Insets(10, 18, 14, 18));
         footer.setAlignment(Pos.CENTER_RIGHT);
         footer.getStyleClass().add("card-footer");
 
+        // ✨ BOUTON QR CODE — NOUVEAU
+        Button btnQR = new Button("📱  QR Code");
+        btnQR.setStyle(
+                "-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4f62e8, #7c3aed);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-weight: 700;" +
+                        "-fx-padding: 7 14;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(79,98,232,0.4), 8, 0, 0, 2);"
+        );
+        btnQR.setTooltip(new Tooltip("Générer le QR Code de suivi de cette candidature"));
+        btnQR.setOnAction(e -> ouvrirQRCode(c));
+
         Button btnHide = new Button("Masquer");
         btnHide.getStyleClass().add("btn-ghost-danger");
         btnHide.setOnAction(e -> {
-            try { service.hideCandidature(c.getIdCandidature()); all.remove(c); updateStats(); applyFilters(); if (appController != null) appController.refreshSidebarStats(); }
-            catch (SQLException ex) { alert("Erreur", ex.getMessage(), Alert.AlertType.ERROR); }
+            try {
+                service.hideCandidature(c.getIdCandidature());
+                all.remove(c);
+                updateStats();
+                applyFilters();
+                if (appController != null) appController.refreshSidebarStats();
+            } catch (SQLException ex) {
+                alert("Erreur", ex.getMessage(), Alert.AlertType.ERROR);
+            }
         });
 
         Button btnSave = new Button("💾  Sauvegarder");
         btnSave.getStyleClass().add("btn-save");
         btnSave.setOnAction(e -> handleSave(c, tfNom, tfStartup, dp, ta, btnSave));
 
-        Region sp = new Region(); HBox.setHgrow(sp, Priority.ALWAYS);
-        footer.getChildren().addAll(sp, btnHide, btnSave);
+        Region sp = new Region();
+        HBox.setHgrow(sp, Priority.ALWAYS);
+        footer.getChildren().addAll(btnQR, sp, btnHide, btnSave);
         card.getChildren().add(footer);
         return card;
     }
 
-    private void handleSave(Candidature c, TextField tfNom, TextField tfStartup, DatePicker dp, TextArea ta, Button btn) {
-        if (tfNom.getText().trim().isEmpty()) { alert("Requis", "Nom obligatoire.", Alert.AlertType.WARNING); return; }
-        if (tfStartup.getText().trim().isEmpty()) { alert("Requis", "Startup obligatoire.", Alert.AlertType.WARNING); return; }
+    // ══════════════════════════════════════════════════════════════
+    //  🤖 QR CODE — NOUVEAU
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Ouvre le panneau QR Code pour la candidature sélectionnée.
+     */
+    private void ouvrirQRCode(Candidature candidature) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/QRCodePanel.fxml"));
+            Parent root = loader.load();
+
+            QRCodeController ctrl = loader.getController();
+            ctrl.setCandidature(candidature);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(cardsFlowPane.getScene().getWindow());
+            stage.setTitle("📱 QR Code  —  " + nvl(candidature.getNomCandidature()));
+            stage.setScene(new Scene(root));
+            stage.setMinWidth(480);
+            stage.setMinHeight(580);
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert("Erreur QR", "Impossible d'ouvrir le panneau QR Code :\n" + e.getMessage(),
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    // ─── Sauvegarde ──────────────────────────────────────────────────────────
+    private void handleSave(Candidature c, TextField tfNom, TextField tfStartup,
+                            DatePicker dp, TextArea ta, Button btn) {
+        if (tfNom.getText().trim().isEmpty()) {
+            alert("Requis", "Nom obligatoire.", Alert.AlertType.WARNING); return;
+        }
+        if (tfStartup.getText().trim().isEmpty()) {
+            alert("Requis", "Startup obligatoire.", Alert.AlertType.WARNING); return;
+        }
         if (dp.getValue() == null || dp.getValue().isBefore(MIN_DATE)) {
             alert("Date invalide", "Date ≥ " + MIN_DATE.format(fmt), Alert.AlertType.WARNING);
             dp.setValue(c.getDateDepot().toLocalDate()); return;
@@ -185,49 +254,95 @@ public class CandidatureFrontController implements Initializable {
         try {
             service.updateCandidature(c);
             btn.setText("✅  Sauvegardé !"); btn.setDisable(true);
-            new Thread(() -> { try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-                Platform.runLater(() -> { btn.setText("💾  Sauvegarder"); btn.setDisable(false); }); }).start();
-        } catch (SQLException ex) { alert("Erreur", ex.getMessage(), Alert.AlertType.ERROR); }
+            new Thread(() -> {
+                try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+                Platform.runLater(() -> { btn.setText("💾  Sauvegarder"); btn.setDisable(false); });
+            }).start();
+        } catch (SQLException ex) {
+            alert("Erreur", ex.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
-    @FXML private void openAddDialog() {
+    @FXML
+    private void openAddDialog() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/add-candidature.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/add-candidature.fxml"));
             VBox root = loader.load();
             AddCandidatureController ctrl = loader.getController();
             Stage stage = new Stage();
             stage.setTitle("Nouvelle Candidature");
-            Scene scene = new Scene(root, 500, 540);
+            Scene scene = new Scene(root, 520, 680);
             loadCss(scene);
-            stage.setScene(scene); stage.initModality(Modality.APPLICATION_MODAL); stage.setResizable(false);
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(true);
+            stage.setMinWidth(480);
+            stage.setMinHeight(640);
             stage.showAndWait();
             if (ctrl.isSaved()) loadAll();
-        } catch (Exception ex) { ex.printStackTrace(); alert("Erreur", ex.getMessage(), Alert.AlertType.ERROR); }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            alert("Erreur", ex.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
     private HBox row(String icon, String key, javafx.scene.Node val) {
-        Label k = new Label(icon + "  " + key + " :"); k.getStyleClass().add("row-key"); k.setPrefWidth(130);
-        HBox r = new HBox(10, k, val); r.setAlignment(Pos.CENTER_LEFT); HBox.setHgrow(val, Priority.ALWAYS);
+        Label k = new Label(icon + "  " + key + " :");
+        k.getStyleClass().add("row-key");
+        k.setPrefWidth(130);
+        HBox r = new HBox(10, k, val);
+        r.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(val, Priority.ALWAYS);
         return r;
     }
+
     private VBox buildEmptyState(String icon, String title, String hint) {
-        VBox b = new VBox(14); b.setAlignment(Pos.CENTER); b.setPadding(new Insets(80)); b.setPrefWidth(700);
+        VBox b = new VBox(14);
+        b.setAlignment(Pos.CENTER);
+        b.setPadding(new Insets(80));
+        b.setPrefWidth(700);
         Label i = new Label(icon); i.setStyle("-fx-font-size:56px;");
         Label t = new Label(title); t.getStyleClass().add("empty-title");
         Label h = new Label(hint);  h.getStyleClass().add("empty-hint");
-        b.getChildren().addAll(i, t, h); return b;
+        b.getChildren().addAll(i, t, h);
+        return b;
     }
-    private String cls(String s)   { return switch(s==null?"":s){case"VALIDEE"->"validee";case"REFUSEE"->"refusee";default->"attente";}; }
-    private String label(String s) { return switch(s==null?"":s){case"VALIDEE"->"Validée";case"REFUSEE"->"Refusée";default->"En attente";}; }
-    private String emoji(String s) { return switch(s==null?"":s){case"VALIDEE"->"✅";case"REFUSEE"->"❌";default->"⏳";}; }
-    private String nvl(String s)   { return s == null ? "" : s; }
+
+    private String cls(String s) {
+        return switch (s == null ? "" : s) {
+            case "VALIDEE" -> "validee";
+            case "REFUSEE" -> "refusee";
+            default        -> "attente";
+        };
+    }
+    private String label(String s) {
+        return switch (s == null ? "" : s) {
+            case "VALIDEE" -> "Validée";
+            case "REFUSEE" -> "Refusée";
+            default        -> "En attente";
+        };
+    }
+    private String emoji(String s) {
+        return switch (s == null ? "" : s) {
+            case "VALIDEE" -> "✅";
+            case "REFUSEE" -> "❌";
+            default        -> "⏳";
+        };
+    }
+    private String nvl(String s) { return s == null ? "" : s; }
+
     private void loadCss(Scene scene) {
-        for (String p : new String[]{"/style.css","/css/style.css"}) {
-            URL u = getClass().getResource(p); if (u != null) { scene.getStylesheets().add(u.toExternalForm()); return; }
+        for (String p : new String[]{"/style.css", "/css/style.css"}) {
+            URL u = getClass().getResource(p);
+            if (u != null) { scene.getStylesheets().add(u.toExternalForm()); return; }
         }
     }
+
     private void alert(String t, String m, Alert.AlertType type) {
-        Alert a = new Alert(type); a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait();
+        Alert a = new Alert(type);
+        a.setTitle(t); a.setHeaderText(null); a.setContentText(m);
+        a.showAndWait();
     }
 }
