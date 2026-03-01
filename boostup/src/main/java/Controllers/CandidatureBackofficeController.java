@@ -6,11 +6,12 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import services.CandidatureService.CandidatureService;
 import utils.AlertUtils;
@@ -29,7 +30,7 @@ public class CandidatureBackofficeController implements Initializable {
     @FXML private TableColumn<Candidature, String>        statutColumn;
     @FXML private TableColumn<Candidature, Double>        scoreColumn;
     @FXML private TableColumn<Candidature, String>        commentaireColumn;
-    @FXML private TableColumn<Candidature, String>        emailContactColumn; // ✅ NOUVEAU
+    @FXML private TableColumn<Candidature, String>        emailContactColumn;
     @FXML private Button backButton;
 
     private final CandidatureService service = new CandidatureService();
@@ -43,12 +44,12 @@ public class CandidatureBackofficeController implements Initializable {
         statutColumn        .setCellValueFactory(new PropertyValueFactory<>("statut"));
         scoreColumn         .setCellValueFactory(new PropertyValueFactory<>("score"));
         commentaireColumn   .setCellValueFactory(new PropertyValueFactory<>("commentaire"));
-        emailContactColumn  .setCellValueFactory(new PropertyValueFactory<>("emailContact")); // ✅
+        emailContactColumn  .setCellValueFactory(new PropertyValueFactory<>("emailContact"));
         candidatureTable.setItems(candidatureList);
         refreshTable();
     }
 
-    // ── Masquer ───────────────────────────────────────────────────────────────
+    // ── Masquer ───────────────────────────────────────────────────
 
     @FXML
     private void hideSelected() {
@@ -80,7 +81,33 @@ public class CandidatureBackofficeController implements Initializable {
         }
     }
 
-    // ── Navigation sidebar ────────────────────────────────────────────────────
+    // ── ✨ NOUVEAU — Détection de similarités ─────────────────────
+
+    @FXML
+    private void ouvrirSimilarites() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/SimilaritePanel.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(candidatureTable.getScene().getWindow());
+            stage.setTitle("🔍 Détection de similarités — BOOSTUP Admin");
+            stage.setScene(new Scene(root));
+            stage.setMinWidth(780);
+            stage.setMinHeight(680);
+            stage.setResizable(true);
+            stage.centerOnScreen();
+            stage.show();
+
+        } catch (Exception e) {
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Impossible d'ouvrir le panneau", e.getMessage());
+        }
+    }
+
+    // ── Navigation sidebar ────────────────────────────────────────
 
     @FXML private void goToCandidatures() {}
 

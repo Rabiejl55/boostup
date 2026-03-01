@@ -48,6 +48,22 @@
                     maxWidth="Infinity"
                     onAction="#goToEvaluations"/>
 
+            <!-- ✨ NOUVEAU — bouton similarités dans la sidebar -->
+            <Region styleClass="sidebar-sep">
+                <VBox.margin><Insets top="10" bottom="4"/></VBox.margin>
+            </Region>
+
+            <Label text="OUTILS" styleClass="sidebar-section-lbl">
+                <padding><Insets left="10" bottom="6"/></padding>
+            </Label>
+
+            <Button text="🔍   Similarités"
+                    styleClass="nav-item"
+                    maxWidth="Infinity"
+                    onAction="#ouvrirSimilarites"
+                    style="-fx-border-color: transparent transparent transparent rgba(239,68,68,0.5);
+                           -fx-border-width: 0 0 0 3px;"/>
+
             <Region VBox.vgrow="ALWAYS"/>
             <Region styleClass="sidebar-sep"/>
 
@@ -77,6 +93,15 @@
                 <Label text="Gérez, évaluez et notifiez les candidatures" styleClass="view-subtitle"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- ✨ NOUVEAU — bouton accès rapide similarités dans la topbar -->
+            <Button text="🔍  Détecter les doublons"
+                    onAction="#ouvrirSimilarites"
+                    style="-fx-background-color: linear-gradient(to right, #ef4444, #f59e0b);
+                           -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;
+                           -fx-padding: 8 16; -fx-background-radius: 9px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.35), 8, 0, 0, 2);"/>
+
             <Button fx:id="refreshButton" styleClass="btn-refresh"
                     onAction="#refreshTable" text="⟳  Rafraîchir"/>
         </HBox>

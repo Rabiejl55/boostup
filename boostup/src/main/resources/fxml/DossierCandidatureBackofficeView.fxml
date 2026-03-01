@@ -30,31 +30,18 @@
                 <padding><Insets left="10" bottom="6"/></padding>
             </Label>
 
-            <Button fx:id="btnNavCandidatures"
-                    text="📋   Candidatures"
-                    styleClass="nav-item"
-                    maxWidth="Infinity"
-                    onAction="#goToCandidatures"/>
-
-            <Button fx:id="btnNavDossiers"
-                    text="📁   Dossiers"
-                    styleClass="nav-item, nav-item-active"
-                    maxWidth="Infinity"
-                    onAction="#goToDossiers"/>
-
-            <Button fx:id="btnNavEvaluations"
-                    text="⭐   Évaluations"
-                    styleClass="nav-item"
-                    maxWidth="Infinity"
-                    onAction="#goToEvaluations"/>
+            <Button text="📋   Candidatures" styleClass="nav-item"
+                    maxWidth="Infinity" onAction="#goToCandidatures"/>
+            <Button text="📁   Dossiers" styleClass="nav-item, nav-item-active"
+                    maxWidth="Infinity" onAction="#goToDossiers"/>
+            <Button text="⭐   Évaluations" styleClass="nav-item"
+                    maxWidth="Infinity" onAction="#goToEvaluations"/>
 
             <Region VBox.vgrow="ALWAYS"/>
             <Region styleClass="sidebar-sep"/>
 
-            <Button text="← Retour au menu"
-                    styleClass="btn-ghost"
-                    maxWidth="Infinity"
-                    onAction="#goBackToMenu">
+            <Button text="← Retour au menu" styleClass="btn-ghost"
+                    maxWidth="Infinity" onAction="#goBackToMenu">
                 <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
             </Button>
 
@@ -66,7 +53,7 @@
         </VBox>
     </VBox>
 
-    <!-- ══ CONTENU ══ -->
+    <!-- ══ CONTENU PRINCIPAL ══ -->
     <VBox HBox.hgrow="ALWAYS" styleClass="view-root" spacing="0">
 
         <!-- Top Bar -->
@@ -78,45 +65,176 @@
                        styleClass="view-subtitle"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
+            <!-- Compteur dynamique -->
+            <Label fx:id="lblCount"
+                   style="-fx-font-size:12px; -fx-font-weight:700;
+                          -fx-text-fill:#6b7494; -fx-background-color:#eef0f8;
+                          -fx-background-radius:20; -fx-padding:5 14;
+                          -fx-border-color:#dce0f0; -fx-border-radius:20; -fx-border-width:1.5;"/>
             <Button styleClass="btn-refresh" onAction="#refreshTable" text="⟳  Rafraîchir"/>
         </HBox>
 
-        <!-- Tableau -->
-        <VBox VBox.vgrow="ALWAYS" spacing="16">
-            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+        <!-- Zone principale : liste gauche + détail droite -->
+        <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" spacing="0">
 
-            <TableView fx:id="dossierTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
-                <columns>
-                    <TableColumn fx:id="nomCandidatureColumn" text="Nom Candidature"    prefWidth="180"/>
-                    <TableColumn fx:id="nomDossierColumn"     text="Nom Dossier"        prefWidth="160"/>
-                    <TableColumn fx:id="descriptionColumn"    text="Description Projet" prefWidth="220"/>
-                    <TableColumn fx:id="businessPlanColumn"   text="Business Plan"      prefWidth="160"/>
-                    <TableColumn fx:id="dateCreationColumn"   text="Date Création"      prefWidth="120"/>
-                    <TableColumn fx:id="etatColumn"           text="État"               prefWidth="100"/>
-                </columns>
-            </TableView>
+            <!-- ── LISTE DES DOSSIERS (gauche) ── -->
+            <VBox spacing="0" minWidth="340" maxWidth="340"
+                  style="-fx-background-color:white;
+                         -fx-border-color:transparent #dce0f0 transparent transparent;
+                         -fx-border-width:0 1.5 0 0;">
 
-            <!-- ── Barre d'actions ── -->
-            <HBox alignment="CENTER_LEFT" spacing="12">
+                <!-- Barre de recherche -->
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-background-color:#f7f8fc; -fx-padding:14 16;
+                             -fx-border-color:transparent transparent #dce0f0 transparent;
+                             -fx-border-width:0 0 1 0;">
+                    <Label text="🔍" style="-fx-font-size:14px; -fx-text-fill:#9ca3af;"/>
+                    <TextField fx:id="searchField"
+                               promptText="Rechercher un dossier…"
+                               HBox.hgrow="ALWAYS"
+                               style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                      -fx-font-size:13px; -fx-text-fill:#1e2746;
+                                      -fx-prompt-text-fill:#9ca3af;"/>
+                </HBox>
 
-                <!-- Bouton Cacher (existant) -->
-                <Button fx:id="hideButton"
-                        styleClass="btn-block"
-                        onAction="#hideSelected"
-                        text="🙈  Cacher"/>
+                <!-- Liste scrollable -->
+                <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true"
+                            styleClass="view-scroll" hbarPolicy="NEVER">
+                    <VBox fx:id="dossierListContainer" spacing="0" fillWidth="true">
+                        <!-- Les cartes sont injectées dynamiquement par le controller -->
+                        <padding><Insets top="8" bottom="8"/></padding>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
 
-                <!-- ✨ Bouton Analyser IA (NOUVEAU) -->
-                <Button fx:id="btnAnalyserIA"
-                        styleClass="btn-ia"
-                        onAction="#analyserAvecIA"
-                        text="🤖  Analyser avec l'IA"
-                        disable="true"/>
+            <!-- ── PANNEAU DE DÉTAIL (droite) ── -->
+            <VBox fx:id="detailPane" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+                  spacing="0" alignment="TOP_LEFT">
 
-                <!-- Info -->
-                <Label text="← Sélectionnez un dossier pour l'analyser"
-                       style="-fx-font-size:11px; -fx-text-fill:#9ca3af; -fx-font-style:italic;"/>
+                <!-- État vide (affiché quand rien n'est sélectionné) -->
+                <VBox fx:id="emptyState" alignment="CENTER" VBox.vgrow="ALWAYS"
+                      spacing="12" visible="true" managed="true">
+                    <Label text="📂" style="-fx-font-size:52px;"/>
+                    <Label text="Sélectionnez un dossier"
+                           style="-fx-font-size:18px; -fx-font-weight:700;
+                                  -fx-text-fill:#1e2746;"/>
+                    <Label text="Cliquez sur un dossier dans la liste pour afficher ses détails"
+                           style="-fx-font-size:13px; -fx-text-fill:#6b7494;"
+                           wrapText="true" maxWidth="260" textAlignment="CENTER"/>
+                </VBox>
 
-            </HBox>
-        </VBox>
+                <!-- Contenu détail (affiché quand une carte est sélectionnée) -->
+                <VBox fx:id="detailContent" VBox.vgrow="ALWAYS" spacing="0"
+                      visible="false" managed="false">
+
+                    <!-- Header du détail -->
+                    <VBox fx:id="detailHeader" spacing="6"
+                          style="-fx-padding:28 32 22 32;">
+
+                        <!-- Ligne titre + badge état -->
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <StackPane style="-fx-background-color:linear-gradient(to bottom right,#4f62e8,#7c3aed);
+                                              -fx-background-radius:12;
+                                              -fx-min-width:44; -fx-min-height:44;
+                                              -fx-max-width:44; -fx-max-height:44;
+                                              -fx-alignment:center;">
+                                <Label text="📁" style="-fx-font-size:20px;"/>
+                            </StackPane>
+                            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="detailNomDossier"
+                                       style="-fx-font-size:20px; -fx-font-weight:800;
+                                              -fx-text-fill:#1e2746; -fx-font-family:'Georgia';"/>
+                                <Label fx:id="detailNomCandidature"
+                                       style="-fx-font-size:13px; -fx-text-fill:#6b7494;"/>
+                            </VBox>
+                            <Label fx:id="detailBadgeEtat" styleClass="badge-etat"/>
+                        </HBox>
+
+                        <!-- Méta-info : date + id -->
+                        <HBox spacing="20" style="-fx-padding:4 0 0 0;">
+                            <HBox spacing="6" alignment="CENTER_LEFT">
+                                <Label text="📅" style="-fx-font-size:12px;"/>
+                                <Label fx:id="detailDateCreation"
+                                       style="-fx-font-size:12px; -fx-text-fill:#6b7494;"/>
+                            </HBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Séparateur -->
+                    <Region style="-fx-background-color:#dce0f0; -fx-pref-height:1; -fx-max-height:1;"/>
+
+                    <!-- Corps scrollable -->
+                    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true"
+                                styleClass="view-scroll" hbarPolicy="NEVER">
+                        <VBox spacing="20" style="-fx-padding:24 32;">
+
+                            <!-- Section : Description Projet -->
+                            <VBox spacing="8">
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="📝" style="-fx-font-size:14px;"/>
+                                    <Label text="DESCRIPTION DU PROJET"
+                                           style="-fx-font-size:11px; -fx-font-weight:700;
+                                                  -fx-text-fill:#9ca3af;"/>
+                                </HBox>
+                                <TextArea fx:id="detailDescription"
+                                          editable="false" wrapText="true"
+                                          style="-fx-background-color:#f7f8fc;
+                                                 -fx-border-color:#dce0f0;
+                                                 -fx-border-radius:12; -fx-background-radius:12;
+                                                 -fx-border-width:1.5;
+                                                 -fx-font-size:13px; -fx-text-fill:#1e2746;
+                                                 -fx-padding:14 16;"
+                                          prefRowCount="6"/>
+                            </VBox>
+
+                            <!-- Section : Business Plan -->
+                            <VBox spacing="8">
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="💼" style="-fx-font-size:14px;"/>
+                                    <Label text="BUSINESS PLAN"
+                                           style="-fx-font-size:11px; -fx-font-weight:700;
+                                                  -fx-text-fill:#9ca3af;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="10"
+                                      style="-fx-background-color:#f7f8fc;
+                                             -fx-border-color:#dce0f0;
+                                             -fx-border-radius:12; -fx-background-radius:12;
+                                             -fx-border-width:1.5; -fx-padding:12 16;">
+                                    <Label text="📎" style="-fx-font-size:16px;"/>
+                                    <Label fx:id="detailBusinessPlan"
+                                           style="-fx-font-size:12px; -fx-text-fill:#4f62e8;
+                                                  -fx-font-weight:600;"
+                                           wrapText="true" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </ScrollPane>
+
+                    <!-- Séparateur -->
+                    <Region style="-fx-background-color:#dce0f0; -fx-pref-height:1; -fx-max-height:1;"/>
+
+                    <!-- Footer actions -->
+                    <HBox alignment="CENTER_LEFT" spacing="12"
+                          style="-fx-background-color:#f7f8fc; -fx-padding:16 32;
+                                 -fx-border-color:#dce0f0 transparent transparent transparent;
+                                 -fx-border-width:1 0 0 0;">
+
+                        <Button fx:id="btnAnalyserIA"
+                                styleClass="btn-ia"
+                                onAction="#analyserAvecIA"
+                                text="🤖  Analyser avec l'IA"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Button fx:id="hideButton"
+                                styleClass="btn-ghost-danger"
+                                onAction="#hideSelected"
+                                text="🙈  Masquer ce dossier"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+        </HBox>
     </VBox>
 </HBox>
