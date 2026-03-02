@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="0" styleClass="dialog-root"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.AddDossierController">
+
+    <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+    <VBox spacing="4" styleClass="dialog-header">
+        <padding><Insets bottom="22" left="32" right="32" top="28"/></padding>
+        <Label styleClass="dialog-title"    text="📁  Nouveau Dossier de Candidature"/>
+        <Label styleClass="dialog-subtitle" text="Associez un dossier complet à une candidature existante"/>
+    </VBox>
+
+    <!-- ══ BODY ════════════════════════════════════════════════════ -->
+    <VBox spacing="16" styleClass="dialog-body" VBox.vgrow="ALWAYS">
+        <padding><Insets bottom="16" left="32" right="32" top="22"/></padding>
+
+        <!-- Nom du dossier -->
+        <VBox spacing="6">
+            <Label styleClass="field-label" text="Nom du dossier  *"/>
+            <TextField fx:id="tfNomDossier"
+                       promptText="Ex : Dossier TechVision 2026"
+                       styleClass="dialog-input"/>
+        </VBox>
+
+        <!-- Candidature associée -->
+        <VBox spacing="6">
+            <Label styleClass="field-label" text="Candidature associée  *"/>
+            <ComboBox fx:id="cbCandidature"
+                      maxWidth="Infinity"
+                      promptText="Choisissez la candidature…"
+                      styleClass="dialog-combo"/>
+        </VBox>
+
+        <!-- Description du projet -->
+        <VBox spacing="6">
+            <Label styleClass="field-label" text="Description du projet"/>
+            <TextArea fx:id="taDescription"
+                      prefRowCount="4"
+                      promptText="Décrivez votre projet, ses objectifs…"
+                      styleClass="dialog-ta"
+                      wrapText="true"/>
+        </VBox>
+
+        <!-- Business Plan + boutons Parcourir & IA -->
+        <VBox spacing="6">
+            <Label styleClass="field-label" text="Business Plan  *"/>
+            <TextField fx:id="tfBusinessPlan"
+                       promptText="Ex : business_plan_2026.pdf"
+                       styleClass="dialog-input"/>
+
+            <!-- Boutons sur la même ligne -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+
+                <!-- Bouton Parcourir (existant) -->
+                <Button fx:id="btnParcourir"
+                        onAction="#browseFile"
+                        styleClass="btn-ghost"
+                        text="📎  Parcourir"/>
+            </HBox>
+        </VBox>
+
+        <!-- Date de création -->
+        <VBox spacing="6">
+            <Label styleClass="field-label" text="Date de création  *"/>
+            <DatePicker fx:id="dpDateCreation"
+                        maxWidth="Infinity"
+                        styleClass="dialog-dp"/>
+        </VBox>
+
+        <!-- Note info -->
+        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="info-note">
+            <padding><Insets bottom="4" left="12" right="12" top="4"/></padding>
+            <Label styleClass="info-note-text"
+                   text="ℹ  L'état sera « INCOMPLET » par défaut, mis à jour par le back-office."
+                   wrapText="true"/>
+        </HBox>
+
+    </VBox>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+    <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="dialog-footer">
+        <padding><Insets bottom="22" left="32" right="32" top="14"/></padding>
+        <Button onAction="#close" styleClass="btn-ghost"   text="Annuler"/>
+        <Button onAction="#save"  styleClass="btn-primary" text="✓  Créer le dossier"/>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,715 @@
+/* ===== Base ===== */
+.app-root {
+    -fx-font-family: "Segoe UI", Tahoma, Arial;
+    -fx-background-color: #f0f2f5;
+}
+
+.content {
+    -fx-background-color: transparent;
+}
+
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1a1a2e;
+}
+
+.page-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6c757d;
+}
+
+.h2 {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1a1a2e;
+}
+
+/* ===== Sidebar (same as model) ===== */
+/* ============================= */
+/* SIDEBAR PREMIUM DARK VERSION  */
+/* ============================= */
+
+.sidebar-premium {
+    -fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 20, 0, 4, 0);
+}
+
+/* Brand */
+.sidebar-brand-icon {
+    -fx-font-size: 28px;
+    -fx-text-fill: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.5), 8, 0, 0, 0);
+}
+
+.sidebar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+}
+
+.sidebar-subtitle {
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-font-size: 11px;
+}
+
+/* Separator */
+.sidebar-sep {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-pref-height: 1;
+}
+
+/* Menu Title */
+.sidebar-menu-title {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-padding: 8 12 6 12;
+}
+
+/* Buttons */
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.80);
+    -fx-background-radius: 12;
+    -fx-padding: 12 18;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-border-radius: 12;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: rgba(59,130,246,0.15);
+    -fx-text-fill: white;
+}
+
+/* Active */
+.sidebar-btn.active {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.5), 10, 0, 0, 2);
+}
+
+/* Danger */
+.sidebar-btn.danger {
+    -fx-background-color: rgba(220,53,69,0.15);
+    -fx-text-fill: #f87171;
+    -fx-border-color: rgba(220,53,69,0.25);
+}
+
+.sidebar-btn.danger:hover {
+    -fx-background-color: rgba(220,53,69,0.25);
+    -fx-text-fill: white;
+}
+
+/* Footer */
+.sidebar-footer {
+    -fx-text-fill: rgba(255,255,255,0.40);
+    -fx-font-size: 10px;
+}
+
+
+/* ===== Cards ===== */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 22;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);
+}
+
+/* ===== Inputs ===== */
+.form-label {
+    -fx-font-weight: 700;
+    -fx-text-fill: #344054;
+    -fx-font-size: 13px;
+}
+
+.modern-input {
+    -fx-background-color: white;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1.5px;
+    -fx-padding: 12 16;
+    -fx-font-size: 14px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-prompt-text-fill: #adb5bd;
+}
+
+.modern-input:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.20), 8, 0, 0, 2);
+}
+
+/* Make TextArea consistent */
+.text-area.modern-input {
+    -fx-padding: 10 14;
+}
+
+/* ===== Buttons (same as model) ===== */
+.btn-add {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 10 20;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(13,110,253,0.25), 8, 0, 0, 2);
+}
+.btn-add:hover { -fx-background-color: #0b5ed7; }
+
+.btn-refresh {
+    -fx-background-color: rgba(13,110,253,0.08);
+    -fx-text-fill: #0d6efd;
+    -fx-background-radius: 10;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+    -fx-border-color: rgba(13,110,253,0.20);
+    -fx-border-radius: 10;
+}
+.btn-refresh:hover { -fx-background-color: rgba(13,110,253,0.15); }
+
+.btn-delete {
+    -fx-background-color: rgba(220,53,69,0.10);
+    -fx-text-fill: #dc3545;
+    -fx-background-radius: 10;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+    -fx-border-color: rgba(220,53,69,0.25);
+    -fx-border-radius: 10;
+}
+.btn-delete:hover { -fx-background-color: rgba(220,53,69,0.18); }
+
+.btn-clear-filters {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #6c757d;
+    -fx-background-radius: 10;
+    -fx-padding: 10 18;
+    -fx-cursor: hand;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 10;
+    -fx-font-weight: 700;
+}
+.btn-clear-filters:hover { -fx-background-color: #e2e6ea; }
+
+.fieldError {
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+.count-pill {
+    -fx-text-fill: #0d6efd;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-background-color: rgba(13,110,253,0.06);
+    -fx-padding: 8 14;
+    -fx-background-radius: 8;
+}
+
+/* ===== Tabs modern ===== */
+/* Supprimer la ligne grise sous les tabs */
+.modern-tabs .tab-pane .tab-header-area .headers-region {
+    -fx-background-color: transparent;
+}
+
+/* Espace entre les tabs */
+.modern-tabs .tab-container {
+    -fx-padding: 0 4 0 0;
+}
+
+/* Hover plus élégant */
+.modern-tabs .tab:hover {
+    -fx-background-color: rgba(255,255,255,0.9);
+}
+
+/* Bordure propre sous les tabs */
+.modern-tabs .tab-header-area {
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Contenu des tabs plus propre */
+.modern-tabs .tab-content-area {
+    -fx-background-color: white;
+    -fx-background-radius: 0 12 12 12;
+    -fx-padding: 10;
+}
+.modern-tabs .tab:selected {
+    -fx-background-color: white;
+    -fx-font-weight: 800;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
+}
+
+/* ===== Table modern (reuse your style idea) ===== */
+/* ================= TABLE PREMIUM ================= */
+
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 14;
+    -fx-padding: 6;
+}
+
+/* Header */
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 8;
+    -fx-padding: 8 10;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: 700;
+}
+
+/* Rows */
+.table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(59,130,246,0.05);
+}
+
+.table-row-cell:selected {
+    -fx-background-color: rgba(59,130,246,0.12);
+}
+
+/* Cells */
+.table-cell {
+    -fx-padding: 8 10;
+    -fx-text-fill: #334155;
+}
+
+.table-view .table-row-cell:odd { -fx-background-color: #f8fafc; }
+.table-view .table-row-cell:even { -fx-background-color: white; }
+
+.table-view .table-row-cell:filled:hover {
+    -fx-background-color: #eef2ff;
+}
+
+.table-view .table-row-cell:filled:selected,
+.table-view:focused .table-row-cell:filled:selected {
+    -fx-background-color: linear-gradient(to right, #1e1b4b, #312e81);
+}
+
+.table-view .table-row-cell:filled:selected .table-cell {
+    -fx-text-fill: #e0e7ff;
+    -fx-font-weight: 700;
+}
+
+/* ============================= */
+/* SIDEBAR — FORCER VERSION DARK */
+/* ============================= */
+
+/* IMPORTANT: on cible .sidebar (car c'est ce que ton FXML utilise) */
+.sidebar {
+    -fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 20, 0, 4, 0);
+    -fx-padding: 14;
+}
+
+/* Logo + textes */
+.sidebar .sidebar-brand {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.sidebar .sidebar-subtitle {
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-font-size: 12px;
+}
+
+.sidebar .sidebar-sep {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-pref-height: 1;
+}
+
+/* Boutons */
+.sidebar .sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.82);
+    -fx-background-radius: 12;
+    -fx-padding: 12 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+
+.sidebar .sidebar-btn:hover {
+    -fx-background-color: rgba(59,130,246,0.18);
+    -fx-text-fill: white;
+}
+
+/* Active */
+.sidebar .sidebar-btn.active {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.55), 12, 0, 0, 2);
+}
+
+/* Logout danger */
+.sidebar .sidebar-btn.danger {
+    -fx-background-color: rgba(220,53,69,0.18);
+    -fx-text-fill: #fecaca;
+    -fx-border-color: rgba(220,53,69,0.35);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.sidebar .sidebar-btn.danger:hover {
+    -fx-background-color: rgba(220,53,69,0.30);
+    -fx-text-fill: white;
+}
+
+/* option: si ton sidebar est "fade" à cause d'une opacity héritée */
+.sidebar, .sidebar * {
+    -fx-opacity: 1;
+}
+
+/* ========================= */
+/*  AI SUMMARY (Dashboard)   */
+/* ========================= */
+
+.ai-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 3);
+}
+
+.ai-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1a1a2e;
+}
+
+.ai-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6c757d;
+}
+
+/* TextArea look premium */
+.ai-textarea {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.2px;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1e293b;
+}
+
+.ai-textarea:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.20), 10, 0, 0, 2);
+}
+
+/* Important: style de la zone interne du TextArea (content) */
+.ai-textarea .content {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 12;
+}
+
+/* Status label */
+.ai-status {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 600;
+}
+
+/* Bouton AI (utilise ton style bouton, mais plus “premium”) */
+.btn-ai {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 9 16;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.35), 10, 0, 0, 2);
+}
+
+.btn-ai:hover {
+    -fx-background-color: linear-gradient(to right, #2563eb, #1d4ed8);
+}
+.score-chip {
+    -fx-background-color: #ffe4e6;
+    -fx-text-fill: #b91c1c;
+    -fx-padding: 6 12;
+    -fx-background-radius: 999;
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+}
+
+.score-pill{
+    -fx-padding: 8 14 8 14;
+    -fx-background-color: rgba(255, 99, 99, 0.12);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255, 99, 99, 0.35);
+}
+.score-pill-title{
+    -fx-font-size: 12;
+    -fx-text-fill: #7a1f1f;
+    -fx-font-weight: 600;
+}
+.score-pill-value{
+    -fx-font-size: 13;
+    -fx-text-fill: #b91c1c;
+    -fx-font-weight: 800;
+}
+.score-badge {
+    -fx-background-color: rgba(59,130,246,0.12);
+    -fx-text-fill: #1d4ed8;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(59,130,246,0.25);
+}
+
+.score-bar {
+    -fx-accent: #1d4ed8;
+    -fx-padding: 0 0 0 0;
+}
+
+.score-explain {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+}
+.premium-section {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 12;
+}
+.tab-pane .tab-header-area {
+    -fx-padding: 6 6 0 6;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab {
+    -fx-background-radius: 12 12 0 0;
+}
+/* ===== Projet details premium missing classes ===== */
+
+.secondary-action {
+    -fx-background-color: rgba(13,110,253,0.08);
+    -fx-text-fill: #0d6efd;
+    -fx-background-radius: 10;
+    -fx-padding: 8 14;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(13,110,253,0.20);
+    -fx-border-radius: 10;
+}
+.secondary-action:hover { -fx-background-color: rgba(13,110,253,0.15); }
+
+.search-btn {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 9 14;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.section-title-premium {
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.section-desc {
+    -fx-font-size: 12.5px;
+    -fx-text-fill: #64748b;
+}
+
+.section-badge {
+    -fx-background-color: rgba(59,130,246,0.12);
+    -fx-text-fill: #1d4ed8;
+    -fx-font-weight: 800;
+    -fx-padding: 6 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(59,130,246,0.25);
+}
+
+.stat-card-premium {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 3);
+}
+
+.toastInfo {
+    -fx-background-color: rgba(2, 132, 199, 0.12);
+    -fx-text-fill: #075985;
+    -fx-padding: 10 12;
+    -fx-background-radius: 12;
+}
+.toastSuccess {
+    -fx-background-color: rgba(34, 197, 94, 0.12);
+    -fx-text-fill: #166534;
+    -fx-padding: 10 12;
+    -fx-background-radius: 12;
+}
+.toastError {
+    -fx-background-color: rgba(239, 68, 68, 0.12);
+    -fx-text-fill: #991b1b;
+    -fx-padding: 10 12;
+    -fx-background-radius: 12;
+}
+
+/* =========================
+   COMPACT MODE (global)
+   ========================= */
+
+/* Base font smaller */
+.app-root, .root {
+    -fx-font-size: 12px;
+}
+
+/* Titles a bit smaller */
+.section-title-premium { -fx-font-size: 18px; }
+.page-title { -fx-font-size: 24px; }
+
+/* Cards compact */
+.card, .premium-section {
+    -fx-padding: 12;
+    -fx-background-radius: 16;
+}
+
+/* Inputs compact */
+.modern-input {
+    -fx-padding: 8 12;
+    -fx-font-size: 12px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+/* Buttons compact */
+.btn-add, .btn-refresh, .btn-delete, .secondary-action, .search-btn {
+    -fx-padding: 7 12;
+    -fx-font-size: 12px;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+/* ListView cells spacing compact */
+.list-cell {
+    -fx-padding: 8 10;
+}
+
+/* ToolBar buttons spacing */
+.tool-bar {
+    -fx-padding: 0;
+}
+
+/* ProgressBar smaller */
+/* ================= PROGRESS MATURITE ================= */
+
+.progress-bar {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 20;
+    -fx-padding: 3;
+}
+
+/* ===== Projet Details : petits ajouts ===== */
+
+.details-page {
+    -fx-background-color: transparent;
+}
+
+.kpi-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.maturity-bar {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+}
+
+/* Optionnel : progress bar + smooth */
+.progress-bar .bar {
+    -fx-background-insets: 0;
+    -fx-background-radius: 999;
+}
+.progress-bar .track {
+    -fx-background-radius: 999;
+}
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.hero-section {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 18;
+    -fx-padding: 18;
+}
+
+.content-wrap {
+    -fx-padding: 18 24 24 24;
+    -fx-alignment: top-center;
+}
+.main-content {
+    -fx-padding: 18;
+}
+.page-hero-title { -fx-font-size: 22px; }
+.stat-value { -fx-font-size: 18px; }
+.section-title-premium { -fx-font-size: 16px; }
+.page-hero-subtitle { -fx-font-size: 12px; }
+.stat-label { -fx-font-size: 12px; }
+/* Center wrapper */
+.page-wrap {
+    -fx-background-color: transparent;
+    -fx-padding: 18 24 24 24;
+}
+.page-container {
+    -fx-background-color: transparent;
+}
+
+
+/* Bigger stat number */
+.stat-big {
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+.copy-btn {
+    -fx-background-color: rgba(99,102,241,0.10);
+    -fx-text-fill: #3730a3;
+    -fx-background-radius: 10;
+    -fx-padding: 8 14;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(99,102,241,0.25);
+    -fx-border-radius: 10;
+}
+.copy-btn:hover { -fx-background-color: rgba(99,102,241,0.16); }

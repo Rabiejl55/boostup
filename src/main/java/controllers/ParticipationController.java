@@ -3,11 +3,11 @@ package controllers;
 import entities.GEvenement.EvenementOption;
 import entities.GEvenement.Participation;
 import entities.GEvenement.ParticipationFX;
-import services.EvenementService.ParticipationService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,12 +16,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import java.time.LocalDate;
 import javafx.stage.Stage;
+import services.EvenementService.ParticipationService;
 
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class ParticipationController implements Initializable {
@@ -231,7 +232,11 @@ public class ParticipationController implements Initializable {
             tfRecherche.clear();
         }
     }
-
+    @FXML
+    private void goToEvenements(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/EvenementView.fxml", "Evenements");
+    }
     @FXML
     private void handleRetourEvenements() {
         try {
@@ -526,7 +531,7 @@ public class ParticipationController implements Initializable {
             showAlert("Erreur", "La date d'inscription est obligatoire");
             return false;
         }
-        if (dpDateInscription.getValue().isAfter(java.time.LocalDate.now())) {
+        if (dpDateInscription.getValue().isAfter(LocalDate.now())) {
             showAlert("Erreur", "La date d'inscription doit être inférieure ou égale à la date d'aujourd'hui");
             return false;
         }

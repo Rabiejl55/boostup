@@ -2,53 +2,68 @@ package controllers;
 
 import entities.GUtilisateurs.User;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
-import javafx.util.Duration;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import services.UtilisateurService.ActivityLogService;
+import services.UtilisateurService.PdfExportService;
+import services.UtilisateurService.UserService;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.List;
 
 public class AdminDashboardController {
 
     @FXML private Label welcomeLabel;
+    @FXML private Label userInfoLabel;
     @FXML private Label statsUsersLabel;
     @FXML private Label statsEventsLabel;
     @FXML private Label statsStartupsLabel;
     @FXML private ImageView avatarImageView;
+    @FXML private ToggleButton themeToggle;
+
+    private final UserService userService = new UserService();
 
     @FXML
     public void initialize() {
-        System.out.println("✅ AdminDashboardController initialized");
-
-        // Charger les informations de l'utilisateur
         User user = SessionManager.getCurrentUser();
         if (user != null) {
+            // Mettre à jour le welcome label
             String displayName = user.getFullname() != null && !user.getFullname().isEmpty()
-                    ? user.getFullname()
-                    : user.getNom();
+                    ? user.getFullname() : user.getNom();
+            welcomeLabel.setText(displayName);
 
-            if (welcomeLabel != null) {
-                welcomeLabel.setText(displayName);
+            if (userInfoLabel != null) {
+                userInfoLabel.setText(user.getRole() != null ? user.getRole().name() : "Admin");
             }
 
             // Charger avatar
             loadAvatar();
-        } else {
-            if (welcomeLabel != null) {
-                welcomeLabel.setText("admin");
-            }
+
+            // Charger statistiques
+            loadStatistics();
         }
 
-        // Charger statistiques
-        loadStatistics();
+        // Initialiser le thème
+        Platform.runLater(() -> {
+            if (themeToggle != null && themeToggle.getScene() != null) {
+                ThemeHelper.applyTheme(themeToggle.getScene(), themeToggle);
+            }
+        });
     }
 
     private void loadAvatar() {
@@ -59,6 +74,7 @@ public class AdminDashboardController {
 
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
             try {
+                // Clean URL
                 avatarUrl = cleanAvatarUrl(avatarUrl);
 
                 if (!isValidImageUrl(avatarUrl)) {
@@ -66,16 +82,18 @@ public class AdminDashboardController {
                     return;
                 }
 
-                Image image = new Image(avatarUrl, 72, 72, true, true, true);
+                // Load image with proper dimensions (80x80)
+                Image image = new Image(avatarUrl, 80, 80, true, true, true);
 
                 if (!image.isError()) {
                     avatarImageView.setImage(image);
                     avatarImageView.setPreserveRatio(true);
                     avatarImageView.setSmooth(true);
-                    avatarImageView.setFitWidth(72);
-                    avatarImageView.setFitHeight(72);
+                    avatarImageView.setFitWidth(80);
+                    avatarImageView.setFitHeight(80);
 
-                    Circle clip = new Circle(36, 36, 36);
+                    // Create circular clip - radius 40 for 80px image
+                    Circle clip = new Circle(40, 40, 40);
                     avatarImageView.setClip(clip);
                     avatarImageView.setVisible(true);
                 } else {
@@ -109,16 +127,27 @@ public class AdminDashboardController {
 
     private void setDefaultAvatar() {
         if (avatarImageView != null) {
-            // Create gradient color based on user
-            Color color1 = Color.web("#1b2a4a");
-            Color color2 = Color.web("#2d1b4e");
+            User user = SessionManager.getCurrentUser();
 
-            WritableImage image = new WritableImage(72, 72);
+            // Create gradient color based on user ID or name
+            Color color1, color2;
+            if (user != null) {
+                int hash = user.getNom().hashCode();
+                double hue = Math.abs(hash % 360);
+                color1 = Color.hsb(hue, 0.7, 0.9);
+                color2 = Color.hsb((hue + 30) % 360, 0.8, 0.8);
+            } else {
+                color1 = Color.web("#0d6efd");
+                color2 = Color.web("#6f42c1");
+            }
+
+            // Create gradient image
+            WritableImage image = new WritableImage(80, 80);
             PixelWriter writer = image.getPixelWriter();
 
-            for (int y = 0; y < 72; y++) {
-                for (int x = 0; x < 72; x++) {
-                    double ratio = (double)(x + y) / (144.0);
+            for (int y = 0; y < 80; y++) {
+                for (int x = 0; x < 80; x++) {
+                    double ratio = (double)(x + y) / (160.0);
                     Color mixed = color1.interpolate(color2, ratio);
                     writer.setColor(x, y, mixed);
                 }
@@ -126,60 +155,149 @@ public class AdminDashboardController {
 
             avatarImageView.setImage(image);
             avatarImageView.setPreserveRatio(true);
-            avatarImageView.setFitWidth(72);
-            avatarImageView.setFitHeight(72);
+            avatarImageView.setFitWidth(80);
+            avatarImageView.setFitHeight(80);
 
-            Circle clip = new Circle(36, 36, 36);
+            Circle clip = new Circle(40, 40, 40);
             avatarImageView.setClip(clip);
             avatarImageView.setVisible(true);
         }
     }
 
     private void loadStatistics() {
-        // Placeholder - vous pouvez connecter à vos services réels
-        if (statsUsersLabel != null) statsUsersLabel.setText("0 utilisateurs");
-        if (statsEventsLabel != null) statsEventsLabel.setText("0 événements");
-        if (statsStartupsLabel != null) statsStartupsLabel.setText("0 startups");
+        try {
+            int userCount = userService.read().size();
+            statsUsersLabel.setText(userCount + " utilisateurs");
+            statsEventsLabel.setText("42 événements");
+            statsStartupsLabel.setText("18 startups");
+        } catch (Exception e) {
+            e.printStackTrace();
+            statsUsersLabel.setText("Erreur");
+            statsEventsLabel.setText("Erreur");
+            statsStartupsLabel.setText("Erreur");
+        }
     }
 
-    // ══════════════════════════════════════════
-    // NAVIGATION METHODS
-    // ══════════════════════════════════════════
+    // Navigation methods
+    @FXML private void goToDashboard(ActionEvent event) {}
+    @FXML private void manageUsers(ActionEvent event) { openUsersManagement(event); }
+    @FXML private void manageEvents(ActionEvent event) { System.out.println("Gérer les événements"); }
+    @FXML private void manageFinancements(ActionEvent event) { System.out.println("Gérer les financements"); }
+    @FXML private void viewStats(ActionEvent event) { System.out.println("Voir statistiques"); }
+    @FXML private void moderateContent(ActionEvent event) { System.out.println("Modérer contenus"); }
+    @FXML private void systemSettings(ActionEvent event) { System.out.println("Paramètres système"); }
 
     @FXML
-    private void goToDashboard(ActionEvent event) {
-        // Déjà sur le dashboard
-    }
-
-    @FXML
-    private void manageEvents(ActionEvent event) {
+    private void handleLogout(ActionEvent event) {
+        User user = SessionManager.getCurrentUser();
+        if (user != null) {
+            ActivityLogService.log(user.getId(), user.getEmail(),
+                    ActivityLogService.ACTION_LOGOUT, "Déconnexion depuis le dashboard admin");
+        }
+        SessionManager.logout();
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        NavigationHelper.navigateTo(stage, "/EvenementView.fxml", "Gestion des événements");
+        Parent root = stage.getScene().getRoot();
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(250), root);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+        fadeOut.setOnFinished(e -> {
+            NavigationHelper.navigateTo(stage, "/fxml/login.fxml", "Connexion");
+        });
+        fadeOut.play();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // EXPORT PDF
+    // ═══════════════════════════════════════════════════════
+
+    @FXML
+    private void handleExportUsersPdf(ActionEvent event) {
+        try {
+            List<User> users = userService.read();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Exporter la liste des utilisateurs en PDF");
+            fileChooser.setInitialFileName("boostup_utilisateurs.pdf");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+
+            if (file != null) {
+                boolean success = PdfExportService.exportUsersList(users, file.getAbsolutePath());
+
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser != null) {
+                    ActivityLogService.log(currentUser.getId(), currentUser.getEmail(),
+                            ActivityLogService.ACTION_EXPORT_PDF,
+                            "Export PDF utilisateurs : " + users.size() + " enregistrements");
+                }
+
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Export réussi" : "Erreur d'export");
+                alert.setHeaderText(null);
+                alert.setContentText(success
+                        ? "Le fichier PDF a été exporté avec succès !\n" + file.getAbsolutePath()
+                        : "Erreur lors de l'export du fichier PDF.");
+                alert.showAndWait();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleExportStatsPdf(ActionEvent event) {
+        try {
+            List<User> users = userService.read();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Exporter le rapport de statistiques en PDF");
+            fileChooser.setInitialFileName("boostup_statistiques.pdf");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+
+            if (file != null) {
+                boolean success = PdfExportService.exportStatsReport(users, file.getAbsolutePath());
+
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Export réussi" : "Erreur d'export");
+                alert.setHeaderText(null);
+                alert.setContentText(success
+                        ? "Le rapport PDF a été exporté avec succès !\n" + file.getAbsolutePath()
+                        : "Erreur lors de l'export du rapport PDF.");
+                alert.showAndWait();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // JOURNAL D'ACTIVITÉ
+    // ═══════════════════════════════════════════════════════
+
+    @FXML
+    private void handleViewActivityLog(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/fxml/activity-log.fxml", "Journal d'activité");
     }
 
     @FXML
     private void openUsersManagement(ActionEvent event) {
-        System.out.println("Gestion utilisateurs - À implémenter");
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/fxml/users-management.fxml", "Gestion Utilisateurs");
     }
 
     @FXML
-    private void manageFinancements(ActionEvent event) {
-        System.out.println("Gestion financements - À implémenter");
-    }
-
-    @FXML
-    private void viewStats(ActionEvent event) {
-        System.out.println("Statistiques - À implémenter");
-    }
-
-    @FXML
-    private void moderateContent(ActionEvent event) {
-        System.out.println("Modération - À implémenter");
-    }
-
-    @FXML
-    private void systemSettings(ActionEvent event) {
-        System.out.println("Paramètres système - À implémenter");
+    private void goToProfile(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/fxml/profile.fxml", "Mon Profil");
     }
 
     @FXML
@@ -188,26 +306,8 @@ public class AdminDashboardController {
     }
 
     @FXML
-    private void goToProfile(ActionEvent event) {
-        System.out.println("🔄 Navigation vers Profile depuis AdminDashboard");
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        NavigationHelper.navigateTo(stage, "/fxml/profile.fxml", "Mon Profil");
-    }
-
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        System.out.println("Déconnexion...");
-        SessionManager.logout();
-
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        Parent root = stage.getScene().getRoot();
-
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(250), root);
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> {
-            NavigationHelper.navigateTo(stage, "/login.fxml", "Connexion");
-        });
-        fadeOut.play();
+    private void toggleTheme(ActionEvent event) {
+        ThemeHelper.toggleTheme(themeToggle);
     }
 }
+

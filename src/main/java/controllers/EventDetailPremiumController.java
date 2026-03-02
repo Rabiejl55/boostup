@@ -18,14 +18,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
-import services.ai.PollinationsPosterService;
-import services.ai.LocalPosterGenerator;
-import services.maps.GeocodingService;
 import services.WeatherService;
-import services.WeatherService.WeatherData;
+import services.ai.LocalPosterGenerator;
+import services.ai.PollinationsPosterService;
+import services.maps.GeocodingService;
 import utils.QrCodeUtils;
 import utils.maps.LocationParser;
-import utils.maps.MapHtmlBuilder;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;

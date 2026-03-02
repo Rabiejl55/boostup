@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.LoginController" stylesheets="@../css/style.css"
+            style="-fx-background-color: #f0f2f5;">
+
+    <center>
+        <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
+
+            <!-- Panneau gauche : Branding -->
+            <VBox alignment="CENTER" spacing="30" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: linear-gradient(to bottom right, #1b2a4a, #2d1b4e);
+                         -fx-min-width: 520;">
+                <padding><Insets top="60" right="60" bottom="60" left="60"/></padding>
+
+                <ImageView fx:id="logoImageView" fitHeight="90" fitWidth="90"
+                           preserveRatio="true" smooth="true" />
+                <Label text="🚀" style="-fx-font-size: 48px;" visible="false" managed="false" />
+
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="BoostUp"
+                           style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 800;
+                                  -fx-font-family: 'Segoe UI';" />
+                    <Label text="La plateforme qui propulse vos projets"
+                           style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px;" />
+                </VBox>
+
+                <Region prefHeight="20" />
+
+                <!-- Points forts -->
+                <VBox spacing="18" style="-fx-max-width: 320;">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="🚀" style="-fx-font-size: 20px;" />
+                        <VBox spacing="2">
+                            <Label text="Startups innovantes"
+                                   style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 14px;" />
+                            <Label text="Découvrez les projets les plus prometteurs"
+                                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12px;" />
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="💰" style="-fx-font-size: 20px;" />
+                        <VBox spacing="2">
+                            <Label text="Investissements sécurisés"
+                                   style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 14px;" />
+                            <Label text="Financez l'avenir en toute confiance"
+                                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12px;" />
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="📅" style="-fx-font-size: 20px;" />
+                        <VBox spacing="2">
+                            <Label text="Événements exclusifs"
+                                   style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 14px;" />
+                            <Label text="Networking et opportunités uniques"
+                                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12px;" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Label text="© 2024 BoostUp. Tous droits réservés."
+                       style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+            </VBox>
+
+            <!-- Panneau droit : Formulaire -->
+            <VBox alignment="CENTER" spacing="0" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-min-width: 480;">
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;">
+                    <VBox alignment="CENTER" spacing="30" style="-fx-padding: 60 70;">
+
+                        <!-- Theme Toggle -->
+                        <HBox alignment="CENTER_RIGHT" style="-fx-translate-y: -30;">
+                            <ToggleButton fx:id="themeToggle" text="🌙" onAction="#toggleTheme"
+                                          style="-fx-background-color: #f0f2f5;
+                                                 -fx-text-fill: #1b2a4a; -fx-font-size: 16px;
+                                                 -fx-background-radius: 50; -fx-min-width: 40; -fx-min-height: 40;
+                                                 -fx-max-width: 40; -fx-max-height: 40; -fx-cursor: hand;
+                                                 -fx-border-color: #dee2e6; -fx-border-radius: 50;
+                                                 -fx-padding: 0;" />
+                        </HBox>
+
+                        <VBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="Connexion"
+                                   style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #1b2a4a;
+                                          -fx-font-family: 'Segoe UI';" />
+                            <Label text="Ravi de vous revoir ! Entrez vos identifiants."
+                                   style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
+                        </VBox>
+
+                        <VBox spacing="20" style="-fx-max-width: 380;">
+                            <!-- Email -->
+                            <VBox spacing="6">
+                                <Label text="Adresse email"
+                                       style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                <TextField fx:id="emailField" promptText="votre@email.com"
+                                           styleClass="modern-input" prefHeight="48" />
+                            </VBox>
+
+                            <!-- Mot de passe -->
+                            <VBox spacing="6">
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label text="Mot de passe"
+                                           style="-fx-font-weight: 600; -fx-text-fill: #344054; -fx-font-size: 13px;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Hyperlink text="Mot de passe oublié ?" onAction="#goToForgotPassword"
+                                               style="-fx-text-fill: #e63956; -fx-font-size: 12px; -fx-font-weight: 500;" />
+                                </HBox>
+                                <PasswordField fx:id="passwordField" promptText="Votre mot de passe"
+                                               styleClass="modern-input" prefHeight="48" />
+                            </VBox>
+
+                            <!-- Bouton connexion -->
+                            <Button fx:id="loginButton" text="Se connecter" onAction="#handleLogin"
+                                    maxWidth="Infinity" prefHeight="50"
+                                    style="-fx-background-color: linear-gradient(to right, #1b2a4a, #2d1b4e);
+                                           -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 700;
+                                           -fx-background-radius: 10; -fx-cursor: hand;" />
+
+                            <!-- Message -->
+                            <Label fx:id="messageLabel" wrapText="true"
+                                   style="-fx-font-size: 13px; -fx-text-alignment: center;" />
+
+                            <!-- ═══ OTP SMS Verification Box (hidden by default) ═══ -->
+                            <VBox fx:id="otpBox" spacing="10" visible="false" managed="false"
+                                  style="-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-padding: 15;">
+                                <Label text="📱 Vérification SMS"
+                                       style="-fx-font-weight: 700; -fx-text-fill: #1b2a4a; -fx-font-size: 14px;" />
+                                <Label text="Un code a été envoyé à votre téléphone"
+                                       style="-fx-text-fill: #6c757d; -fx-font-size: 12px;" />
+                                <HBox spacing="10" alignment="CENTER">
+                                    <TextField fx:id="otpField" promptText="Code à 6 chiffres"
+                                               styleClass="modern-input" prefHeight="45" prefWidth="200"
+                                               style="-fx-font-size: 18px; -fx-alignment: center; -fx-font-weight: 700;
+                                                      -fx-letter-spacing: 5;" />
+                                    <Button fx:id="verifyOtpButton" text="✓ Vérifier" onAction="#handleVerifyOtp"
+                                            prefHeight="45"
+                                            style="-fx-background-color: #2ecc71; -fx-text-fill: white;
+                                                   -fx-font-weight: 700; -fx-background-radius: 10;
+                                                   -fx-cursor: hand; -fx-padding: 0 20;" />
+                                </HBox>
+                                <Hyperlink fx:id="resendOtpLink" text="🔄 Renvoyer le code" onAction="#handleResendOtp"
+                                           style="-fx-text-fill: #e63956; -fx-font-size: 11px;" />
+                            </VBox>
+                        </VBox>
+
+                        <!-- Séparateur -->
+                        <HBox alignment="CENTER" spacing="15" style="-fx-max-width: 380;">
+                            <Region style="-fx-background-color: #e9ecef; -fx-pref-height: 1;" HBox.hgrow="ALWAYS" />
+                            <Label text="ou connectez-vous avec" style="-fx-text-fill: #adb5bd; -fx-font-size: 12px; -fx-font-weight: 500;" />
+                            <Region style="-fx-background-color: #e9ecef; -fx-pref-height: 1;" HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <!-- Social Login Buttons — Google + GitHub (Professional) -->
+                        <VBox spacing="12" style="-fx-max-width: 380;">
+                            <!-- Google Button with brand icon -->
+                            <Button onAction="#handleGoogleLogin" contentDisplay="LEFT"
+                                    maxWidth="Infinity" prefHeight="50" styleClass="social-btn-google"
+                                    style="-fx-background-color: white; -fx-text-fill: #3c4043;
+                                           -fx-font-size: 14px; -fx-font-weight: 600;
+                                           -fx-background-radius: 12; -fx-cursor: hand;
+                                           -fx-border-color: #dadce0; -fx-border-radius: 12;
+                                           -fx-border-width: 1.5; -fx-alignment: CENTER;
+                                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
+                                           -fx-graphic-text-gap: 12;">
+                                <graphic>
+                                    <Label text="G" style="-fx-font-size: 20px; -fx-font-weight: 900;
+                                           -fx-text-fill: #4285f4; -fx-font-family: 'Segoe UI';
+                                           -fx-min-width: 36; -fx-min-height: 36;
+                                           -fx-max-width: 36; -fx-max-height: 36;
+                                           -fx-alignment: center;
+                                           -fx-background-color: #f0f4ff;
+                                           -fx-background-radius: 10;" />
+                                </graphic>
+                                <text>Se connecter avec Google</text>
+                            </Button>
+
+                            <!-- GitHub Button with brand icon -->
+                            <Button onAction="#handleGitHubLogin" contentDisplay="LEFT"
+                                    maxWidth="Infinity" prefHeight="50" styleClass="social-btn-github"
+                                    style="-fx-background-color: #24292f; -fx-text-fill: white;
+                                           -fx-font-size: 14px; -fx-font-weight: 600;
+                                           -fx-background-radius: 12; -fx-cursor: hand;
+                                           -fx-border-color: transparent; -fx-border-radius: 12;
+                                           -fx-alignment: CENTER;
+                                           -fx-effect: dropshadow(gaussian, rgba(36,41,47,0.35), 8, 0, 0, 3);
+                                           -fx-graphic-text-gap: 12;">
+                                <graphic>
+                                    <Label text="&#x2B22;" style="-fx-font-size: 18px;
+                                           -fx-text-fill: white;
+                                           -fx-min-width: 36; -fx-min-height: 36;
+                                           -fx-max-width: 36; -fx-max-height: 36;
+                                           -fx-alignment: center;
+                                           -fx-background-color: rgba(255,255,255,0.15);
+                                           -fx-background-radius: 10;" />
+                                </graphic>
+                                <text>Se connecter avec GitHub</text>
+                            </Button>
+                        </VBox>
+
+                        <!-- ═══ Boutons de connexion alternatifs ═══ -->
+                        <HBox spacing="15" alignment="CENTER" style="-fx-max-width: 380;">
+                            <Button fx:id="faceIdButton" text="🔐 Face ID" onAction="#handleFaceLogin"
+                                    HBox.hgrow="ALWAYS" maxWidth="Infinity" prefHeight="45"
+                                    style="-fx-background-color: white; -fx-text-fill: #1b2a4a;
+                                           -fx-font-size: 13px; -fx-font-weight: 600;
+                                           -fx-background-radius: 10; -fx-cursor: hand;
+                                           -fx-border-color: #e0e0e0; -fx-border-radius: 10;
+                                           -fx-border-width: 1.5;" />
+                            <Button text="📱 SMS OTP" onAction="#handleSmsLogin"
+                                    HBox.hgrow="ALWAYS" maxWidth="Infinity" prefHeight="45"
+                                    style="-fx-background-color: white; -fx-text-fill: #1b2a4a;
+                                           -fx-font-size: 13px; -fx-font-weight: 600;
+                                           -fx-background-radius: 10; -fx-cursor: hand;
+                                           -fx-border-color: #e0e0e0; -fx-border-radius: 10;
+                                           -fx-border-width: 1.5;" />
+                        </HBox>
+
+                        <!-- Inscription -->
+                        <HBox spacing="5" alignment="CENTER">
+                            <Label text="Pas encore inscrit ?" style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
+                            <Hyperlink text="Créer un compte" onAction="#goToSignup"
+                                       style="-fx-text-fill: #e63956; -fx-font-weight: 700; -fx-font-size: 14px;" />
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

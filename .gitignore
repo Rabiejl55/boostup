@@ -35,6 +35,25 @@ build/
 .vscode/
 
 ### Mac OS ###
-.DS_Storesrc/main/resources/lib/CursorUserSetup-x64-2.5.20.exe
+.DS_Store
 
-src/main/resources/lib/CursorUserSetup-x64-2.5.20.exesrc/main/resources/lib/CursorUserSetup-x64-2.5.20.exe
+# Fichiers de configuration sensibles
+application.properties
+application.yml
+.env
+*.key
+*.pem
+secrets/
+config/credentials.jsonsrc/main/resources/config.properties
+src/main/java/services/SmsService.java
+src/main/java/services/TestSms.java
+src/main/java/services/SentimentAnalysisService.java
+src/main/java/services/UtilisateurService/SmsService.java
+src/main/java/services/UtilisateurService/GoogleOAuthService.java
+src/main/resources/config.properties
+src/main/java/services/SmsService.java
+src/main/java/services/TestSms.java
+src/main/java/services/SentimentAnalysisService.java
+src/main/java/services/UtilisateurService/SmsService.java
+src/main/java/services/UtilisateurService/GoogleOAuthService.java
+src/main/java/services/api/ApiKeys.java

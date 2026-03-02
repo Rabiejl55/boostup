@@ -19,11 +19,15 @@ public class FeedbackService implements IService<Feedback> {
     @Override
     public void ajouter(Feedback feedback) throws SQLException {
         String req = "INSERT INTO feedback (commentaire, note, date_feedback, id_participation) " +
-                "VALUES ('" + feedback.getCommentaire() + "', " + feedback.getNote() + ", '" +
-                feedback.getDateFeedback() + "', " + feedback.getIdParticipation() + ")";
+                "VALUES (?, ?, ?, ?)";
 
-        Statement st = connection.createStatement();
-        st.executeUpdate(req);
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setString(1, feedback.getCommentaire());
+            ps.setInt(2, feedback.getNote());
+            ps.setDate(3, feedback.getDateFeedback());
+            ps.setInt(4, feedback.getIdParticipation());
+            ps.executeUpdate();
+        }
     }
 
     @Override

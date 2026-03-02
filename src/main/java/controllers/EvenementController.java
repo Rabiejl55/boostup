@@ -2,13 +2,11 @@ package controllers;
 
 import entities.GEvenement.Evenement;
 import entities.GEvenement.EvenementFX;
-import services.EvenementService.EvenementService;
-import services.TelegramService;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,11 +14,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
+import services.EvenementService.EvenementService;
+import services.TelegramService;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,10 +34,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.StringConverter;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.LocalDateStringConverter;
 
 public class EvenementController implements Initializable {
 
@@ -428,9 +425,16 @@ public class EvenementController implements Initializable {
     }
 
     @FXML
+    private void goToParticipation(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/ParticipationView.fxml", "Participation");
+    }
+
+
+    @FXML
     private void handleGoDashboard() {
         try {
-            URL fxml = getClass().getResource("/views/AdminDashboardView.fxml");
+            URL fxml = getClass().getResource("/fxml/AdminDashboardView.fxml");
             if (fxml == null) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "FXML introuvable: /views/AdminDashboardView.fxml");
                 return;
@@ -619,7 +623,7 @@ public class EvenementController implements Initializable {
             errors.append("- La date est obligatoire\n");
         } else {
             // Date de l'événement doit être future
-            if (!dpDate.getValue().isAfter(java.time.LocalDate.now())) {
+            if (!dpDate.getValue().isAfter(LocalDate.now())) {
                 errors.append("- La date de l'événement doit être supérieure à la date d'aujourd'hui\n");
             }
         }
@@ -1024,7 +1028,7 @@ public class EvenementController implements Initializable {
 
             // Fonction pour remplir les champs avec une suggestion
             Runnable fillSuggestion = () -> {
-                entities.GEvenement.Evenement suggestion = generator.generateEventSuggestion();
+                Evenement suggestion = generator.generateEventSuggestion();
                 tfTitreAI.setText(suggestion.getTitre());
                 tfTypeAI.setText(suggestion.getType());
                 dpDateAI.setValue(suggestion.getDateEvenement().toLocalDate());
@@ -1041,10 +1045,10 @@ public class EvenementController implements Initializable {
             btnValider.setOnAction(e -> {
                 try {
                     // Créer l'événement
-                    entities.GEvenement.Evenement newEvent = new entities.GEvenement.Evenement();
+                    Evenement newEvent = new Evenement();
                     newEvent.setTitre(tfTitreAI.getText());
                     newEvent.setType(tfTypeAI.getText());
-                    newEvent.setDateEvenement(java.sql.Date.valueOf(dpDateAI.getValue()));
+                    newEvent.setDateEvenement(Date.valueOf(dpDateAI.getValue()));
                     newEvent.setLieu(tfLieuAI.getText());
                     newEvent.setDescription(taDescAI.getText());
                     newEvent.setCapaciteMax(Integer.parseInt(tfCapaciteAI.getText()));

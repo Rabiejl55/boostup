@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.TransactionFinanciereController"
+            styleClass="app-root">
+
+    <stylesheets>
+        <URL value="@/css/theme.css"/>
+    </stylesheets>
+
+
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="false"
+                    pannable="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="transparent-scroll">
+
+
+        <VBox spacing="16" styleClass="page content">
+            <padding>
+                <Insets top="18" right="0" bottom="0" left="0"/>
+            </padding>
+
+            <VBox spacing="12" styleClass="card">
+                <Label text="Gestion des Transactions" styleClass="h2"/>
+
+                <Label fx:id="lblTxToast"
+                       text=""
+                       visible="false"
+                       managed="false"
+                       wrapText="true"
+                       styleClass="toastInfo"/>
+
+                <GridPane hgap="12" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="140"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints prefWidth="140"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <Label text="Montant" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="form-label"/>
+                    <VBox spacing="4" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                        <TextField fx:id="tfTxMontant" promptText="Ex: 150.00" styleClass="modern-input"/>
+                        <Label fx:id="errTxMontant" text="" visible="false" managed="false" styleClass="fieldError"/>
+                    </VBox>
+
+                    <Label text="Date" GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="form-label"/>
+                    <VBox spacing="4" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                        <DatePicker fx:id="dpTxDate" styleClass="modern-input"/>
+                        <Label fx:id="errTxDate" text="" visible="false" managed="false" styleClass="fieldError"/>
+                    </VBox>
+
+                    <Label text="Mode paiement" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="form-label"/>
+                    <VBox spacing="4" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <ComboBox fx:id="cbTxMode" promptText="Choisir un mode" styleClass="modern-input"/>
+                        <Label fx:id="errTxMode" text="" visible="false" managed="false" styleClass="fieldError"/>
+                    </VBox>
+
+                    <Label text="Statut" GridPane.rowIndex="1" GridPane.columnIndex="2" styleClass="form-label"/>
+                    <VBox spacing="4" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                        <ComboBox fx:id="cbTxStatut" promptText="Choisir un statut" styleClass="modern-input"/>
+                        <Label fx:id="errTxStatut" text="" visible="false" managed="false" styleClass="fieldError"/>
+                    </VBox>
+
+                    <Label text="Investissement" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="form-label"/>
+                    <VBox spacing="4" GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.columnSpan="3">
+                        <ComboBox fx:id="cbTxInvestissement" promptText="Choisir investissement" styleClass="modern-input"/>
+                        <Label fx:id="errTxInvestissement" text="" visible="false" managed="false" styleClass="fieldError"/>
+                    </VBox>
+                </GridPane>
+
+                <HBox spacing="10" styleClass="actions">
+                    <Button text="➕ Ajouter" onAction="#ajouterTransaction" styleClass="btn-add"/>
+                    <Button fx:id="btnModifierTx" text="✏️ Modifier" onAction="#modifierTransaction"
+                            disable="true" visible="false" managed="false" styleClass="btn-refresh"/>
+
+                    <Button text="Confirmer paiement"
+                            onAction="#confirmerPaiementSelection"
+                            styleClass="btn-primary"/>
+                    <Button fx:id="btnSupprimerTx" text="🗑️ Supprimer" onAction="#supprimerTransaction" styleClass="btn-delete"/>
+                    <Button text="✕ Vider" onAction="#clearTransactionForm" styleClass="btn-clear-filters"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="🔄 Rafraîchir" onAction="#refreshTransactions" styleClass="btn-refresh"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="12" styleClass="card">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Liste des transactions" styleClass="h2"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblTxCount" text="Résultats: 0 / Total: 0" styleClass="count-pill"/>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="tfSearchTx"
+                               promptText="🔍 Rechercher montant / mode / statut / date..."
+                               HBox.hgrow="ALWAYS"
+                               styleClass="modern-input"/>
+
+                    <ComboBox fx:id="cbFilterTxStatut"
+                              promptText="Filtrer statut"
+                              prefWidth="200"
+                              styleClass="modern-input"/>
+
+                    <Button text="✕ Effacer" onAction="#clearSearchTx" styleClass="btn-clear-filters"/>
+                </HBox>
+
+                <TableView fx:id="tableTransactions" VBox.vgrow="ALWAYS" styleClass="table-view" editable="true">
+
+                <columns>
+                        <TableColumn fx:id="colTxId" text="ID" prefWidth="0" minWidth="0" maxWidth="0"/>
+                        <TableColumn fx:id="colTxMontant" text="Montant" prefWidth="140"/>
+                        <TableColumn fx:id="colTxDate" text="Date" prefWidth="160"/>
+                        <TableColumn fx:id="colTxMode" text="Mode" prefWidth="170"/>
+                        <TableColumn fx:id="colTxStatut" text="Statut" prefWidth="160"/>
+                        <TableColumn fx:id="colTxInvestissement" text="Investissement" prefWidth="260"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

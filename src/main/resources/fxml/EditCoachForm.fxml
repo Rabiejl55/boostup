@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.EditCoachController"
+      spacing="15"
+      style="-fx-padding: 20; -fx-background-color: #f9f9f9;">
+
+    <Label text="Modifier un Coach" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="5">
+        <!-- Nom -->
+        <Label text="Nom:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="nomField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label fx:id="nomError" textFill="red" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <!-- Prénom -->
+        <Label text="Prénom:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="prenomField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label fx:id="prenomError" textFill="red" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <!-- Email -->
+        <Label text="Email:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="emailField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <Label fx:id="emailError" textFill="red" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <Label fx:id="errorLabel" />
+
+
+        <!-- Téléphone -->
+        <Label text="Téléphone:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="telephoneField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        <Label fx:id="telephoneError" textFill="red" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <!-- Image -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Choisir une image" fx:id="browseImageButton" onAction="#chooseImage"/>
+        <Label fx:id="imageLabel" text="Aucune image sélectionnée"/>
+    </HBox>
+
+    <!-- Boutons -->
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Annuler" onAction="#closeForm" style="-fx-background-color: #ccc;"/>
+        <Button text="Modifier" onAction="#submitForm" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+    </HBox>
+
+</VBox>

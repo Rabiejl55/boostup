@@ -1,0 +1,60 @@
+.sidebar{
+    -fx-padding:18 14;
+    -fx-spacing:10;
+    -fx-pref-width:250;
+    -fx-background-color:#0f172a;
+}
+
+.sidebar-header{
+    -fx-padding:12;
+    -fx-background-radius:16;
+    -fx-background-color:rgba(255,255,255,0.06);
+}
+
+.sidebar-brand{
+    -fx-font-size:28px;
+    -fx-font-weight:900;
+    -fx-text-fill:white;
+}
+
+.sidebar-subtitle{
+    -fx-text-fill:rgba(255,255,255,0.70);
+    -fx-font-weight:700;
+}
+
+.sidebar-sep{
+    -fx-min-height:1;
+    -fx-pref-height:1;
+    -fx-background-color:rgba(255,255,255,0.10);
+}
+
+/* Buttons */
+.sidebar-btn{
+    -fx-background-color:transparent;
+    -fx-text-fill:rgba(255,255,255,0.88);
+    -fx-font-weight:800;
+    -fx-padding:12 14;
+    -fx-alignment:CENTER_LEFT;
+    -fx-background-radius:14;
+    -fx-cursor:hand;
+}
+
+.sidebar-btn:hover{
+    -fx-background-color:rgba(255,255,255,0.10);
+    -fx-text-fill:white;
+}
+
+.sidebar-btn.active{
+    -fx-background-color:rgba(79,70,229,0.35);
+    -fx-text-fill:white;
+}
+
+.sidebar-btn.danger{
+    -fx-background-color:rgba(239,68,68,0.20);
+    -fx-text-fill:#fecaca;
+}
+
+.sidebar-btn.danger:hover{
+    -fx-background-color:rgba(239,68,68,0.35);
+    -fx-text-fill:white;
+}

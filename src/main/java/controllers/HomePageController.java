@@ -7,12 +7,14 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
@@ -23,6 +25,10 @@ public class HomePageController {
     @FXML private Label welcomeLabel;
     @FXML private Label userRoleLabel;
     @FXML private ImageView avatarImageView;
+    @FXML private HBox userInfoBox;
+    @FXML private Button profileButton;
+    @FXML private Button logoutButton;
+    @FXML private ToggleButton themeToggle;
 
     @FXML
     public void initialize() {
@@ -37,7 +43,7 @@ public class HomePageController {
                     ? user.getFullname() : user.getNom();
 
             if (welcomeLabel != null) {
-                welcomeLabel.setText(displayName);
+                welcomeLabel.setText(displayName); // Just the name without "Bienvenue, "
             }
 
             if (userRoleLabel != null) {
@@ -49,6 +55,13 @@ public class HomePageController {
         } else {
             System.err.println("Aucun utilisateur connecté!");
         }
+
+        // Appliquer le thème
+        Platform.runLater(() -> {
+            if (themeToggle != null && themeToggle.getScene() != null) {
+                ThemeHelper.applyTheme(themeToggle.getScene(), themeToggle);
+            }
+        });
     }
 
     private void loadAvatar() {
@@ -69,6 +82,7 @@ public class HomePageController {
                     return;
                 }
 
+                // Load image with proper dimensions (80x80 to match FXML)
                 Image image = new Image(avatarUrl, 80, 80, true, true, true);
 
                 if (!image.isError()) {
@@ -76,12 +90,15 @@ public class HomePageController {
                     avatarImageView.setPreserveRatio(true);
                     avatarImageView.setSmooth(true);
 
+                    // Set fit dimensions to match FXML
                     avatarImageView.setFitWidth(80);
                     avatarImageView.setFitHeight(80);
 
+                    // Create circular clip centered - radius 40 for 80px image
                     Circle clip = new Circle(40, 40, 40);
                     avatarImageView.setClip(clip);
 
+                    // Ensure image is visible
                     avatarImageView.setVisible(true);
                 } else {
                     setDefaultAvatar();
@@ -97,6 +114,7 @@ public class HomePageController {
     }
 
     private String cleanAvatarUrl(String url) {
+        // Corriger les URLs problématiques
         if (url.contains(" ")) url = url.replace(" ", "%20");
         if (url.contains("'")) url = url.replace("'", "%27");
         if (url.startsWith("C:/") || url.startsWith("D:/") || url.startsWith("/")) {
@@ -116,6 +134,7 @@ public class HomePageController {
         if (avatarImageView != null) {
             User user = SessionManager.getCurrentUser();
 
+            // Create gradient color based on user ID or name
             Color color1, color2;
             if (user != null) {
                 int hash = user.getNom().hashCode();
@@ -127,6 +146,7 @@ public class HomePageController {
                 color2 = Color.web("#6f42c1");
             }
 
+            // Create gradient image
             WritableImage image = new WritableImage(80, 80);
             PixelWriter writer = image.getPixelWriter();
 
@@ -149,29 +169,15 @@ public class HomePageController {
         }
     }
 
-
-    private String getRoleDisplayName(String role) {
-        if (role == null || role.isEmpty()) return "Utilisateur";
-        String roleUpper = role.toUpperCase().trim();
-        switch (roleUpper) {
-            case "ADMIN":
-            case "ADMINISTRATEUR":
-                return "Administrateur";
-            case "INVESTISSEUR":
-                return "Investisseur";
-            case "STARTUP":
-            case "PORTEUR DE PROJET":
-                return "Porteur de projet";
-            case "USER":
-            case "UTILISATEUR":
-            case "MEMBRE":
-                return "Utilisateur";
-            default:
-                return role;
+    private String getRoleDisplayName(Role_enum role) {
+        switch (role) {
+            case ADMIN: return "Administrateur";
+            case INVESTISSEUR: return "Investisseur";
+            case STARTUP: return "Porteur de projet";
+            default: return role.name();
         }
     }
 
-    // Navigation methods
     @FXML
     private void goToHome(ActionEvent event) {
         System.out.println("Déjà sur l'accueil");
@@ -202,28 +208,35 @@ public class HomePageController {
     @FXML
     private void viewStartups(ActionEvent event) {
         System.out.println("Voir startups - Redirection...");
+        // Navigation vers page startups
     }
 
     @FXML
     private void viewCandidatures(ActionEvent event) {
         System.out.println("Mes candidatures - Redirection...");
+        // Navigation vers page candidatures
     }
 
     @FXML
     private void viewEvenements(ActionEvent event) {
-        System.out.println("Événements - Redirection vers FrontEvenementsView...");
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        NavigationHelper.navigateTo(stage, "/FrontEvenementsView.fxml", "Événements");
+        System.out.println("Événements - Redirection...");
+        // Navigation vers page événements
     }
 
     @FXML
     private void viewInvestments(ActionEvent event) {
         System.out.println("Mes investissements - Redirection...");
+        // À implémenter pour investisseurs
     }
 
     @FXML
     private void viewMyStartup(ActionEvent event) {
         System.out.println("Ma startup - Redirection...");
+        // À implémenter pour startups
+    }
+
+    @FXML
+    private void toggleTheme(ActionEvent event) {
+        ThemeHelper.toggleTheme(themeToggle);
     }
 }
-

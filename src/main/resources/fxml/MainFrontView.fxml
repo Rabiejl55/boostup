@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.MainFrontController"
+      styleClass="app-shell" spacing="0">
+
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <VBox styleClass="sidebar" spacing="0" minWidth="230" maxWidth="230">
+
+        <!-- Logo / Brand -->
+        <VBox styleClass="sidebar-brand" spacing="6" alignment="CENTER_LEFT">
+            <padding><Insets top="32" right="24" bottom="28" left="24"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="🚀" style="-fx-font-size:26px;"/>
+                <VBox spacing="1">
+                    <Label text="BOOSTUP" styleClass="sidebar-brand-name"/>
+                    <Label text="Espace Candidat" styleClass="sidebar-brand-sub"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- Séparateur -->
+        <Region styleClass="sidebar-sep"/>
+
+        <!-- Nav items -->
+        <VBox spacing="6" VBox.vgrow="ALWAYS">
+            <padding><Insets top="22" right="14" bottom="22" left="14"/></padding>
+
+            <Label text="MENU PRINCIPAL" styleClass="sidebar-section-lbl">
+                <padding><Insets left="10" bottom="6"/></padding>
+            </Label>
+
+            <Button fx:id="btnNavCandidatures"
+                    text="🗂   Candidatures"
+                    styleClass="nav-item, nav-item-active"
+                    maxWidth="Infinity"
+                    onAction="#showCandidatures"/>
+
+            <Button fx:id="btnNavDossiers"
+                    text="📁   Dossiers"
+                    styleClass="nav-item"
+                    maxWidth="Infinity"
+                    onAction="#showDossiers"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Region styleClass="sidebar-sep" style="-fx-margin:0 14;"/>
+
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets top="14" bottom="4"/></padding>
+                <Label text="BOOSTUP  ·  v1.0" styleClass="sidebar-footer-lbl"/>
+                <Label text="Front Office" styleClass="sidebar-footer-lbl"/>
+            </VBox>
+        </VBox>
+    </VBox>
+
+    <!-- ══════════════ CONTENT AREA ══════════════ -->
+    <StackPane fx:id="contentArea" HBox.hgrow="ALWAYS" styleClass="content-area"/>
+
+</HBox>
+

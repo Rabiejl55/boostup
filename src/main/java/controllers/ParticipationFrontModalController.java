@@ -6,19 +6,15 @@ import entities.GEvenement.Participation;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.util.Duration;
-import services.EvenementService.ParticipationService;
 import services.EmailService;
+import services.EvenementService.ParticipationService;
 
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
 /**
  * Modal d'inscription (front) -> insertion dans table participation.

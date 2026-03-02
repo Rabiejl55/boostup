@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.CandidatureBackofficeController"
+      styleClass="app-shell" spacing="0">
+
+    <!-- Sidebar Admin -->
+    <fx:include source="sidebarADMIN.fxml" />
+
+    <!-- ══ CONTENU ══ -->
+    <VBox HBox.hgrow="ALWAYS" styleClass="view-root" spacing="0">
+
+        <!-- Top Bar -->
+        <HBox styleClass="view-topbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="20" right="32" bottom="20" left="32"/></padding>
+            <VBox spacing="2">
+                <Label text="Candidatures" styleClass="view-title"/>
+                <Label text="Gérez, évaluez et notifiez les candidatures" styleClass="view-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="🔍  Détecter les doublons"
+                    onAction="#ouvrirSimilarites"
+                    style="-fx-background-color: linear-gradient(to right, #ef4444, #f59e0b);
+                           -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;
+                           -fx-padding: 8 16; -fx-background-radius: 9px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.35), 8, 0, 0, 2);"/>
+
+            <Button fx:id="refreshButton" styleClass="btn-refresh"
+                    onAction="#refreshTable" text="⟳  Rafraîchir"/>
+        </HBox>
+
+        <!-- Barre recherche + compteur -->
+        <HBox alignment="CENTER_LEFT" spacing="12"
+              style="-fx-background-color:white; -fx-padding:14 32 0 32;">
+            <StackPane style="-fx-background-color:#f7f8fc; -fx-background-radius:10;
+                              -fx-border-color:#dce0f0; -fx-border-radius:10; -fx-border-width:1.5;
+                              -fx-padding:0 12;" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="🔍" style="-fx-font-size:14px; -fx-text-fill:#9ca3af;"/>
+                    <TextField fx:id="searchField"
+                               promptText="Rechercher par nom, startup, email, statut…"
+                               HBox.hgrow="ALWAYS"
+                               style="-fx-background-color:transparent; -fx-border-color:transparent;
+                                      -fx-font-size:13px; -fx-text-fill:#1e2746;
+                                      -fx-prompt-text-fill:#9ca3af; -fx-padding:10 0;"/>
+                </HBox>
+            </StackPane>
+            <Label fx:id="lblResultCount"
+                   style="-fx-font-size:12px; -fx-font-weight:700; -fx-text-fill:#6b7494;
+                          -fx-background-color:#eef0f8; -fx-background-radius:20;
+                          -fx-padding:5 14; -fx-border-color:#dce0f0;
+                          -fx-border-radius:20; -fx-border-width:1.5;"/>
+        </HBox>
+
+        <!-- Tableau + boutons -->
+        <VBox VBox.vgrow="ALWAYS" spacing="16">
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+            <TableView fx:id="candidatureTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="nomCandidatureColumn" prefWidth="150" text="Nom Candidature"/>
+                    <TableColumn fx:id="nomStartupColumn"     prefWidth="140" text="Startup"/>
+                    <TableColumn fx:id="emailContactColumn"   prefWidth="190" text="📧 Email contact"/>
+                    <TableColumn fx:id="dateDepotColumn"      prefWidth="110" text="Date Dépôt"/>
+                    <TableColumn fx:id="statutColumn"         prefWidth="110" text="Statut"/>
+                    <TableColumn fx:id="scoreColumn"          prefWidth="80"  text="Score"/>
+                    <TableColumn fx:id="commentaireColumn"    prefWidth="200" text="Commentaire"/>
+                </columns>
+            </TableView>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button fx:id="hideButton" styleClass="btn-block"
+                        onAction="#hideSelected" text="🙈  Cacher"/>
+            </HBox>
+
+        </VBox>
+    </VBox>
+</HBox>

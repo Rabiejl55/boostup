@@ -1,36 +1,33 @@
-package entities.GUtilisateurs;
+package entities;
 
-import java.util.Objects;
+public enum Role_enum {
+    ADMIN,
+    INVESTISSEUR,
+    STARTUP;
 
-public class Role_enum {
-    private String role_name;
-    public String getRole_name() {
-        return role_name;
-    }
-    public void setRole_name(String role_name) {
-        this.role_name = role_name;
-    }
-    public Role_enum(String role_name)
-    {
-        this.role_name = role_name;
-    }
+    // Méthode pour convertir String en Role_enum (sécurisée)
+    public static Role_enum fromString(String role) {
+        if (role == null) {
+            throw new IllegalArgumentException("Le rôle ne peut pas être null");
+        }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Role_enum roleEnum = (Role_enum) o;
-        return Objects.equals(role_name, roleEnum.role_name);
+        try {
+            return Role_enum.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Rôle invalide: " + role +
+                    ". Rôles valides: ADMIN, INVESTISSEUR, STARTUP");
+        }
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(role_name);
-    }
+    // Méthode pour vérifier si une chaîne est un rôle valide
+    public static boolean isValidRole(String role) {
+        if (role == null) return false;
 
-    @Override
-    public String toString() {
-        return "role_enum{" +
-                "role_name='" + role_name + '\'' +
-                '}';
+        for (Role_enum r : Role_enum.values()) {
+            if (r.name().equalsIgnoreCase(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

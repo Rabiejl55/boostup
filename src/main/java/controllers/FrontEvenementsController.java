@@ -26,12 +26,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import services.EvenementService.EvenementService;
-import services.RecommendationService;
 import services.RecommendationNotificationService;
+import services.RecommendationService;
 import utils.MyDatabase;
 
 import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

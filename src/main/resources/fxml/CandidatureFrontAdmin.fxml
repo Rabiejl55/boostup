@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@../css/style.css"
+            style="-fx-background-color: #f0f2f5;">
+
+    <!-- Sidebar admin réutilisée -->
+    <left>
+        <fx:include source="sidebarADMIN.fxml"/>
+    </left>
+
+    <!-- Contenu : vue front des candidatures -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    style="-fx-background-color: transparent; -fx-background: #f0f2f5;">
+            <VBox>
+                <fx:include source="CandidatureFrontView.fxml"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
+

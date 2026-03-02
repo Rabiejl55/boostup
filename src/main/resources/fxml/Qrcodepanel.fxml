@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.QRCodeController"
+      spacing="0"
+      prefWidth="520"
+      prefHeight="700"
+      style="-fx-background-color: #0d1117;">
+
+    <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+    <VBox spacing="0"
+          style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f1923, #1a2640);
+                 -fx-border-color: transparent transparent #1e3a5f transparent;
+                 -fx-border-width: 0 0 1.5 0;">
+        <padding><Insets top="22" right="28" bottom="18" left="28"/></padding>
+        <HBox alignment="CENTER_LEFT" spacing="16">
+            <StackPane minWidth="46" minHeight="46" maxWidth="46" maxHeight="46"
+                       style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #4f62e8, #7c3aed);
+                              -fx-background-radius: 13px;
+                              -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.55), 14, 0, 0, 3);">
+                <Label text="📱" style="-fx-font-size: 20px;"/>
+            </StackPane>
+            <VBox spacing="3">
+                <Label text="QR Code de suivi"
+                       style="-fx-font-size: 18px; -fx-font-weight: 900;
+                              -fx-text-fill: white; -fx-font-family: 'Georgia';"/>
+                <Label text="Scannez avec votre téléphone pour suivre votre candidature"
+                       style="-fx-font-size: 11px; -fx-text-fill: rgba(150,180,255,0.6); -fx-font-weight: 500;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="LIVE"
+                   style="-fx-background-color: rgba(16,185,129,0.18);
+                          -fx-text-fill: #10b981; -fx-font-size: 10px; -fx-font-weight: 800;
+                          -fx-background-radius: 20px; -fx-border-color: rgba(16,185,129,0.4);
+                          -fx-border-radius: 20px; -fx-border-width: 1.5px; -fx-padding: 4 12;"/>
+        </HBox>
+    </VBox>
+
+    <!-- ══ BODY ════════════════════════════════════════════════════ -->
+    <VBox spacing="14" VBox.vgrow="ALWAYS"
+          style="-fx-background-color: #0d1117;">
+        <padding><Insets top="18" right="28" bottom="18" left="28"/></padding>
+
+        <!-- Infos candidature -->
+        <VBox spacing="7"
+              style="-fx-background-color: #161b22; -fx-background-radius: 14px;
+                     -fx-border-color: #1e3a5f; -fx-border-radius: 14px; -fx-border-width: 1.5px;">
+            <padding><Insets top="13" right="18" bottom="13" left="18"/></padding>
+            <Label fx:id="lblNomCandidature" text="—"
+                   style="-fx-font-size: 16px; -fx-font-weight: 800;
+                          -fx-text-fill: white; -fx-font-family: 'Georgia';"/>
+            <Label fx:id="lblStartup" text="🏢  —"
+                   style="-fx-font-size: 12px; -fx-text-fill: rgba(150,180,255,0.7); -fx-font-weight: 500;"/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label fx:id="lblStatut" text="⏳  En attente"
+                       style="-fx-font-size: 13px; -fx-font-weight: 800; -fx-text-fill: #f59e0b;"/>
+                <Label fx:id="lblStatutDesc" text="Dossier en cours d'examen"
+                       style="-fx-font-size: 11px; -fx-text-fill: #4a5568; -fx-font-weight: 500;"/>
+            </HBox>
+        </VBox>
+
+        <!-- LOADING -->
+        <VBox fx:id="paneLoading" alignment="CENTER" spacing="12"
+              style="-fx-background-color: #161b22; -fx-background-radius: 20px;
+                     -fx-border-color: #1e3a5f; -fx-border-radius: 20px; -fx-border-width: 1.5px;">
+            <padding><Insets top="50" right="40" bottom="50" left="40"/></padding>
+            <ProgressIndicator prefWidth="38" prefHeight="38"
+                               style="-fx-progress-color: #4f62e8;"/>
+            <Label text="Génération du QR Code…"
+                   style="-fx-font-size: 13px; -fx-text-fill: #4a5568; -fx-font-weight: 600;"/>
+        </VBox>
+
+        <!-- CONTENU QR -->
+        <VBox fx:id="paneContent" spacing="12" visible="false" managed="false">
+
+            <!-- QR Code -->
+            <VBox alignment="CENTER" spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 20px;
+                         -fx-border-color: #e8ecf0; -fx-border-radius: 20px; -fx-border-width: 1.5px;
+                         -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.15), 20, 0, 0, 4);">
+                <padding><Insets top="20" right="20" bottom="16" left="20"/></padding>
+                <ImageView fx:id="imgQRCode" fitWidth="320" fitHeight="320"
+                           preserveRatio="true" smooth="true"/>
+                <!-- ✅ FIX : plus de restriction WiFi — fonctionne partout -->
+                <Label text="📱  Scannez depuis n'importe quel réseau (WiFi, 4G…)"
+                       style="-fx-font-size: 11px; -fx-text-fill: #9ca3af;
+                              -fx-font-weight: 600; -fx-text-alignment: center;"
+                       wrapText="true"/>
+            </VBox>
+
+            <!-- Boutons -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button fx:id="btnOuvrirPage" text="🌐  Tester dans le navigateur"
+                        onAction="#ouvrirPage"
+                        style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #4f62e8, #7c3aed);
+                               -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 700;
+                               -fx-padding: 10 18; -fx-background-radius: 10px; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.45), 10, 0, 0, 2);"/>
+                <Button fx:id="btnCopierLien" text="📋  Copier le lien"
+                        onAction="#copierLien"
+                        style="-fx-background-color: #161b22; -fx-text-fill: #a0aec0;
+                               -fx-font-size: 13px; -fx-font-weight: 600;
+                               -fx-padding: 10 18; -fx-background-radius: 10px;
+                               -fx-border-color: #1e3a5f; -fx-border-radius: 10px;
+                               -fx-border-width: 1.5px; -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- ✅ FIX : Note verte (succès) au lieu d'alerte orange WiFi -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-background-color: rgba(16,185,129,0.08);
+                         -fx-background-radius: 10px;
+                         -fx-border-color: rgba(16,185,129,0.25);
+                         -fx-border-radius: 10px; -fx-border-width: 1px;">
+                <padding><Insets top="9" right="14" bottom="9" left="14"/></padding>
+                <Label text="✅" style="-fx-font-size: 13px;"/>
+                <Label text="Fonctionne sur tous les réseaux. Aucune configuration requise."
+                       style="-fx-font-size: 11px; -fx-text-fill: #065f46; -fx-font-weight: 600;"
+                       wrapText="true" HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+
+        <!-- ERREUR -->
+        <VBox fx:id="paneErreurServeur" spacing="8" visible="false" managed="false"
+              style="-fx-background-color: rgba(239,68,68,0.08); -fx-background-radius: 14px;
+                     -fx-border-color: rgba(239,68,68,0.35); -fx-border-radius: 14px; -fx-border-width: 1.5px;">
+            <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
+            <Label text="❌  Impossible de générer le QR Code"
+                   style="-fx-font-size: 13px; -fx-font-weight: 800; -fx-text-fill: #ef4444;"/>
+            <Label fx:id="lblErreurServeur" wrapText="true"
+                   style="-fx-font-size: 12px; -fx-text-fill: #fc8181; -fx-font-weight: 500;"/>
+        </VBox>
+
+    </VBox>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+    <HBox alignment="CENTER_RIGHT" spacing="10"
+          style="-fx-background-color: #0f1923;
+                 -fx-border-color: #1e3a5f transparent transparent transparent;
+                 -fx-border-width: 1.5 0 0 0;">
+        <padding><Insets top="13" right="28" bottom="13" left="28"/></padding>
+        <Label text="Hébergé sur Netlify · Accessible partout dans le monde"
+               style="-fx-font-size: 11px; -fx-text-fill: #2d3a55; -fx-font-style: italic;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnFermer" text="✕  Fermer" onAction="#fermer"
+                style="-fx-background-color: #161b22; -fx-text-fill: #a0aec0;
+                       -fx-font-size: 13px; -fx-font-weight: 600;
+                       -fx-padding: 9 20; -fx-background-radius: 10px;
+                       -fx-border-color: #1e3a5f; -fx-border-radius: 10px;
+                       -fx-border-width: 1.5px; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>

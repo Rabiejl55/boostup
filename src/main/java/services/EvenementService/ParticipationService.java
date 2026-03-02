@@ -19,12 +19,16 @@ public class ParticipationService implements IService<Participation> {
     @Override
     public void ajouter(Participation participation) throws SQLException {
         String req = "INSERT INTO participation (nom_startup, nom_investisseur, presence, date_inscription, id_evenement) " +
-                "VALUES ('" + participation.getNomStartup() + "', '" + participation.getNomInvestisseur() + "', " +
-                (participation.isPresence() ? 1 : 0) + ", '" + participation.getDateInscription() + "', " +
-                participation.getIdEvenement() + ")";
+                "VALUES (?, ?, ?, ?, ?)";
 
-        Statement st = connection.createStatement();
-        st.executeUpdate(req);
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setString(1, participation.getNomStartup());
+            ps.setString(2, participation.getNomInvestisseur());
+            ps.setBoolean(3, participation.isPresence());
+            ps.setDate(4, participation.getDateInscription());
+            ps.setInt(5, participation.getIdEvenement());
+            ps.executeUpdate();
+        }
     }
 
     @Override

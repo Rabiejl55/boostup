@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.EvaluationFormController"
+      styleClass="dialog-root" spacing="0"
+      prefWidth="520">
+
+    <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+    <VBox styleClass="dialog-header" spacing="4">
+        <padding><Insets top="28" right="32" bottom="22" left="32"/></padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <StackPane styleClass="icon-circle"
+                       style="-fx-background-color: linear-gradient(to bottom right,#4f62e8,#7c3aed);">
+                <Label text="📝" style="-fx-font-size:18px;"/>
+            </StackPane>
+            <VBox spacing="3">
+                <Label text="Formulaire d'Évaluation" styleClass="dialog-title"/>
+                <Label text="Évaluez les critères de la candidature sélectionnée"
+                       styleClass="dialog-subtitle"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- ══ BODY ════════════════════════════════════════════════════ -->
+    <VBox styleClass="dialog-body" spacing="14" VBox.vgrow="ALWAYS">
+        <padding><Insets top="22" right="32" bottom="16" left="32"/></padding>
+
+        <!-- Candidature -->
+        <VBox spacing="6">
+            <Label text="Candidature  *" styleClass="field-label"/>
+            <ComboBox fx:id="candidatureComboBox"
+                      promptText="Sélectionnez une candidature"
+                      styleClass="dialog-combo" maxWidth="Infinity"/>
+        </VBox>
+
+        <!-- Nom évaluation -->
+        <VBox spacing="6">
+            <Label text="Nom de l'évaluation  *" styleClass="field-label"/>
+            <TextField fx:id="nomEvaluationField"
+                       promptText="Ex: Évaluation Q1 2026"
+                       styleClass="dialog-input"/>
+        </VBox>
+
+        <!-- ✨ BOUTON IA — pré-remplir les notes avec l'analyse Gemini -->
+        <HBox styleClass="info-note" alignment="CENTER_LEFT" spacing="12">
+            <padding><Insets top="10" right="14" bottom="10" left="14"/></padding>
+            <Label text="🤖" style="-fx-font-size:18px;"/>
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label text="Analyse IA disponible"
+                       style="-fx-font-size:12px; -fx-font-weight:700; -fx-text-fill:#4f62e8;"/>
+                <Label text="L'IA peut suggérer des notes à partir du dossier de la candidature."
+                       styleClass="info-note-text" wrapText="true"/>
+            </VBox>
+            <Button fx:id="btnAnalyseIA"
+                    text="🤖  Pré-remplir via IA"
+                    onAction="#ouvrirAnalyseIA"
+                    styleClass="btn-ia"/>
+        </HBox>
+
+        <!-- Notes (2 colonnes) -->
+        <HBox spacing="16">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Innovation  (0–10)" styleClass="field-label"/>
+                <TextField fx:id="noteInnovationField" promptText="0-10" styleClass="dialog-input"/>
+                <Label fx:id="lblErrInnovation" styleClass="error-label"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Viabilité  (0–10)" styleClass="field-label"/>
+                <TextField fx:id="noteViabiliteField" promptText="0-10" styleClass="dialog-input"/>
+                <Label fx:id="lblErrViabilite" styleClass="error-label"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="16">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Marché  (0–10)" styleClass="field-label"/>
+                <TextField fx:id="noteMarcheField" promptText="0-10" styleClass="dialog-input"/>
+                <Label fx:id="lblErrMarche" styleClass="error-label"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Équipe  (0–10)" styleClass="field-label"/>
+                <TextField fx:id="noteEquipeField" promptText="0-10" styleClass="dialog-input"/>
+                <Label fx:id="lblErrEquipe" styleClass="error-label"/>
+            </VBox>
+        </HBox>
+
+        <!-- Champs auto-calculés -->
+        <HBox spacing="16">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Note Globale (auto)" styleClass="field-label"/>
+                <TextField fx:id="noteGlobaleField" editable="false"
+                           styleClass="dialog-input"
+                           style="-fx-background-color:#f7f8fc; -fx-text-fill:#10b981; -fx-font-weight:bold;"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Décision (auto)" styleClass="field-label"/>
+                <TextField fx:id="decisionField" editable="false"
+                           styleClass="dialog-input"
+                           style="-fx-background-color:#f7f8fc; -fx-font-weight:bold;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Indicateur coloré global -->
+        <Label fx:id="lblIndicateur" wrapText="true"
+               style="-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:#9ca3af;"/>
+
+    </VBox>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+    <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER_RIGHT">
+        <padding><Insets top="14" right="32" bottom="22" left="32"/></padding>
+        <Button text="Annuler"         styleClass="btn-ghost"   onAction="#closeForm"/>
+        <Button text="💾  Sauvegarder" styleClass="btn-primary" onAction="#saveEvaluation"/>
+    </HBox>
+
+</VBox>

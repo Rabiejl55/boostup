@@ -1,7 +1,7 @@
 package utils;
 
-import services.EvenementService.EvenementService;
 import entities.GEvenement.Evenement;
+import services.EvenementService.EvenementService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

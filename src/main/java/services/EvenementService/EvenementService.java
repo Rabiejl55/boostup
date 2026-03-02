@@ -31,20 +31,36 @@ public class EvenementService implements IService<Evenement> {
     @Override
     public void ajouter(Evenement evenement) throws SQLException {
         Connection c = conn();
-        // On inclut image (nullable)
-        String req = "INSERT INTO evenement (titre, type, date_evenement, lieu, description, capacite_max, image) " +
+        // Tentative avec colonne image (nouveau schéma)
+        String reqWithImage = "INSERT INTO evenement (titre, type, date_evenement, lieu, description, capacite_max, image) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement ps = c.prepareStatement(req);
-        ps.setString(1, evenement.getTitre());
-        ps.setString(2, evenement.getType());
-        ps.setDate(3, evenement.getDateEvenement());
-        ps.setString(4, evenement.getLieu());
-        ps.setString(5, evenement.getDescription());
-        ps.setInt(6, evenement.getCapaciteMax());
-        ps.setString(7, evenement.getImage());
-
-        ps.executeUpdate();
+        try (PreparedStatement ps = c.prepareStatement(reqWithImage)) {
+            ps.setString(1, evenement.getTitre());
+            ps.setString(2, evenement.getType());
+            ps.setDate(3, evenement.getDateEvenement());
+            ps.setString(4, evenement.getLieu());
+            ps.setString(5, evenement.getDescription());
+            ps.setInt(6, evenement.getCapaciteMax());
+            ps.setString(7, evenement.getImage());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            // Compatibilité avec anciens schémas sans colonne image
+            if (!isUnknownImageColumnError(ex)) {
+                throw ex;
+            }
+            String reqLegacy = "INSERT INTO evenement (titre, type, date_evenement, lieu, description, capacite_max) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement ps = c.prepareStatement(reqLegacy)) {
+                ps.setString(1, evenement.getTitre());
+                ps.setString(2, evenement.getType());
+                ps.setDate(3, evenement.getDateEvenement());
+                ps.setString(4, evenement.getLieu());
+                ps.setString(5, evenement.getDescription());
+                ps.setInt(6, evenement.getCapaciteMax());
+                ps.executeUpdate();
+            }
+        }
     }
 
     /**
@@ -73,20 +89,37 @@ public class EvenementService implements IService<Evenement> {
     @Override
     public void update(Evenement evenement) throws SQLException {
         Connection c = conn();
-        String req = "UPDATE evenement SET titre = ?, type = ?, date_evenement = ?, " +
+        String reqWithImage = "UPDATE evenement SET titre = ?, type = ?, date_evenement = ?, " +
                 "lieu = ?, description = ?, capacite_max = ?, image = ? WHERE id_evenement = ?";
 
-        PreparedStatement ps = c.prepareStatement(req);
-        ps.setString(1, evenement.getTitre());
-        ps.setString(2, evenement.getType());
-        ps.setDate(3, evenement.getDateEvenement());
-        ps.setString(4, evenement.getLieu());
-        ps.setString(5, evenement.getDescription());
-        ps.setInt(6, evenement.getCapaciteMax());
-        ps.setString(7, evenement.getImage());
-        ps.setInt(8, evenement.getId());
-
-        ps.executeUpdate();
+        try (PreparedStatement ps = c.prepareStatement(reqWithImage)) {
+            ps.setString(1, evenement.getTitre());
+            ps.setString(2, evenement.getType());
+            ps.setDate(3, evenement.getDateEvenement());
+            ps.setString(4, evenement.getLieu());
+            ps.setString(5, evenement.getDescription());
+            ps.setInt(6, evenement.getCapaciteMax());
+            ps.setString(7, evenement.getImage());
+            ps.setInt(8, evenement.getId());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            // Compatibilité avec anciens schémas sans colonne image
+            if (!isUnknownImageColumnError(ex)) {
+                throw ex;
+            }
+            String reqLegacy = "UPDATE evenement SET titre = ?, type = ?, date_evenement = ?, " +
+                    "lieu = ?, description = ?, capacite_max = ? WHERE id_evenement = ?";
+            try (PreparedStatement ps = c.prepareStatement(reqLegacy)) {
+                ps.setString(1, evenement.getTitre());
+                ps.setString(2, evenement.getType());
+                ps.setDate(3, evenement.getDateEvenement());
+                ps.setString(4, evenement.getLieu());
+                ps.setString(5, evenement.getDescription());
+                ps.setInt(6, evenement.getCapaciteMax());
+                ps.setInt(7, evenement.getId());
+                ps.executeUpdate();
+            }
+        }
     }
 
     @Override
@@ -123,6 +156,17 @@ public class EvenementService implements IService<Evenement> {
             evenements.add(e);
         }
         return evenements;
+    }
+
+    /**
+     * Détecte l'erreur MySQL/MariaDB "Unknown column 'image' in 'field list'"
+     * pour pouvoir basculer sur une requête compatible avec l'ancien schéma.
+     */
+    private boolean isUnknownImageColumnError(SQLException ex) {
+        String msg = ex.getMessage();
+        if (msg == null) return false;
+        msg = msg.toLowerCase();
+        return msg.contains("unknown column") && msg.contains("image");
     }
 
     /**

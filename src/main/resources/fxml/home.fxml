@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.HomeController"
+            stylesheets="@../css/homestyle.css"
+            style="-fx-background-color: #f0f2f5;">
+
+    <!-- ═════════════════ SIDEBAR MODERNE ═════════════════ -->
+    <!-- ═════════════════ SIDEBAR MODERNE VERSION PROFIL ═════════════════ -->
+    <left>
+        <fx:include source="sidebarADMIN.fxml"/>
+    </left>
+
+    <!-- ═════════════════ CONTENU PRINCIPAL (INCHANGÉ) ═════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent;">
+
+            <VBox spacing="40"
+                  style="-fx-padding: 30 40 50 40;">
+
+                <!-- HERO -->
+                <VBox spacing="15" styleClass="content-padding section-spacing">
+
+                    <!-- Titre principal -->
+                    <Label text="Bienvenue sur le Front Office"
+                           styleClass="welcome-title" />
+
+                    <!-- Sous-titre -->
+                    <Label text="Explorez tous les services, domaines, sessions et nos meilleurs coachs"
+                           styleClass="welcome-subtitle" />
+
+                    <!-- Citation motivation -->
+                    <VBox spacing="5" style="-fx-background-color: rgba(59,130,246,0.05); -fx-padding: 15; -fx-background-radius: 12px;">
+                        <Label fx:id="quoteLabel"
+                               wrapText="true"
+                               style="-fx-font-size: 16px; -fx-font-weight: 600; -fx-text-fill: #1b2a4a;" />
+                        <Label fx:id="authorLabel"
+                               style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                    </VBox>
+
+                    <!-- Bouton dynamique “Découvrir” -->
+                    <Button text="✨ Découvrir"
+                            styleClass="neon-button"
+                            onAction="#handleDiscoverClick" />
+                </VBox>
+
+
+                <!-- ================= DOMAINES ================= -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+             -fx-background-radius: 16;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Label text="🎯 Domaines d'Expertise"
+                               style="-fx-font-size: 18px;
+                      -fx-font-weight: 700;
+                      -fx-text-fill: #1a1a2e;" />
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- BARRE RECHERCHE DOMAINES -->
+                        <HBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: #f8f9fa;
+                     -fx-background-radius: 30;
+                     -fx-padding: 6 15;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                            <Label text="🔍" style="-fx-font-size: 14px;"/>
+                            <TextField fx:id="searchDomainesField"
+                                       promptText="Rechercher un domaine..."
+                                       style="-fx-background-color: transparent;
+                              -fx-border-color: transparent;
+                              -fx-focus-color: transparent;"
+                                       prefWidth="220"/>
+                        </HBox>
+
+                        <Label fx:id="domainesCount"
+                               style="-fx-text-fill: #6c757d;" />
+                    </HBox>
+
+                    <FlowPane fx:id="domainesContainer"
+                              hgap="20"
+                              vgap="20"
+                              prefWrapLength="1200"/>
+
+                    <!-- ================= SUGGESTION DOMAINE ================= -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: #f8f9fa;
+                 -fx-padding: 15;
+                 -fx-background-radius: 12px;">
+
+                        <Label text="💡 Suggestion de Domaine"
+                               style="-fx-font-size: 16px;
+                      -fx-font-weight: 600;
+                      -fx-text-fill: #1a1a2e;" />
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtInput"
+                                       promptText="Entrez une description pour suggérer un domaine"
+                                       prefWidth="400"
+                                       style="-fx-background-radius: 30;
+                              -fx-padding: 6 15;"/>
+                            <Button text="Suggérer"
+                                    fx:id="btnSuggest"
+                                    onAction="#onSuggestClick"
+                                    style="-fx-background-color: #1b2a4a;
+                           -fx-text-fill: white;
+                           -fx-background-radius: 30;
+                           -fx-padding: 6 18;
+                           -fx-cursor: hand;" />
+                        </HBox>
+
+                        <TextArea fx:id="txtResult"
+                                  promptText="Le domaine suggéré apparaîtra ici"
+                                  editable="false"
+                                  wrapText="true"
+                                  prefHeight="60"
+                                  style="-fx-background-radius: 12px;
+                         -fx-padding: 10;"/>
+
+                        <ComboBox fx:id="domaineComboBoxAI"
+                                  promptText="Ajouter le domaine suggéré au ComboBox"
+                                  style="-fx-background-radius: 30;
+                         -fx-padding: 6 15;"/>
+                    </VBox>
+
+                    <!-- ================= QR CODE POUR DOMAINES ================= -->
+                    <VBox spacing="20"
+                          style="-fx-background-color: white;
+                 -fx-background-radius: 16;
+                 -fx-padding: 25;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📱 QR Code du Domaine"
+                                   style="-fx-font-size: 18px;
+                          -fx-font-weight: 700;
+                          -fx-text-fill: #1a1a2e;" />
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <!-- ComboBox pour choisir le domaine -->
+                            <ComboBox fx:id="domaineComboBox"
+                                      promptText="Sélectionner un domaine"
+                                      style="-fx-background-radius: 30;
+                             -fx-padding: 6 15;" />
+
+                            <!-- Bouton générer QR Code -->
+                            <Button text="Générer QR Code"
+                                    onAction="#handleGenerateQRCode"
+                                    style="-fx-background-color: #1b2a4a;
+                           -fx-text-fill: white;
+                           -fx-background-radius: 30;
+                           -fx-padding: 8 20;
+                           -fx-cursor: hand;" />
+                        </HBox>
+
+                        <!-- ImageView pour afficher le QR Code -->
+                        <StackPane alignment="CENTER"
+                                   style="-fx-background-color: #f8f9fa;
+                          -fx-background-radius: 16;
+                          -fx-padding: 20;">
+                            <ImageView fx:id="qrCodeImageView"
+                                       fitWidth="200"
+                                       fitHeight="200"
+                                       preserveRatio="true"
+                                       style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);" />
+                        </StackPane>
+
+                    </VBox>
+                </VBox>
+
+                <!-- ================= SESSIONS ================= -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 16;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                    <HBox alignment="CENTER_LEFT" spacing="15"/>
+                    <Label text="📅 Planning des Sessions"
+                           style="-fx-font-size: 18px;
+                                      -fx-font-weight: 700;
+                                      -fx-text-fill: #1a1a2e;" />
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <!-- BARRE RECHERCHE SESSIONS -->
+                    <VBox spacing="15" style="-fx-padding: 20;">
+
+                        <!-- Ligne recherche + bouton -->
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+
+                            <HBox alignment="CENTER_LEFT"
+                                  style="-fx-background-color: #f8f9fa;
+                     -fx-background-radius: 30;
+                     -fx-padding: 6 15;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                                <Label text="🔍" style="-fx-font-size: 14px;"/>
+
+                                <TextField fx:id="searchSessionsField"
+                                           promptText="Rechercher une session..."
+                                           style="-fx-background-color: transparent;
+                              -fx-border-color: transparent;
+                              -fx-focus-color: transparent;"
+                                           prefWidth="220"/>
+                            </HBox>
+
+                            <Button text="🗺 Voir sur Map"
+                                    onAction="#handleOpenMap"
+                                    style="-fx-background-color: linear-gradient(to right, #4facfe, #00f2fe);
+                       -fx-text-fill: white;
+                       -fx-font-weight: 600;
+                       -fx-background-radius: 30;
+                       -fx-padding: 8 18;
+                       -fx-cursor: hand;" />
+                        </HBox>
+
+                        <!-- Titre -->
+                        <Label text="Carte des Sessions"
+                               style="-fx-font-weight: 700; -fx-font-size: 16px;"/>
+                        <!-- Compteur -->
+                        <Label fx:id="sessionsCount"
+                               style="-fx-text-fill: #6c757d;" />
+
+                    </VBox>
+
+                    <TilePane fx:id="sessionsGrid"
+                              prefColumns="3"
+                              hgap="25"
+                              vgap="25"
+                              prefTileWidth="320"/>
+                    <!-- ================= QR CODE POUR SESSIONS ================= -->
+                    <VBox spacing="20"
+                          style="-fx-background-color: white;
+             -fx-background-radius: 16;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📱 QR Code de la Session"
+                                   style="-fx-font-size: 18px;
+                      -fx-font-weight: 700;
+                      -fx-text-fill: #1a1a2e;" />
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <ComboBox fx:id="sessionComboBox"
+                                      promptText="Sélectionner une session"
+                                      style="-fx-background-radius: 30;
+                         -fx-padding: 6 15;" />
+
+                            <Button text="Générer QR Code"
+                                    onAction="#handleGenerateQRCodeSession"
+                                    style="-fx-background-color: #1b2a4a;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 30;
+                       -fx-padding: 8 20;
+                       -fx-cursor: hand;" />
+                        </HBox>
+
+                        <StackPane alignment="CENTER"
+                                   style="-fx-background-color: #f8f9fa;
+                      -fx-background-radius: 16;
+                      -fx-padding: 20;">
+                            <ImageView fx:id="qrCodeImageViewSession"
+                                       fitWidth="200"
+                                       fitHeight="200"
+                                       preserveRatio="true"
+                                       style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);" />
+                        </StackPane>
+                    </VBox>
+                </VBox>
+
+                <!-- ================= COACHS ================= -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 16;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Label text="👥 Nos Coachs Experts"
+                               style="-fx-font-size: 18px;
+                                      -fx-font-weight: 700;
+                                      -fx-text-fill: #1a1a2e;" />
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- BARRE RECHERCHE COACHS -->
+                        <HBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: #f8f9fa;
+                                     -fx-background-radius: 30;
+                                     -fx-padding: 6 15;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                            <Label text="🔍" style="-fx-font-size: 14px;"/>
+                            <TextField fx:id="searchCoachsField"
+                                       promptText="Rechercher un coach..."
+                                       style="-fx-background-color: transparent;
+                                              -fx-border-color: transparent;
+                                              -fx-focus-color: transparent;"
+                                       prefWidth="220"/>
+                        </HBox>
+
+                        <Label fx:id="coachsCount"
+                               style="-fx-text-fill: #6c757d;" />
+                    </HBox>
+                    <!-- Bouton Calendrier -->
+                    <Button text="📅 Calendrier"
+                            fx:id="calendarButton"
+                            onAction="#handleCalendarClick"
+                            style="-fx-background-color: #26214c;
+                   -fx-text-fill: white;
+                   -fx-font-weight: 600;
+                   -fx-background-radius: 30;
+                   -fx-padding: 8 20;
+                   -fx-cursor: hand;" />
+
+                    <FlowPane fx:id="coachesContainer"
+                              hgap="20"
+                              vgap="20"
+                              prefWrapLength="1200"/>
+                    <!-- ================= QR CODE POUR COACHS ================= -->
+                    <VBox spacing="20"
+                          style="-fx-background-color: white;
+             -fx-background-radius: 16;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📱 QR Code du Coach"
+                                   style="-fx-font-size: 18px;
+                      -fx-font-weight: 700;
+                      -fx-text-fill: #1a1a2e;" />
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <!-- ComboBox pour choisir le coach -->
+                            <ComboBox fx:id="coachComboBox"
+                                      promptText="Sélectionner un coach"
+                                      style="-fx-background-radius: 30;
+                         -fx-padding: 6 15;" />
+
+                            <!-- Bouton générer QR Code -->
+                            <Button text="Générer QR Code"
+                                    onAction="#handleGenerateQRCodeCoach"
+                                    style="-fx-background-color: #1b2a4a;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 30;
+                       -fx-padding: 8 20;
+                       -fx-cursor: hand;" />
+                        </HBox>
+
+                        <!-- ImageView pour afficher le QR Code -->
+                        <StackPane alignment="CENTER"
+                                   style="-fx-background-color: #f8f9fa;
+                      -fx-background-radius: 16;
+                      -fx-padding: 20;">
+                            <ImageView fx:id="qrCodeImageViewCoach"
+                                       fitWidth="200"
+                                       fitHeight="200"
+                                       preserveRatio="true"
+                                       style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);" />
+                        </StackPane>
+                    </VBox>
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

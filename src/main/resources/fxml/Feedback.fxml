@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.FeedbackController"
+            stylesheets="@../css/style.css"
+            style="-fx-background-color: #f0f2f5;">
+
+    <left>
+        <fx:include source="sidebarADMIN.fxml"/>
+    </left>
+
+    <!-- Contenu principal -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox spacing="30" style="-fx-padding: 30 40 50 40;">
+                <Label text="📣 Laisser un Feedback" style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1a1a2e;" />
+
+                <!-- Rating étoiles -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                    <Label text="Notez cette session :" style="-fx-font-size: 16px; -fx-font-weight: 600;" />
+                    <HBox spacing="5" fx:id="starBox">
+                        <!-- Les étoiles seront générées dynamiquement dans le contrôleur -->
+                    </HBox>
+                </VBox>
+
+                <!-- Commentaire texte -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+                    <Label text="Votre commentaire :" style="-fx-font-size: 16px; -fx-font-weight: 600;" />
+                    <TextArea fx:id="commentTextArea" promptText="Écrivez votre commentaire ici..." wrapText="true"
+                              style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #cccccc; -fx-padding: 10;" />
+                </VBox>
+
+                <!-- Bouton envoyer -->
+                <Button text="📤 Envoyer Feedback" fx:id="sendFeedbackButton" onAction="#handleSendFeedback"
+                        style="-fx-background-color: #24224c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 12; -fx-padding: 10 20;"/>
+
+                <!-- Liste des commentaires -->
+                <VBox fx:id="commentsContainer" spacing="15" style="-fx-padding: 20 0 0 0;">
+                    <!-- Les commentaires seront ajoutés ici dynamiquement -->
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

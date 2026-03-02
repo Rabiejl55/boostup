@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.UsersManagementController"
+            stylesheets="@../css/style.css" style="-fx-background-color: #f0f2f5;">
+
+    <left>
+        <fx:include source="sidebarADMIN.fxml"/>
+    </left>
+
+    <!-- CONTENU PRINCIPAL -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    style="-fx-background-color: transparent; -fx-background: #f0f2f5;">
+        <VBox spacing="18" style="-fx-padding: 28 32;">
+
+            <!-- Header -->
+            <VBox spacing="4">
+                <Label text="Gestion des utilisateurs"
+                       style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1a1a2e;
+                              -fx-font-family: 'Segoe UI';" />
+                <Label text="Gérez les comptes, rôles et permissions de vos utilisateurs"
+                       style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
+            </VBox>
+
+            <!-- Filtres -->
+            <VBox spacing="12"
+                  style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 22;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <TextField fx:id="searchField" promptText="🔍 Rechercher un utilisateur..."
+                               HBox.hgrow="ALWAYS" styleClass="modern-input" prefHeight="42" />
+                    <ComboBox fx:id="filterComboBox" prefWidth="160" styleClass="modern-input" prefHeight="42" />
+                </HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="roleFilterComboBox" prefWidth="160" styleClass="modern-input" prefHeight="42" />
+                    <ComboBox fx:id="statusFilterComboBox" prefWidth="170" styleClass="modern-input" prefHeight="42" />
+                    <Button text="✕ Effacer les filtres" onAction="#clearFilters" styleClass="btn-clear-filters" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="userCountLabel"
+                           style="-fx-text-fill: #0d6efd; -fx-font-size: 14px; -fx-font-weight: 700;
+                                  -fx-background-color: rgba(13,110,253,0.06); -fx-padding: 8 16;
+                                  -fx-background-radius: 8;" />
+                </HBox>
+            </VBox>
+
+            <!-- Boutons d'action -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="➕ Ajouter" onAction="#showAddUserDialog" styleClass="btn-add" />
+                <Button text="🔄 Rafraîchir" onAction="#refreshUsers" styleClass="btn-refresh" />
+                <Separator orientation="VERTICAL" style="-fx-background-color: #e9ecef;" />
+
+                <Button text="🔒 Bloquer" onAction="#blockSelectedUser" styleClass="btn-block" />
+                <Button text="🔓 Débloquer" onAction="#unblockSelectedUser" styleClass="btn-unblock" />
+                <Button text="🗑️ Supprimer" onAction="#deleteSelectedUser" styleClass="btn-delete" />
+            </HBox>
+
+            <!-- Info édition inline -->
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="info-banner">
+                <Label text="💡" style="-fx-font-size: 16px;" />
+                <Label text="Double-cliquez sur Nom ou Email pour modifier  •  Cliquez sur le badge Rôle ou Statut pour changer directement"
+                       style="-fx-text-fill: #0d6efd; -fx-font-size: 12px; -fx-font-weight: 500;" />
+            </HBox>
+
+            <!-- Tableau -->
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="520"
+                       editable="true">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" visible="false" />
+                    <TableColumn fx:id="nomColumn" text="👤 Nom" minWidth="160" editable="true" />
+                    <TableColumn fx:id="emailColumn" text="📧 Email" minWidth="240" editable="true" />
+                    <TableColumn fx:id="roleColumn" text="🎯 Rôle" minWidth="140" />
+                    <TableColumn fx:id="activeColumn" text="⚡ Statut" minWidth="120" />
+                    <TableColumn fx:id="dateCreationColumn" text="📅 Inscription" minWidth="150" />
+                </columns>
+            </TableView>
+
+            <!-- Pagination -->
+            <HBox spacing="12" alignment="CENTER"
+                  style="-fx-background-color: white; -fx-padding: 10 25; -fx-border-color: #f0f2f5; -fx-border-width: 1 0 0 0;">
+                <Button fx:id="btnPrevPage" text="◀ Précédent" onAction="#goToPrevPage"
+                        style="-fx-background-color: #e9ecef; -fx-background-radius: 8; -fx-padding: 8 18;
+                               -fx-cursor: hand; -fx-font-size: 13px; -fx-font-weight: 600;" />
+                <Label fx:id="pageInfoLabel" text="Page 1 / 1"
+                       style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #1a1a2e;" />
+                <Button fx:id="btnNextPage" text="Suivant ▶" onAction="#goToNextPage"
+                        style="-fx-background-color: #e9ecef; -fx-background-radius: 8; -fx-padding: 8 18;
+                               -fx-cursor: hand; -fx-font-size: 13px; -fx-font-weight: 600;" />
+            </HBox>
+
+            <!-- Feedback -->
+            <Label fx:id="feedbackLabel" style="-fx-font-size: 13px; -fx-font-weight: 600;" />
+        </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

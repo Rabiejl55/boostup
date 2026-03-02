@@ -1,26 +1,22 @@
 package controllers;
 
+import entities.GUtilisateurs.User;
+import entities.Role_enum;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import services.UtilisateurService.EmailService;
+import services.UtilisateurService.PasswordResetCache;
+import services.UtilisateurService.UserService;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * 🔐 CONTROLLER FORGOT PASSWORD
- *
- * Système de récupération de mot de passe par code email
- */
 public class ForgotPasswordController {
 
     private static final Logger LOGGER = Logger.getLogger(ForgotPasswordController.class.getName());
@@ -33,11 +29,10 @@ public class ForgotPasswordController {
     @FXML private VBox codeVerificationBox;
     @FXML private TextField resetCodeField;
     @FXML private Button verifyCodeButton;
+    @FXML private ToggleButton themeToggle;
 
-    // Cache simple pour stocker les codes (en mémoire pour l'instant)
-    private static final Map<String, CodeData> resetCodes = new HashMap<>();
-    private String currentEmail = "";
-    private String currentCode = "";
+    private final UserService userService = new UserService();
+    private String currentToken = "";
 
     @FXML
     public void initialize() {
@@ -50,6 +45,13 @@ public class ForgotPasswordController {
         }
 
         LOGGER.info("✅ ForgotPasswordController initialisé");
+
+        // Appliquer le thème
+        Platform.runLater(() -> {
+            if (themeToggle != null && themeToggle.getScene() != null) {
+                ThemeHelper.applyTheme(themeToggle.getScene(), themeToggle);
+            }
+        });
     }
 
     @FXML
@@ -63,49 +65,12 @@ public class ForgotPasswordController {
         setUiEnabled(false);
         showProgress(true);
 
-        // Générer un code à 6 chiffres
         String resetCode = generateResetCode();
-        currentEmail = email;
-        currentCode = resetCode;
-
-        // Stocker le code avec expiration (15 minutes)
-        long expiryTime = System.currentTimeMillis() + (15 * 60 * 1000);
-        resetCodes.put(email, new CodeData(resetCode, expiryTime));
+        currentToken = PasswordResetCache.generateToken(email, resetCode);
 
         LOGGER.info("📧 Code généré pour " + email + ": " + resetCode);
 
-        // 📧 Envoi d'email RÉEL via EmailService
-        Task<Boolean> emailTask = new Task<>() {
-            @Override
-            protected Boolean call() throws Exception {
-                // Simuler délai réseau
-                Thread.sleep(1000);
-
-                // Afficher en console (pour debug)
-                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                System.out.println("📧 CODE DE RÉINITIALISATION");
-                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                System.out.println("Email: " + email);
-                System.out.println("Code: " + resetCode);
-                System.out.println("Destinataire: rayen.amri@esprit.tn");
-                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-                // ✅ Envoi EMAIL RÉEL
-                try {
-                    services.EmailService.envoyerEmailRecuperationMotDePasse(
-                        email,
-                        resetCode
-                    );
-                    System.out.println("✅ Email envoyé avec succès !");
-                    return true;
-                } catch (Exception e) {
-                    System.err.println("⚠️ Erreur envoi email: " + e.getMessage());
-                    // Même en cas d'erreur, on continue (le code est affiché en console)
-                    return true;
-                }
-            }
-        };
-
+        Task<Boolean> emailTask = createEmailTask(email, resetCode);
         emailTask.setOnSucceeded(e -> handleEmailSuccess(emailTask.getValue(), email));
         emailTask.setOnFailed(e -> handleEmailFailure(emailTask.getException()));
 
@@ -119,7 +84,7 @@ public class ForgotPasswordController {
             return false;
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
+        if (!EmailService.isValidEmail(email)) {
             showMessage("Format d'email invalide", "error");
             emailField.requestFocus();
             return false;
@@ -129,8 +94,16 @@ public class ForgotPasswordController {
     }
 
     private String generateResetCode() {
-        Random random = new Random();
-        return String.format("%06d", random.nextInt(1000000));
+        return String.format("%06d", (int) (Math.random() * 1000000));
+    }
+
+    private Task<Boolean> createEmailTask(String email, String resetCode) {
+        return new Task<>() {
+            @Override
+            protected Boolean call() {
+                return EmailService.sendVerificationCode(email, resetCode);
+            }
+        };
     }
 
     private void handleEmailSuccess(boolean success, String email) {
@@ -161,42 +134,66 @@ public class ForgotPasswordController {
             return;
         }
 
-        // Vérifier le code
-        CodeData codeData = resetCodes.get(currentEmail);
+        boolean valid = PasswordResetCache.verifyCode(currentToken, enteredCode);
 
-        if (codeData == null) {
-            showMessage("❌ Aucun code trouvé pour cet email", "error");
-            return;
-        }
+        if (valid) {
+            String email = PasswordResetCache.getEmailFromToken(currentToken);
+            PasswordResetCache.markTokenAsUsed(currentToken);
 
-        // Vérifier expiration
-        if (System.currentTimeMillis() > codeData.expiryTime) {
-            showMessage("❌ Code expiré. Veuillez en demander un nouveau.", "error");
-            resetCodes.remove(currentEmail);
-            return;
-        }
-
-        // Vérifier le code
-        if (enteredCode.equals(codeData.code)) {
-            showMessage("✅ Code vérifié ! Vous pouvez maintenant vous connecter.", "success");
-
-            // Nettoyer
-            resetCodes.remove(currentEmail);
-
-            // Redirection vers login après 2 secondes
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000);
-                    javafx.application.Platform.runLater(() -> goToLogin(null));
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+            try {
+                User user = userService.findByEmail(email);
+                if (user != null) {
+                    SessionManager.setCurrentUser(user);
+                    showMessage("✅ Code vérifié ! Connexion en cours...", "success");
+                    redirectToDashboard(user);
+                } else {
+                    showMessage("✅ Code vérifié ! Redirection vers la connexion...", "success");
+                    redirectToLogin();
                 }
-            }).start();
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Erreur lors de la recherche utilisateur", e);
+                showMessage("✅ Code vérifié ! Redirection vers la connexion...", "success");
+                redirectToLogin();
+            }
         } else {
-            showMessage("❌ Code incorrect", "error");
+            showMessage("❌ Code incorrect ou expiré", "error");
             resetCodeField.clear();
             resetCodeField.requestFocus();
         }
+    }
+
+    private void redirectToDashboard(User user) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(1500);
+                Platform.runLater(() -> {
+                    String fxmlPath = user.getRole() == Role_enum.ADMIN
+                            ? "/fxml/admin-dashboard.fxml"
+                            : "/fxml/homepage.fxml";
+                    String title = user.getRole() == Role_enum.ADMIN
+                            ? "Tableau de bord Admin"
+                            : "Accueil";
+
+                    Stage stage = (Stage) backButton.getScene().getWindow();
+                    NavigationHelper.navigateTo(stage, fxmlPath, title);
+                });
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.log(Level.WARNING, "Interruption pendant la redirection", e);
+            }
+        }).start();
+    }
+
+    private void redirectToLogin() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                Platform.runLater(() -> goToLogin(null));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.log(Level.WARNING, "Interruption pendant la redirection", e);
+            }
+        }).start();
     }
 
     private void showCodeVerification() {
@@ -231,7 +228,7 @@ public class ForgotPasswordController {
     }
 
     private void showMessage(String text, String type) {
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             messageLabel.setText(text);
             messageLabel.getStyleClass().removeAll("success", "error", "info");
             messageLabel.getStyleClass().add(type);
@@ -241,34 +238,13 @@ public class ForgotPasswordController {
     }
 
     @FXML
-    private void goToLogin(ActionEvent event) {
-        try {
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Connexion - BoostUp");
-            stage.centerOnScreen();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors du retour au login", e);
-            showMessage("Erreur de navigation", "error");
-        }
+    private void toggleTheme(ActionEvent event) {
+        ThemeHelper.toggleTheme(themeToggle);
     }
 
-    /**
-     * Classe interne pour stocker les codes avec expiration
-     */
-    private static class CodeData {
-        String code;
-        long expiryTime;
-
-        CodeData(String code, long expiryTime) {
-            this.code = code;
-            this.expiryTime = expiryTime;
-        }
+    @FXML
+    private void goToLogin(ActionEvent event) {
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        NavigationHelper.navigateTo(stage, "/fxml/login.fxml", "Connexion");
     }
 }
-
-
-

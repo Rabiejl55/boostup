@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.EvaluationBackofficeController"
+      styleClass="app-shell" spacing="0">
+
+    <!-- Sidebar Admin -->
+    <fx:include source="sidebarADMIN.fxml" />
+
+    <!-- ══ CONTENU ══ -->
+    <VBox HBox.hgrow="ALWAYS" styleClass="view-root" spacing="0">
+
+        <!-- Top Bar -->
+        <HBox styleClass="view-topbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="20" right="32" bottom="20" left="32"/></padding>
+            <VBox spacing="2">
+                <Label text="Évaluations" styleClass="view-title"/>
+                <Label text="Gérez les évaluations et exportez les rapports PDF"
+                       styleClass="view-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- ✨ NOUVEAU — Export PDF dans la topbar (désactivé si rien sélectionné) -->
+            <Button fx:id="btnExportPdf"
+                    text="📄  Exporter PDF"
+                    onAction="#exporterPdf"
+                    disable="true"
+                    style="-fx-background-color: linear-gradient(to right, #0f1923, #1a2640);
+                           -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;
+                           -fx-padding: 8 16; -fx-background-radius: 9px; -fx-cursor: hand;
+                           -fx-border-color: rgba(79,98,232,0.5); -fx-border-radius: 9px;
+                           -fx-border-width: 1.5px;
+                           -fx-effect: dropshadow(gaussian, rgba(79,98,232,0.3), 8, 0, 0, 2);"/>
+
+            <Button fx:id="addButton"     styleClass="btn-primary"
+                    onAction="#openAddForm"  text="＋  Ajouter"/>
+            <Button fx:id="refreshButton" styleClass="btn-refresh"
+                    onAction="#refreshTable" text="⟳  Rafraîchir">
+                <HBox.margin><Insets left="4"/></HBox.margin>
+            </Button>
+        </HBox>
+
+        <!-- Tableau + boutons -->
+        <VBox VBox.vgrow="ALWAYS" spacing="16">
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+            <TableView fx:id="evaluationTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="nomCandidatureColumn" prefWidth="155" text="Candidature"/>
+                    <TableColumn fx:id="noteInnovationColumn" prefWidth="110" text="Innovation"/>
+                    <TableColumn fx:id="noteViabiliteColumn"  prefWidth="123" text="Viabilité"/>
+                    <TableColumn fx:id="noteMarcheColumn"     prefWidth="120" text="Marché"/>
+                    <TableColumn fx:id="noteEquipeColumn"     prefWidth="123" text="Équipe"/>
+                    <TableColumn fx:id="noteGlobaleColumn"    prefWidth="120" text="Globale"/>
+                    <TableColumn fx:id="decisionColumn"       prefWidth="154" text="Décision"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucune évaluation disponible"
+                           style="-fx-text-fill:#9ca3af; -fx-font-size:13px;"/>
+                </placeholder>
+            </TableView>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button fx:id="editButton" styleClass="action-button"
+                        onAction="#openEditForm" text="✏  Modifier"/>
+                <Button fx:id="hideButton" styleClass="btn-block"
+                        onAction="#hideSelected" text="🙈  Cacher"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <!-- ✨ Bouton PDF aussi en bas pour accès rapide -->
+                <Button text="📄  Exporter le rapport PDF"
+                        onAction="#exporterPdf"
+                        style="-fx-background-color: #f7f8fc; -fx-text-fill: #1e2746;
+                               -fx-font-size:12px; -fx-font-weight:700;
+                               -fx-padding:8 16; -fx-background-radius:9px;
+                               -fx-border-color:#dce0f0; -fx-border-radius:9px;
+                               -fx-border-width:1.5px; -fx-cursor:hand;"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</HBox>

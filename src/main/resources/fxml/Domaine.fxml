@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.DomaineController"
+            stylesheets="@../css/domainestyle.css"
+            style="-fx-background-color: #f0f2f5;">
+
+    <!-- ================= SIDEBAR MODERNE ================= -->
+    <left>
+        <fx:include source="sidebarADMIN.fxml"/>
+    </left>
+
+    <!-- ================= CONTENU PRINCIPAL DOMAINES ================= -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: #f0f2f5;"
+                    styleClass="content-scrollpane">
+
+            <VBox spacing="25" style="-fx-padding: 30 35;">
+
+                <!-- HEADER -->
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Gestion des Domaines"
+                               style="-fx-font-size: 28px; -fx-font-weight: 800;
+                                      -fx-text-fill: #1a1a2e; -fx-font-family: 'Segoe UI';"/>
+                        <Label text="Gérez les domaines de la plateforme."
+                               style="-fx-text-fill: #6c757d; -fx-font-size: 14px;"/>
+                    </VBox>
+
+                    <Button text="➕ Nouveau Domaine"
+                            onAction="#ajouterDomaine"
+                            style="-fx-background-color: #0d6efd;
+                                   -fx-text-fill: white;
+                                   -fx-background-radius: 10;
+                                   -fx-padding: 10 18;
+                                   -fx-font-weight: 600;
+                                   -fx-cursor: hand;"/>
+                </HBox>
+
+                <!-- CARTE PRINCIPALE -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 16;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);">
+
+                    <!-- TABLE -->
+                    <TableView fx:id="domainesTable"
+                               VBox.vgrow="ALWAYS"
+                               prefHeight="450"
+                               style="-fx-background-radius: 12;">
+
+                        <columns>
+                            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150"/>
+                            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="200"/>
+                            <TableColumn fx:id="niveauColumn" text="Niveau" prefWidth="120"/>
+                            <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
+                            <TableColumn fx:id="imageColumn" text="Image" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+
+                    <!-- ACTIONS -->
+                    <HBox spacing="15" alignment="CENTER_RIGHT">
+                        <Button text="✏ Modifier"
+                                onAction="#modifierDomaine"
+                                style="-fx-background-color: #ffc107;
+                                       -fx-text-fill: white;
+                                       -fx-background-radius: 8;
+                                       -fx-padding: 8 16;
+                                       -fx-font-weight: 600;"/>
+
+                        <Button text="🗑 Supprimer"
+                                onAction="#supprimerDomaine"
+                                style="-fx-background-color: #dc3545;
+                                       -fx-text-fill: white;
+                                       -fx-background-radius: 8;
+                                       -fx-padding: 8 16;
+                                       -fx-font-weight: 600;"/>
+                    </HBox>
+
+                    <!-- FEEDBACK -->
+                    <Label fx:id="feedbackLabel"
+                           style="-fx-text-fill: #198754;
+                                  -fx-font-weight: 600;"/>
+                </VBox>
+
+                <Region prefHeight="20"/>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

@@ -3,95 +3,112 @@ package controllers;
 import entities.GEvenement.Feedback;
 import entities.GEvenement.FeedbackFX;
 import entities.GEvenement.ParticipationOption;
-import services.EvenementService.FeedbackService;
-import services.SentimentAnalysisService;
-import services.SentimentAnalysisService.SentimentResult;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
-import javafx.scene.chart.PieChart;
-
-import java.net.URL;
-import java.sql.Date;
-import java.sql.SQLException;
-import java.util.ResourceBundle;
-import javafx.collections.ListChangeListener;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
+import services.AccompagnementService.SuggestionAPI;
+import services.AccompagnementService.ProfanityDetectorAPI;
+import services.EvenementService.FeedbackService;
+import services.SentimentAnalysisService;
+import services.SentimentAnalysisService.SentimentResult;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.converter.IntegerStringConverter;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 public class FeedbackController implements Initializable {
 
+    // ═══════════════════════════════════════════════════
+    //  CHAMPS ADMIN (FeedbackView.fxml)
+    // ═══════════════════════════════════════════════════
     @FXML private TextArea taCommentaire;
     @FXML private Slider sliderNote;
     @FXML private Label lblNoteValue;
     @FXML private DatePicker dpDateFeedback;
-
-    // 🧠 Label pour afficher l'analyse de sentiment IA
     @FXML private Label lblSentimentIA;
-
-    // Remplace le TextField id_participation
     @FXML private ChoiceBox<ParticipationOption> cbParticipation;
-
     @FXML private TableView<FeedbackFX> tableFeedbacks;
     @FXML private TableColumn<FeedbackFX, Integer> colId;
     @FXML private TableColumn<FeedbackFX, String> colCommentaire;
     @FXML private TableColumn<FeedbackFX, Integer> colNote;
     @FXML private TableColumn<FeedbackFX, Date> colDateFeedback;
-
-    // Remplace colIdParticipation (id) par un libellé lisible
     @FXML private TableColumn<FeedbackFX, String> colParticipation;
-
-    // === Recherche + Tri ===
     @FXML private TextField tfRecherche;
     @FXML private ChoiceBox<String> cbTri;
-
     @FXML private Label lblStats;
     @FXML private Button btnExportCsv;
-
     @FXML private PieChart chartNotes;
 
+    // ═══════════════════════════════════════════════════
+    //  CHAMPS FRONT / USER (Feedback.fxml)
+    // ═══════════════════════════════════════════════════
+    @FXML private HBox starBox;
+    @FXML private TextArea commentTextArea;
+    @FXML private Button sendFeedbackButton;
+    @FXML private VBox commentsContainer;
+
+    private int rating = 0;
+
+    // ═══════════════════════════════════════════════════
+    //  SERVICES & DATA
+    // ═══════════════════════════════════════════════════
     private FeedbackService fs = new FeedbackService();
     private final ObservableList<FeedbackFX> feedbackList = FXCollections.observableArrayList();
     private final FilteredList<FeedbackFX> filteredData = new FilteredList<>(feedbackList, f -> true);
-
     private final ObservableList<ParticipationOption> participations = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Configuration des colonnes
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colCommentaire.setCellValueFactory(new PropertyValueFactory<>("commentaire"));
-        colNote.setCellValueFactory(new PropertyValueFactory<>("note"));
-        colDateFeedback.setCellValueFactory(new PropertyValueFactory<>("dateFeedback"));
-        colParticipation.setCellValueFactory(new PropertyValueFactory<>("participationLabel"));
+        // ─── FRONT / USER view (Feedback.fxml — star rating) ───
+        if (starBox != null) {
+            setupStars();
+        }
 
-        // Init label
-        if (lblNoteValue != null) {
+        // ─── ADMIN / CRUD view (FeedbackView.fxml — table) ───
+        if (colId != null) {
+            colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+            colCommentaire.setCellValueFactory(new PropertyValueFactory<>("commentaire"));
+            colNote.setCellValueFactory(new PropertyValueFactory<>("note"));
+            colDateFeedback.setCellValueFactory(new PropertyValueFactory<>("dateFeedback"));
+            colParticipation.setCellValueFactory(new PropertyValueFactory<>("participationLabel"));
+        }
+
+        if (lblNoteValue != null && sliderNote != null) {
             lblNoteValue.setText(String.valueOf((int) sliderNote.getValue()));
         }
 
-        // Configuration du slider
-        sliderNote.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (lblNoteValue != null) {
-                lblNoteValue.setText(String.valueOf(newValue.intValue()));
-            }
-        });
+        if (sliderNote != null) {
+            sliderNote.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (lblNoteValue != null) {
+                    lblNoteValue.setText(String.valueOf(newValue.intValue()));
+                }
+            });
+        }
 
         // 🧠 ANALYSE DE SENTIMENT IA EN TEMPS RÉEL
         setupSentimentAnalysis();
@@ -102,18 +119,15 @@ public class FeedbackController implements Initializable {
         // Charger options participation (ChoiceBox)
         loadParticipations();
 
-        // Charger les données
-        refreshTable();
-
-        setupSearchFilter();
-        setupTriChoiceBox();
-
-        // Mini-stats: se met à jour quand la liste visible change
-        hookStatsRefresh();
-        refreshStats();
-
-        // Option A: édition inline + sauvegarde immédiate
-        setupInlineEditing();
+        // Charger les données (admin table only)
+        if (tableFeedbacks != null) {
+            refreshTable();
+            setupSearchFilter();
+            setupTriChoiceBox();
+            hookStatsRefresh();
+            refreshStats();
+            setupInlineEditing();
+        }
     }
 
     private void setupNoteBadges() {
@@ -763,5 +777,156 @@ public class FeedbackController implements Initializable {
             setGraphic(null);
             setContentDisplay(ContentDisplay.TEXT_ONLY);
         }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  FRONT / USER — Star Rating (Feedback.fxml)
+    // ═══════════════════════════════════════════════════════
+
+    private void setupStars() {
+        if (starBox == null) return;
+        starBox.getChildren().clear();
+
+        Image starFilled = null;
+        Image starEmpty = null;
+        try {
+            starFilled = new Image(getClass().getResourceAsStream("/images/star_filled.png"));
+            starEmpty = new Image(getClass().getResourceAsStream("/images/star_empty.png"));
+        } catch (Exception e) {
+            System.err.println("Star images not found, using text fallback");
+        }
+
+        for (int i = 1; i <= 5; i++) {
+            final int starValue = i;
+
+            if (starFilled != null && starEmpty != null) {
+                // Image-based stars
+                ImageView star = new ImageView(starEmpty);
+                star.setFitWidth(30);
+                star.setFitHeight(30);
+
+                final Image filled = starFilled;
+                final Image empty = starEmpty;
+
+                star.setOnMouseEntered(e -> highlightStars(starValue, filled, empty));
+                star.setOnMouseExited(e -> highlightStars(rating, filled, empty));
+                star.setOnMouseClicked(e -> {
+                    rating = starValue;
+                    highlightStars(rating, filled, empty);
+                });
+
+                starBox.getChildren().add(star);
+            } else {
+                // Text fallback if images are missing
+                Label star = new Label("☆");
+                star.setStyle("-fx-font-size: 24px; -fx-cursor: hand; -fx-text-fill: #ccc;");
+
+                star.setOnMouseEntered(e -> highlightStarsText(starValue));
+                star.setOnMouseExited(e -> highlightStarsText(rating));
+                star.setOnMouseClicked(e -> {
+                    rating = starValue;
+                    highlightStarsText(rating);
+                });
+
+                starBox.getChildren().add(star);
+            }
+        }
+    }
+
+    private void highlightStars(int upTo, Image filled, Image empty) {
+        if (starBox == null) return;
+        for (int i = 0; i < starBox.getChildren().size(); i++) {
+            if (starBox.getChildren().get(i) instanceof ImageView) {
+                ImageView star = (ImageView) starBox.getChildren().get(i);
+                star.setImage(i < upTo ? filled : empty);
+            }
+        }
+    }
+
+    private void highlightStarsText(int upTo) {
+        if (starBox == null) return;
+        for (int i = 0; i < starBox.getChildren().size(); i++) {
+            if (starBox.getChildren().get(i) instanceof Label) {
+                Label star = (Label) starBox.getChildren().get(i);
+                if (i < upTo) {
+                    star.setText("★");
+                    star.setStyle("-fx-font-size: 24px; -fx-cursor: hand; -fx-text-fill: #f5a623;");
+                } else {
+                    star.setText("☆");
+                    star.setStyle("-fx-font-size: 24px; -fx-cursor: hand; -fx-text-fill: #ccc;");
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void handleSendFeedback() {
+        String commentText = (commentTextArea != null) ? commentTextArea.getText().trim() : "";
+
+        if (rating == 0 && commentText.isEmpty()) {
+            showAlert("Attention", "Veuillez mettre une note ou écrire un commentaire !");
+            return;
+        }
+
+        // Vérification langage inapproprié dans un thread séparé
+        new Thread(() -> {
+            boolean containsBadWords = false;
+            try {
+                containsBadWords = ProfanityDetectorAPI.hasBadWords(commentText);
+            } catch (Exception e) {
+                System.err.println("ProfanityDetector unavailable: " + e.getMessage());
+            }
+
+            final boolean badWords = containsBadWords;
+            Platform.runLater(() -> {
+                if (badWords) {
+                    showAlert("Refusé", "Commentaire refusé : langage inapproprié");
+                } else {
+                    // Créer la boîte du commentaire
+                    VBox commentBox = new VBox();
+                    commentBox.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 12; " +
+                            "-fx-padding: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+                    commentBox.setSpacing(5);
+
+                    Label ratingLabel = new Label("⭐".repeat(rating));
+                    ratingLabel.setStyle("-fx-font-size: 14px;");
+
+                    Label commentLabel = new Label(commentText);
+                    commentLabel.setWrapText(true);
+                    commentLabel.setStyle("-fx-font-size: 13px;");
+
+                    commentBox.getChildren().addAll(ratingLabel, commentLabel);
+
+                    // Suggestion automatique (si disponible)
+                    try {
+                        String correctedText = SuggestionAPI.getCorrectedText(commentText);
+                        if (correctedText != null && !correctedText.equals(commentText)) {
+                            Label suggestionLabel = new Label("Phrase corrigée :\n" + correctedText);
+                            suggestionLabel.setWrapText(true);
+                            suggestionLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555555;");
+                            commentBox.getChildren().add(suggestionLabel);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("SuggestionAPI unavailable: " + e.getMessage());
+                    }
+
+                    if (commentsContainer != null) {
+                        commentsContainer.getChildren().add(0, commentBox);
+                    }
+
+                    // Réinitialiser
+                    rating = 0;
+                    setupStars();
+                    if (commentTextArea != null) commentTextArea.clear();
+
+                    saveFeedback(commentText);
+                }
+            });
+        }).start();
+    }
+
+    private void saveFeedback(String feedback) {
+        // Sauvegarde (à compléter avec logique BD si nécessaire)
+        System.out.println("Feedback sauvegardé : ⭐ " + rating + " — " + feedback);
     }
 }

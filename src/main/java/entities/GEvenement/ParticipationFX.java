@@ -1,6 +1,7 @@
 package entities.GEvenement;
 
 import javafx.beans.property.*;
+
 import java.sql.Date;
 
 public class ParticipationFX {
