@@ -13,7 +13,7 @@ public class UserService implements IService<User> {
 
     private Connection connection;
 
-    public UserService() {
+    public UserService() throws SQLException {
         connection = MyDatabase.getInstance().getConnection();
         System.out.println("Connection established for UserService");
         initializeRoles();

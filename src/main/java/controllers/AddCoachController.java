@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import services.AccompagnementService.CoachService;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class AddCoachController {
 
@@ -27,6 +28,9 @@ public class AddCoachController {
     @FXML private Label imageLabel;
 
     private File selectedImageFile;
+
+    public AddCoachController() throws SQLException {
+    }
 
     @FXML
     private void chooseImage() {

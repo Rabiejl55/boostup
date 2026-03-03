@@ -12,7 +12,7 @@ public class FeedbackService implements IService<Feedback> {
 
     private Connection connection;
 
-    public FeedbackService() {
+    public FeedbackService() throws SQLException {
         connection = MyDatabase.getInstance().getConnection();
     }
 

@@ -68,6 +68,9 @@ public class UsersManagementController {
 
     private ObservableList<String> activityLog = FXCollections.observableArrayList();
 
+    public UsersManagementController() throws SQLException {
+    }
+
     // ══════════════════════════════════════════════════════════
     // INITIALISATION
     // ══════════════════════════════════════════════════════════

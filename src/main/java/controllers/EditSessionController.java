@@ -36,6 +36,9 @@ public class EditSessionController {
     @FXML private Label domaineError;
     @FXML private Label errorLabel;
 
+    public EditSessionController() throws SQLException {
+    }
+
     // ================= INITIALIZE =================
     @FXML
     public void initialize() {

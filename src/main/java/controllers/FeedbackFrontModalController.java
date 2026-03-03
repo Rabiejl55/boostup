@@ -30,6 +30,9 @@ public class FeedbackFrontModalController implements Initializable {
     private Runnable onClose;
     private EvenementFX evenement;
 
+    public FeedbackFrontModalController() throws SQLException {
+    }
+
     public void setOnClose(Runnable onClose) {
         this.onClose = onClose;
     }

@@ -49,6 +49,9 @@ public class AddDossierController implements Initializable {
     private final CandidatureService        candService = new CandidatureService();
     private boolean saved = false;
 
+    public AddDossierController() throws SQLException {
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  INITIALISATION
     // ══════════════════════════════════════════════════════════════

@@ -11,7 +11,7 @@ public class DossierCandidatureService {
 
     private Connection connection;
 
-    public DossierCandidatureService() {
+    public DossierCandidatureService() throws SQLException {
         connection = MyDatabase.getInstance().getConnection();
     }
 

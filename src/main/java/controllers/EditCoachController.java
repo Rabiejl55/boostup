@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import services.AccompagnementService.CoachService;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class EditCoachController {
 
@@ -27,6 +28,9 @@ public class EditCoachController {
     @FXML private Label telephoneError;
     @FXML private Label errorLabel;
     @FXML private Label imageLabel;
+
+    public EditCoachController() throws SQLException {
+    }
 
     @FXML
     public void setCoach(Coach coach) {

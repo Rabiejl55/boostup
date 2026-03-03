@@ -53,6 +53,9 @@ public class SignupController {
     private File selectedPhoto;
     private final UserService userService = new UserService();
 
+    public SignupController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
         // Initialiser la ComboBox avec les rôles

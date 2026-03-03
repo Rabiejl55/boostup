@@ -96,27 +96,25 @@
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+            <Button text="�  DashboardF" onAction="#goDashboard" maxWidth="Infinity"
+                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                           -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
+                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
             <Button text="💰  Financements" onAction="#manageFinancements" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
-            <Button text="�  Investissements" onAction="#goToInvestissements" maxWidth="Infinity"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
-                           -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
-                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+
             <Button text="💳  Transactions" onAction="#goToTransactions" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
-            <Button text="📈  Stats Financement" onAction="#goToStatsFinancement" maxWidth="Infinity"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
-                           -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
-                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+
             <Button text="🛡️  Modération" onAction="#moderateContent" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
-            <Button text="⚙️  Paramètres" onAction="#systemSettings" maxWidth="Infinity"
+            <Button text="💰Projets" onAction="#systemSettings" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
@@ -156,10 +154,11 @@
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
-            <Button text="🚀  Startups" onAction="#viewStartups" maxWidth="Infinity"
+        <!--   <Button text="🚀  Startups" onAction="#viewStartups" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
+                           -->
 
             <Button text="🎯  Feedback" onAction="#handleFeedbackClick" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);

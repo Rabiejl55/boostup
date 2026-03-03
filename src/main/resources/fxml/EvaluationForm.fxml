@@ -8,7 +8,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.EvaluationFormController"
       styleClass="dialog-root" spacing="0"
-      prefWidth="520">
+      prefWidth="520"
+      stylesheets="@../css/style2.css">
 
     <!-- ══ HEADER ══════════════════════════════════════════════════ -->
     <VBox styleClass="dialog-header" spacing="4">

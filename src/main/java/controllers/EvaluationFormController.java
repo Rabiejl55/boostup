@@ -49,6 +49,9 @@ public class EvaluationFormController {
     private final DossierCandidatureService  dossierService    = new DossierCandidatureService();
     private final ObservableList<Candidature> candidatures     = FXCollections.observableArrayList();
 
+    public EvaluationFormController() throws SQLException {
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  INITIALISATION
     // ══════════════════════════════════════════════════════════════

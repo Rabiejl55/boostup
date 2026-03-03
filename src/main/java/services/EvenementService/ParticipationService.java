@@ -12,7 +12,7 @@ public class ParticipationService implements IService<Participation> {
 
     private Connection connection;
 
-    public ParticipationService() {
+    public ParticipationService() throws SQLException {
         connection = MyDatabase.getInstance().getConnection();
     }
 

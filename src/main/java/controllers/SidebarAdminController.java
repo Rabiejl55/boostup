@@ -142,7 +142,7 @@ public class SidebarAdminController {
 
     // ═══════════════════════════════════════════════════
     //  PROFIL BUTTONS
-    // ═══════════════════════════════════════════════════
+    // ═════════════════════════════════════════════��═════
 
     @FXML
     private void goToProfile(ActionEvent event) {
@@ -179,8 +179,12 @@ public class SidebarAdminController {
     }
 
     @FXML
+    private void goDashboard(ActionEvent event) {
+        NavigationHelper.navigateTo(getStage(event), "/fxml/dashboard.fxml", "Mon Dashboard");
+    }
+    @FXML
     private void manageFinancements(ActionEvent event) {
-        NavigationHelper.navigateTo(getStage(event), "/fxml/financement.fxml", "Financements");
+        NavigationHelper.navigateTo(getStage(event), "/fxml/financement_front.fxml", "Financements");
     }
 
     @FXML
@@ -238,10 +242,10 @@ public class SidebarAdminController {
         NavigationHelper.navigateTo(getStage(event), "/fxml/home.fxml", "Accompagnement");
     }
 
-    @FXML
+ /*   @FXML
     private void viewStartups(ActionEvent event) {
         System.out.println("🚀 Voir startups — À implémenter");
-    }
+    }*/
 
     @FXML
     private void viewCandidatures(ActionEvent event) {

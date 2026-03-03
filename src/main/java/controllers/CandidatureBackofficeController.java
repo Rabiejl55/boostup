@@ -44,6 +44,9 @@ public class CandidatureBackofficeController implements Initializable {
     private       FilteredList<Candidature>   filteredList;
     private       SortedList<Candidature>     sortedList;
 
+    public CandidatureBackofficeController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 

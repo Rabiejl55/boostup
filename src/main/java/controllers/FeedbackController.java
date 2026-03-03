@@ -82,6 +82,9 @@ public class FeedbackController implements Initializable {
     private final FilteredList<FeedbackFX> filteredData = new FilteredList<>(feedbackList, f -> true);
     private final ObservableList<ParticipationOption> participations = FXCollections.observableArrayList();
 
+    public FeedbackController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // ─── FRONT / USER view (Feedback.fxml — star rating) ───

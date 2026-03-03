@@ -55,6 +55,9 @@ public class ParticipationController implements Initializable {
 
     private final ObservableList<EvenementOption> evenements = FXCollections.observableArrayList();
 
+    public ParticipationController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Configuration des colonnes

@@ -35,6 +35,9 @@ public class AddSessionController {
     @FXML private Label domaineError;
     @FXML private Label errorLabel;
 
+    public AddSessionController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
         try {

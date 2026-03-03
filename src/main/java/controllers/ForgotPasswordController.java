@@ -34,6 +34,9 @@ public class ForgotPasswordController {
     private final UserService userService = new UserService();
     private String currentToken = "";
 
+    public ForgotPasswordController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
         messageLabel.setWrapText(true);

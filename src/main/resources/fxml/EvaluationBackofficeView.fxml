@@ -6,7 +6,8 @@
 
 <HBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.EvaluationBackofficeController"
-      styleClass="app-shell" spacing="0">
+      styleClass="app-shell" spacing="0"
+      stylesheets="@../css/style2.css">
 
     <!-- Sidebar Admin -->
     <fx:include source="sidebarADMIN.fxml" />
@@ -82,3 +83,4 @@
         </VBox>
     </VBox>
 </HBox>
+

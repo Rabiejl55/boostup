@@ -9,6 +9,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import services.AccompagnementService.DomaineService;
 
+import java.sql.SQLException;
+
 public class EditDomaineController {
 
     private Domaine domaine;
@@ -24,6 +26,9 @@ public class EditDomaineController {
     @FXML private Label niveauError;
     @FXML private Label statutError;
     @FXML private Label errorLabel; // pour erreurs globales
+
+    public EditDomaineController() throws SQLException {
+    }
 
     @FXML
     public void initialize() {

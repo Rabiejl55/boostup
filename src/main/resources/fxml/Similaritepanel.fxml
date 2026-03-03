@@ -10,7 +10,8 @@
       spacing="0"
       prefWidth="780"
       prefHeight="680"
-      style="-fx-background-color: #f7f8fc;">
+      style="-fx-background-color: #f7f8fc;"
+      stylesheets="@../css/style2.css">
 
     <!-- ══ HEADER ══════════════════════════════════════════════════ -->
     <VBox spacing="0"

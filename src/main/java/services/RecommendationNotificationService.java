@@ -4,6 +4,7 @@ import entities.GEvenement.Evenement;
 
 import java.awt.*;
 import java.awt.TrayIcon.MessageType;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -16,11 +17,11 @@ public class RecommendationNotificationService {
     private static RecommendationNotificationService instance;
     private final RecommendationService recommendationService;
 
-    private RecommendationNotificationService() {
+    private RecommendationNotificationService() throws SQLException {
         this.recommendationService = new RecommendationService();
     }
 
-    public static synchronized RecommendationNotificationService getInstance() {
+    public static synchronized RecommendationNotificationService getInstance() throws SQLException {
         if (instance == null) {
             instance = new RecommendationNotificationService();
         }

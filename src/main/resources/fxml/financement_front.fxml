@@ -18,9 +18,9 @@
         <ToggleGroup fx:id="roleGroup"/>
     </fx:define>
 
-    <!-- ============ SIDEBAR (composant réutilisable) ============ -->
+    <!-- ============ SIDEBAR (admin version) ============ -->
     <left>
-        <fx:include source="sidebarUSER.fxml" />
+        <fx:include source="sidebarADMIN.fxml"/>
     </left>
 
 

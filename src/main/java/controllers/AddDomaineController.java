@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import services.AccompagnementService.DomaineService;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class AddDomaineController {
 
@@ -29,6 +30,9 @@ public class AddDomaineController {
     @FXML private Label imageLabel;
 
     private File selectedImageFile;
+
+    public AddDomaineController() throws SQLException {
+    }
 
     @FXML
     public void initialize() {

@@ -11,7 +11,7 @@ public class CoachService {
 
     private final Connection conn;
 
-    public CoachService() {
+    public CoachService() throws SQLException {
         conn = MyDatabase.getInstance().getConnection();
     }
 

@@ -35,6 +35,9 @@ public class DossierFrontController implements Initializable {
     private List<DossierCandidature>        all;
     private AppController                   appController;
 
+    public DossierFrontController() throws SQLException {
+    }
+
     public void setAppController(AppController app) { this.appController = app; }
 
     @Override

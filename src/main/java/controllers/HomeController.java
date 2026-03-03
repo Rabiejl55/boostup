@@ -75,6 +75,9 @@ public class HomeController {
     @FXML
     private Label sessionsCount;
 
+    public HomeController() throws SQLException {
+    }
+
     @FXML
     private void handleDashboardClick(ActionEvent event) {
         System.out.println("Dashboard clicked");

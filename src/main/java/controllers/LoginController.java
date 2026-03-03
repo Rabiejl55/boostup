@@ -42,6 +42,9 @@ public class LoginController {
     private ActionEvent pendingEvent = null;
     private String currentOtp = null;
 
+    public LoginController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
         loadLogo();
@@ -211,7 +214,7 @@ public class LoginController {
     }
 
     private void openFaceIdWindow(ActionEvent event, User user) {
-        Stage stage = new Stage();
+        javafx.stage.Stage stage = new javafx.stage.Stage();
         stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         stage.setTitle("🔐 BoostUp — Face ID");
         stage.setResizable(false);
@@ -332,7 +335,7 @@ public class LoginController {
                 Platform.runLater(() -> startScanAnimation(scanLine, 315));
 
                 long startTime = System.currentTimeMillis();
-                final long SCAN_DELAY = 4500;
+                final long SCAN_DELAY = 5500;
 
                 while (running.get()) {
                     if (!webcam.isOpen()) break;
@@ -360,10 +363,10 @@ public class LoginController {
                             statusLabel.setText("🔍 Analyse des traits du visage...");
                             faceGuide.setStroke(javafx.scene.paint.Color.web("#f59e0b"));
                         } else if (progress < 0.85) {
-                            statusLabel.setText("🧠 Comparaison AI multi-algorithme...");
+                            statusLabel.setText("🧠 Comparaison multi-algorithme...");
                             faceGuide.setStroke(javafx.scene.paint.Color.web("#0d6efd"));
                         } else {
-                            statusLabel.setText("⚙️ Calcul du score de confiance...");
+                            statusLabel.setText("⚙️ Vérification de l'identité...");
                             faceGuide.setStroke(javafx.scene.paint.Color.web("#6f42c1"));
                         }
                     });
@@ -374,11 +377,11 @@ public class LoginController {
                         // Save captured frame as PNG
                         String tempPath = System.getProperty("java.io.tmpdir") +
                                 File.separator + "boostup_face_capture.png";
-                        File capturedFile = new File(tempPath);
+                        java.io.File capturedFile = new java.io.File(tempPath);
                         javax.imageio.ImageIO.write(frame, "png", capturedFile);
 
                         Platform.runLater(() -> {
-                            statusLabel.setText("🧠 Envoi au serveur Face++ AI...");
+                            statusLabel.setText("🧠 Analyse du visage...");
                             statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #6f42c1;");
                             progressBar.setProgress(-1);
                         });
@@ -386,11 +389,13 @@ public class LoginController {
                         // Compare directly with file — skip JavaFX conversion
                         double score = FaceRecognitionService.compareFacesFromFile(user.getId(), capturedFile);
 
-                        System.out.println("Face++ score: " + score);
+                        System.out.println("🔐 Face ID score: " + score);
 
                         boolean noFace = (score == -1);
                         boolean apiError = (score == -2);
-                        boolean match = (score >= 62.0);
+                        // Use local threshold (52) since Face++ may not be available
+                        double threshold = FaceRecognitionService.getLocalThreshold();
+                        boolean match = (score >= threshold);
                         int pct = (score >= 0) ? (int) Math.round(score) : 0;
 
                         Platform.runLater(() -> {
@@ -409,8 +414,8 @@ public class LoginController {
                                     scoreLabel.setText("Assurez-vous que votre visage est bien visible et éclairé");
                                 } else {
                                     statusLabel.setText("❌ Erreur de vérification");
-                                    resultLabel.setText("❌ ERREUR DE CONNEXION AI");
-                                    scoreLabel.setText("Vérifiez votre connexion internet et réessayez");
+                                    resultLabel.setText("❌ ERREUR DE VÉRIFICATION");
+                                    scoreLabel.setText("Veuillez réessayer dans un instant");
                                 }
                                 statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #ef4444;");
                                 resultLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #ef4444;");
@@ -428,11 +433,11 @@ public class LoginController {
                                 faceGuide.setStroke(javafx.scene.paint.Color.web("#2ecc71"));
                                 faceGuide.getStrokeDashArray().clear();
                                 faceGuide.setStrokeWidth(3);
-                                statusLabel.setText("✅ Identité confirmée par Face++ AI");
+                                statusLabel.setText("✅ Identité confirmée");
                                 statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #2ecc71;");
                                 resultLabel.setText("✅ AUTHENTIFICATION RÉUSSIE");
                                 resultLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #2ecc71;");
-                                scoreLabel.setText("Confiance AI : " + pct + "%");
+                                scoreLabel.setText("Confiance : " + pct + "%");
                                 scoreLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #2ecc71;");
 
                                 javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
@@ -447,11 +452,11 @@ public class LoginController {
                                 faceGuide.setStroke(javafx.scene.paint.Color.web("#ef4444"));
                                 faceGuide.getStrokeDashArray().clear();
                                 faceGuide.setStrokeWidth(3);
-                                statusLabel.setText("❌ Visage non reconnu par Face++ AI");
+                                statusLabel.setText("❌ Visage non reconnu");
                                 statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #ef4444;");
                                 resultLabel.setText("❌ ÉCHEC — Visage différent");
                                 resultLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #ef4444;");
-                                scoreLabel.setText("Confiance AI : " + pct + "% — Seuil requis : 62%");
+                                scoreLabel.setText("Confiance : " + pct + "% — Seuil requis : " + (int) threshold + "%");
                                 scoreLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: 600; -fx-text-fill: #ef4444;");
 
                                 cancelBtn.setText("Fermer");
@@ -547,12 +552,13 @@ public class LoginController {
             ActivityLogService.log(user.getId(), user.getEmail(),
                     ActivityLogService.ACTION_FACE_AUTH_FAILED, "Authentification faciale échouée");
 
-            // SMS alerte sécurité désactivé pour économiser les crédits Twilio
-            // Décommenter pour activer lors de la présentation :
-            if (user.getPhone() != null && !user.getPhone().isEmpty()) {
-                String phone = SmsService.formatPhoneNumber(user.getPhone(), "+216");
-               SmsService.sendSecurityAlert(phone);
-             }
+            // ⚠️ SMS alerte sécurité DÉSACTIVÉ pour économiser les crédits Twilio
+            // Décommenter UNIQUEMENT pour la présentation finale :
+            // if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+            //     String phone = SmsService.formatPhoneNumber(user.getPhone(), "+216");
+            //     SmsService.sendSecurityAlert(phone);
+            // }
+
             showMessage("❌ Visage non reconnu. Veuillez réessayer.", "error");
         }
     }
@@ -665,14 +671,14 @@ public class LoginController {
                 alert.setTitle("Configuration Google OAuth");
                 alert.setHeaderText("Google OAuth n'est pas encore configure");
                 alert.setContentText(
-                    "Pour activer le login Google :\n\n" +
-                    "1. Allez sur https://console.cloud.google.com/\n" +
-                    "2. Creez un projet -> APIs & Services -> Credentials\n" +
-                    "3. Creez un OAuth 2.0 Client ID (Web application)\n" +
-                    "4. Ajoutez http://localhost:8888/callback comme redirect URI\n" +
-                    "5. Copiez le Client ID et Client Secret\n" +
-                    "6. Collez-les dans GoogleOAuthService.java\n\n" +
-                    "Fichier: services/UtilisateurService/GoogleOAuthService.java"
+                        "Pour activer le login Google :\n\n" +
+                                "1. Allez sur https://console.cloud.google.com/\n" +
+                                "2. Creez un projet -> APIs & Services -> Credentials\n" +
+                                "3. Creez un OAuth 2.0 Client ID (Web application)\n" +
+                                "4. Ajoutez http://localhost:8888/callback comme redirect URI\n" +
+                                "5. Copiez le Client ID et Client Secret\n" +
+                                "6. Collez-les dans GoogleOAuthService.java\n\n" +
+                                "Fichier: services/UtilisateurService/GoogleOAuthService.java"
                 );
                 alert.showAndWait();
             });
@@ -790,16 +796,16 @@ public class LoginController {
                 alert.setTitle("Configuration GitHub OAuth");
                 alert.setHeaderText("GitHub OAuth n'est pas encore configure");
                 alert.setContentText(
-                    "Pour activer le login GitHub :\n\n" +
-                    "1. Allez sur https://github.com/settings/developers\n" +
-                    "2. Cliquez 'New OAuth App'\n" +
-                    "3. Remplissez :\n" +
-                    "   - Application name: BoostUp\n" +
-                    "   - Homepage URL: http://localhost\n" +
-                    "   - Callback URL: http://127.0.0.1/callback\n" +
-                    "4. Copiez Client ID et generez Client Secret\n" +
-                    "5. Collez-les dans GitHubOAuthService.java\n\n" +
-                    "Fichier: services/UtilisateurService/GitHubOAuthService.java"
+                        "Pour activer le login GitHub :\n\n" +
+                                "1. Allez sur https://github.com/settings/developers\n" +
+                                "2. Cliquez 'New OAuth App'\n" +
+                                "3. Remplissez :\n" +
+                                "   - Application name: BoostUp\n" +
+                                "   - Homepage URL: http://localhost\n" +
+                                "   - Callback URL: http://127.0.0.1/callback\n" +
+                                "4. Copiez Client ID et generez Client Secret\n" +
+                                "5. Collez-les dans GitHubOAuthService.java\n\n" +
+                                "Fichier: services/UtilisateurService/GitHubOAuthService.java"
                 );
                 alert.showAndWait();
             });

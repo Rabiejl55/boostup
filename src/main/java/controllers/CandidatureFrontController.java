@@ -40,6 +40,9 @@ public class CandidatureFrontController implements Initializable {
     private List<Candidature>        all;
     private AppController            appController;
 
+    public CandidatureFrontController() throws SQLException {
+    }
+
     public void setAppController(AppController app) {
         this.appController = app;
     }

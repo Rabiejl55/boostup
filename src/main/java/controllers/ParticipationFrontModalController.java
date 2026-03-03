@@ -32,6 +32,9 @@ public class ParticipationFrontModalController implements Initializable {
     private Runnable onClose;
     private EvenementFX evenement;
 
+    public ParticipationFrontModalController() throws SQLException {
+    }
+
     public void setOnClose(Runnable onClose) {
         this.onClose = onClose;
     }

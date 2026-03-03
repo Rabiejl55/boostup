@@ -72,6 +72,9 @@ public class DossierCandidatureBackofficeController implements Initializable {
     private static final String COLOR_INCOMPLET = "#f59e0b";
     private static final String COLOR_DEFAULT   = "#6b7494";
 
+    public DossierCandidatureBackofficeController() throws SQLException {
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  INITIALISATION
     // ══════════════════════════════════════════════════════════════

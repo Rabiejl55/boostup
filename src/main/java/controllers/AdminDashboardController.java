@@ -38,6 +38,9 @@ public class AdminDashboardController {
 
     private final UserService userService = new UserService();
 
+    public AdminDashboardController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
         User user = SessionManager.getCurrentUser();
@@ -45,7 +48,9 @@ public class AdminDashboardController {
             // Mettre à jour le welcome label
             String displayName = user.getFullname() != null && !user.getFullname().isEmpty()
                     ? user.getFullname() : user.getNom();
-            welcomeLabel.setText(displayName);
+            if (welcomeLabel != null) {
+                welcomeLabel.setText(displayName);
+            }
 
             if (userInfoLabel != null) {
                 userInfoLabel.setText(user.getRole() != null ? user.getRole().name() : "Admin");

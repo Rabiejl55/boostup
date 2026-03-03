@@ -15,72 +15,9 @@
 
     <!-- ===================== SIDEBAR ===================== -->
     <left>
-        <VBox prefWidth="300" minWidth="300" maxWidth="300"
-              styleClass="sidebar"
-              style="-fx-background-color: linear-gradient(to bottom, #0f172a, #1e293b);">
-
-            <!-- Header -->
-            <VBox spacing="2" style="-fx-padding: 22 20 10 20;">
-                <Label text="⚡ BoostUp" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 800;"/>
-                <Label text="Admin Panel" styleClass="sidebar-user-role"/>
-            </VBox>
-
-            <Region style="-fx-background-color: rgba(255,255,255,0.12); -fx-pref-height: 1; -fx-max-height: 1;"/>
-
-            <!-- User block (simple) -->
-            <VBox spacing="10" style="-fx-padding: 16 20 10 20;">
-                <Label text="Administrateur" styleClass="sidebar-user-name"/>
-                <HBox spacing="10">
-                    <Button text="👤 Profil" onAction="#goProfil" styleClass="sidebar-menu-item" />
-                    <Button text="🚪 Quitter" onAction="#logout" styleClass="sidebar-logout-btn" />
-                </HBox>
-            </VBox>
-
-            <Region style="-fx-background-color: rgba(255,255,255,0.12); -fx-pref-height: 1; -fx-max-height: 1;"/>
-
-            <!-- MENU PRINCIPAL -->
-            <VBox spacing="6" style="-fx-padding: 14 16 0 16;">
-                <Label text="MENU PRINCIPAL"
-                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11px; -fx-font-weight: 700;"/>
-
-                <Button text="🏠 Home" onAction="#goHomePage" maxWidth="Infinity"
-                        styleClass="sidebar-menu-item active"/>
-
-                <Button text="📁 Projets" onAction="#goProjets" maxWidth="Infinity"
-                        styleClass="sidebar-menu-item"/>
-
-                <Button text="📈 Investissements" onAction="#goInvestissements" maxWidth="Infinity"
-                        styleClass="sidebar-menu-item"/>
-
-                <Button text="💳 Transactions" onAction="#goTransactions" maxWidth="Infinity"
-                        styleClass="sidebar-menu-item"/>
-            </VBox>
-
-            <Region style="-fx-padding: 10;"/>
-
-            <!-- MON ESPACE -->
-            <VBox spacing="6" style="-fx-padding: 14 16 0 16;">
-                <Label text="MON ESPACE"
-                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11px; -fx-font-weight: 700;"/>
-
-                <Button text="✉ Messages" onAction="#goMessages" maxWidth="Infinity"
-                        styleClass="sidebar-menu-item"/>
-
-                <Button text="🔔 Notifications" onAction="#goNotifications" maxWidth="Infinity"
-                        styleClass="sidebar-menu-item"/>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <!-- Footer -->
-            <VBox spacing="10" style="-fx-padding: 14 16 16 16;">
-                <Button text="🚪 Logout" onAction="#logout" maxWidth="Infinity"
-                        styleClass="sidebar-logout-btn"/>
-                <Label text="BoostUp v1.0  •  © 2024"
-                       style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;"/>
-            </VBox>
-        </VBox>
+        <fx:include source="sidebarADMIN.fxml"/>
     </left>
+
 
 
     <!-- ===================== CONTENT ===================== -->
@@ -242,19 +179,27 @@
                                 <Label text="Devises" styleClass="section-title"/>
                                 <Label text="Taux en temps réel (EUR → USD)" styleClass="page-subtitle"/>
 
+                                <!-- Ligne taux -->
                                 <HBox spacing="10" alignment="CENTER_LEFT">
-                                    <Label text="1 EUR =" />
-                                    <Label fx:id="lblEurUsdRate" text="..." style="-fx-font-weight: 800; -fx-font-size: 14px;"/>
-                                    <Label text="USD" />
+                                    <Label text="1 EUR =" style="-fx-text-fill: #111827; -fx-font-weight: 700;" />
+                                    <Label fx:id="lblEurUsdRate"
+                                           text="..."
+                                           style="-fx-font-weight: 800; -fx-font-size: 16px; -fx-text-fill: #111827;"/>
+                                    <Label text="USD" style="-fx-text-fill: #111827; -fx-font-weight: 700;" />
+
                                     <Region HBox.hgrow="ALWAYS"/>
                                     <Button text="Actualiser" onAction="#refreshRate" styleClass="action-button secondary"/>
                                 </HBox>
 
+                                <!-- Ligne input + bouton -->
                                 <HBox spacing="10" alignment="CENTER_LEFT">
-                                    <TextField fx:id="tfEurAmount" promptText="Montant EUR" />
+                                    <TextField fx:id="tfEurAmount" promptText="Montant EUR" HBox.hgrow="ALWAYS"/>
                                     <Button text="Convertir" onAction="#convertToUsd" styleClass="action-button"/>
-                                    <Label fx:id="lblUsdResult" text="" style="-fx-font-weight: 700;"/>
                                 </HBox>
+
+                                <!-- ✅ Résultat sur une ligne séparée (toujours visible) -->
+                                <Label fx:id="lblUsdResult" text=""
+                                       style="-fx-font-weight: 800; -fx-font-size: 14px; -fx-text-fill: #0f172a;"/>
 
                                 <Label fx:id="lblRateStatus" text="" styleClass="page-subtitle"/>
                             </VBox>

@@ -57,6 +57,9 @@ public class ProfileController {
 
     private final UserService userService = new UserService();
 
+    public ProfileController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
         User user = SessionManager.getCurrentUser();

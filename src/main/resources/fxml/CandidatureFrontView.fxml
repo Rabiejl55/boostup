@@ -6,7 +6,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="controllers.CandidatureFrontController"
-      styleClass="view-root" spacing="0">
+      styleClass="view-root" spacing="0"
+      stylesheets="@../css/style2.css">
 
     <!-- ── TOP BAR DE VUE ── -->
     <HBox styleClass="view-topbar" alignment="CENTER_LEFT" spacing="16">

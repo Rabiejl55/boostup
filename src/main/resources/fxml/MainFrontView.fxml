@@ -6,7 +6,8 @@
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.MainFrontController"
-      styleClass="app-shell" spacing="0">
+      styleClass="app-shell" spacing="0"
+      stylesheets="@../css/style2.css">
 
     <!-- ══════════════ SIDEBAR ══════════════ -->
     <VBox styleClass="sidebar" spacing="0" minWidth="230" maxWidth="230">

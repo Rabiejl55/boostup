@@ -29,6 +29,9 @@ public class RecommendationService {
 
     private EvenementService evenementService = new EvenementService();
 
+    public RecommendationService() throws SQLException {
+    }
+
     // ════════════════════════════════════════════════════════
     // 🧠 RECOMMANDATIONS INTELLIGENTES
     // ════════════════════════════════════════════════════════

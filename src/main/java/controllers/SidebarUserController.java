@@ -192,8 +192,8 @@ public class SidebarUserController {
     }
 
     @FXML
-    private void manageFinancements(ActionEvent event) {
-        System.out.println("💰 Gérer les financements — À implémenter");
+    private void goDashboard(ActionEvent event) {
+        NavigationHelper.navigateTo(getStage(event), "dashboard.fxml", "Financements");
     }
 
     // ═══════════════════════════════════════════════════

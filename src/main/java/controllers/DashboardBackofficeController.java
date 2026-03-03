@@ -38,6 +38,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.List;
@@ -80,6 +81,9 @@ public class DashboardBackofficeController implements Initializable {
     private static final Color C_BORDER   = new Color(0xdc, 0xe0, 0xf0);
     private static final Color C_TEXT     = new Color(0x1e, 0x27, 0x46);
     private static final Color C_MUTED    = new Color(0x6b, 0x74, 0x94);
+
+    public DashboardBackofficeController() throws SQLException {
+    }
 
     // ══════════════════════════════════════════════════════════════
 

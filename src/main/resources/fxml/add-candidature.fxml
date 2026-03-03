@@ -6,7 +6,9 @@
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.AddCandidatureController"
-      styleClass="dialog-root" spacing="0">
+      styleClass="dialog-root" spacing="0"
+
+      stylesheets="@../css/style2.css">
 
     <VBox styleClass="dialog-header" spacing="4">
         <padding><Insets top="28" right="32" bottom="22" left="32"/></padding>

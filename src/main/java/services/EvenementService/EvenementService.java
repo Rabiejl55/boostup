@@ -13,11 +13,11 @@ public class EvenementService implements IService<Evenement> {
 
     private Connection connection;
 
-    public EvenementService() {
+    public EvenementService() throws SQLException {
         connection = MyDatabase.getInstance().getConnection();
     }
 
-    private Connection conn() {
+    private Connection conn() throws SQLException {
         try {
             if (connection == null || connection.isClosed()) {
                 connection = MyDatabase.getInstance().getConnection();

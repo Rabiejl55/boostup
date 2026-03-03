@@ -25,6 +25,7 @@ import services.AccompagnementService.CoachService;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class CoachController {
 
@@ -43,6 +44,9 @@ public class CoachController {
     // ===== SIDEBAR AVATAR =====
     @FXML private ImageView avatarImageView;
     @FXML private Label welcomeLabel;
+
+    public CoachController() throws SQLException {
+    }
 
     @FXML
     public void initialize() {

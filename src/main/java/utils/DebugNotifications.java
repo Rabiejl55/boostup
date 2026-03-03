@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class DebugNotifications {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         System.out.println("\n╔═══════════════════════════════════════════════════════╗");
         System.out.println("║  🔍 DEBUG NOTIFICATIONS - VÉRIFICATION BDD           ║");
         System.out.println("╚═══════════════════════════════════════════════════════╝\n");

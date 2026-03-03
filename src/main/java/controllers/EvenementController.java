@@ -76,6 +76,9 @@ public class EvenementController implements Initializable {
     private ObservableList<EvenementFX> evenementList = FXCollections.observableArrayList();
     private FilteredList<EvenementFX> filteredData = new FilteredList<>(evenementList, p -> true);
 
+    public EvenementController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("✅ Initialisation du contrôleur...");

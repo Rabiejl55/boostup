@@ -47,7 +47,6 @@ public class StatsFinancementController {
     // Alertes
     @FXML private ListView<String> lvAlertes;
 
-
     // ====== Services
     private final FinancementAlertService alertService = new FinancementAlertService();
 
@@ -61,23 +60,48 @@ public class StatsFinancementController {
 
     @FXML
     public void initialize() {
-        cbStatutProjet.setItems(FXCollections.observableArrayList("TOUS", "EN_ATTENTE", "FINANCE", "REFUSE"));
-        cbStatutProjet.getSelectionModel().selectFirst();
+        if (cbStatutProjet != null) {
+            cbStatutProjet.setItems(FXCollections.observableArrayList("TOUS", "EN_ATTENTE", "FINANCE", "REFUSE"));
+            cbStatutProjet.getSelectionModel().selectFirst();
+        }
 
-        dpTo.setValue(LocalDate.now());
-        dpFrom.setValue(LocalDate.now().minusMonths(6));
+        if (dpTo != null) dpTo.setValue(LocalDate.now());
+        if (dpFrom != null) dpFrom.setValue(LocalDate.now().minusMonths(6));
 
-        axisTopProjetsX.setLabel("Projets");
-        axisTopProjetsY.setLabel("Montant");
-        axisLineX.setLabel("Mois");
-        axisLineY.setLabel("Montant");
+        if (axisTopProjetsX != null) axisTopProjetsX.setLabel("Projets");
+        if (axisTopProjetsY != null) axisTopProjetsY.setLabel("Montant");
+        if (axisLineX != null) axisLineX.setLabel("Mois");
+        if (axisLineY != null) axisLineY.setLabel("Montant");
+
+        // ✅ IMPORTANT layout: permettre aux charts de rétrécir / grandir correctement
+        if (barTopProjets != null) {
+            barTopProjets.setAnimated(false);
+            if (pieModesPaiement != null) pieModesPaiement.setLabelsVisible(true);
+            if (lineEvolution != null) lineEvolution.setCreateSymbols(false); // plus clean
+            barTopProjets.setLegendVisible(false);
+            barTopProjets.setMinHeight(0);
+        }
+        if (pieModesPaiement != null) {
+            pieModesPaiement.setAnimated(false);
+            pieModesPaiement.setLegendVisible(true);
+            pieModesPaiement.setMinHeight(0);
+        }
+        if (lineEvolution != null) {
+            lineEvolution.setAnimated(false);
+            lineEvolution.setLegendVisible(false);
+            lineEvolution.setCreateSymbols(false);
+            lineEvolution.setMinHeight(0);
+        }
+        if (lvAlertes != null) {
+            lvAlertes.setMinHeight(0);
+        }
 
         setupAlertesListView();
 
         // auto refresh (sans boutons)
-        dpFrom.valueProperty().addListener((o, a, b) -> scheduleRefresh());
-        dpTo.valueProperty().addListener((o, a, b) -> scheduleRefresh());
-        cbStatutProjet.valueProperty().addListener((o, a, b) -> scheduleRefresh());
+        if (dpFrom != null) dpFrom.valueProperty().addListener((o, a, b) -> scheduleRefresh());
+        if (dpTo != null) dpTo.valueProperty().addListener((o, a, b) -> scheduleRefresh());
+        if (cbStatutProjet != null) cbStatutProjet.valueProperty().addListener((o, a, b) -> scheduleRefresh());
 
         // 1er chargement
         scheduleRefresh();
@@ -125,9 +149,9 @@ public class StatsFinancementController {
     // ===================== MAIN ASYNC REFRESH =====================
 
     private void refreshAsync() {
-        final LocalDate from = (dpFrom.getValue() != null) ? dpFrom.getValue() : LocalDate.now().minusMonths(6);
-        final LocalDate to   = (dpTo.getValue() != null) ? dpTo.getValue() : LocalDate.now();
-        final String statut  = (cbStatutProjet.getValue() == null) ? "TOUS" : cbStatutProjet.getValue();
+        final LocalDate from = (dpFrom != null && dpFrom.getValue() != null) ? dpFrom.getValue() : LocalDate.now().minusMonths(6);
+        final LocalDate to   = (dpTo != null && dpTo.getValue() != null) ? dpTo.getValue() : LocalDate.now();
+        final String statut  = (cbStatutProjet == null || cbStatutProjet.getValue() == null) ? "TOUS" : cbStatutProjet.getValue();
 
         if (from.isAfter(to)) {
             showToast("❌ Dates invalides (Du > Au).", "toastError", 2500);
@@ -141,21 +165,13 @@ public class StatsFinancementController {
             protected Bundle call() throws Exception {
                 Bundle b = new Bundle();
 
-                // KPI
                 b.kpi = loadKpis(from, to, statut);
-
-                // Top projets (bar)
                 b.top = loadTopProjets(from, to, statut);
-
-                // pie
                 b.pie = loadPie(from, to);
-
-                // line
                 b.line = loadLine(from, to);
 
-                // alertes (selon projet sélectionné ou fallback)
-                int pid = selectedProjetId != null ? selectedProjetId : b.top.firstProjetId();
-                b.alertes = alertService.getAlertesProjet(pid);
+                int pid = (selectedProjetId != null) ? selectedProjetId : b.top.firstProjetIdSafe();
+                b.alertes = (pid > 0) ? alertService.getAlertesProjet(pid) : List.of("[INFO] Aucun projet trouvé pour générer des alertes.");
                 b.alertesProjetId = pid;
 
                 return b;
@@ -165,61 +181,68 @@ public class StatsFinancementController {
         task.setOnSucceeded(ev -> {
             Bundle b = task.getValue();
 
-            // KPI
-            lblKpiTotalLeve.setText(df.format(b.kpi.totalLeve));
-            lblKpiNbInvest.setText(String.valueOf(b.kpi.nbInvest));
-            lblKpiNbProjets.setText(String.valueOf(b.kpi.nbProjets));
-            lblKpiTauxFinancement.setText(df.format(b.kpi.taux) + " %");
+            if (lblKpiTotalLeve != null) lblKpiTotalLeve.setText(df.format(b.kpi.totalLeve));
+            if (lblKpiNbInvest != null) lblKpiNbInvest.setText(String.valueOf(b.kpi.nbInvest));
+            if (lblKpiNbProjets != null) lblKpiNbProjets.setText(String.valueOf(b.kpi.nbProjets));
+            if (lblKpiTauxFinancement != null) lblKpiTauxFinancement.setText(df.format(b.kpi.taux) + " %");
 
             // Bar
-            barTopProjets.getData().clear();
-            labelToProjetId.clear();
+            if (barTopProjets != null) {
+                barTopProjets.getData().clear();
+                labelToProjetId.clear();
 
-            XYChart.Series<String, Number> s = new XYChart.Series<>();
-            s.setName("Top Projets");
+                XYChart.Series<String, Number> s = new XYChart.Series<>();
+                s.setName("Top Projets");
 
-            for (TopRow r : b.top.rows) {
-                labelToProjetId.put(r.label, r.idProjet);
-                s.getData().add(new XYChart.Data<>(r.label, r.total));
-            }
-            barTopProjets.getData().add(s);
+                for (TopRow r : b.top.rows) {
+                    labelToProjetId.put(r.label, r.idProjet);
+                    s.getData().add(new XYChart.Data<>(r.label, r.total));
+                }
+                barTopProjets.getData().add(s);
 
-            // click bars (✅ pas d’erreur final)
-            for (XYChart.Data<String, Number> d : s.getData()) {
-                d.nodeProperty().addListener((obs, old, node) -> {
-                    if (node == null) return;
+                // click bars
+                for (XYChart.Data<String, Number> d : s.getData()) {
+                    d.nodeProperty().addListener((obs, old, node) -> {
+                        if (node == null) return;
 
-                    final String xLabel = d.getXValue();              // ✅ effectively final
-                    final Integer pid = labelToProjetId.get(xLabel);  // ✅ effectively final
-                    node.setStyle("-fx-cursor: hand;");
+                        final String xLabel = d.getXValue();
+                        final Integer pid = labelToProjetId.get(xLabel);
+                        node.setStyle("-fx-cursor: hand;");
 
-                    node.setOnMouseClicked(e2 -> {
-                        if (pid != null) {
-                            selectedProjetId = pid;
-                            showToast("📌 Projet sélectionné: " + xLabel + " (ID=" + pid + ")", "toastInfo", 2000);
-                            refreshAlertesOnly(pid);
-                        }
+                        node.setOnMouseClicked(e2 -> {
+                            if (pid != null) {
+                                selectedProjetId = pid;
+                                showToast("📌 Projet sélectionné: " + xLabel + " (ID=" + pid + ")", "toastInfo", 2000);
+                                refreshAlertesOnly(pid);
+                            }
+                        });
                     });
-                });
+                }
             }
 
             // Pie
-            pieModesPaiement.getData().setAll(b.pie);
+            if (pieModesPaiement != null) {
+                pieModesPaiement.getData().setAll(b.pie);
+            }
 
             // Line
-            lineEvolution.getData().clear();
-            XYChart.Series<String, Number> ls = new XYChart.Series<>();
-            ls.setName("Transactions validées (montant)");
-            for (var e : b.line.entrySet()) {
-                ls.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue()));
+            if (lineEvolution != null) {
+                lineEvolution.getData().clear();
+                XYChart.Series<String, Number> ls = new XYChart.Series<>();
+                ls.setName("Transactions validées (montant)");
+                for (var e : b.line.entrySet()) {
+                    ls.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue()));
+                }
+                lineEvolution.getData().add(ls);
             }
-            lineEvolution.getData().add(ls);
 
             // Alertes
-            if (b.alertes == null || b.alertes.isEmpty()) {
-                lvAlertes.getItems().setAll("✅ Aucune alerte pour ce projet (ID=" + b.alertesProjetId + ").");
-            } else {
-                lvAlertes.getItems().setAll(b.alertes.stream().map(Object::toString).toList());
+            if (lvAlertes != null) {
+                if (b.alertes == null || b.alertes.isEmpty()) {
+                    lvAlertes.getItems().setAll("✅ Aucune alerte pour ce projet (ID=" + b.alertesProjetId + ").");
+                } else {
+                    lvAlertes.getItems().setAll(b.alertes.stream().map(Object::toString).toList());
+                }
             }
 
             showToast("✅ Mise à jour terminée.", "toastSuccess", 2000);
@@ -241,12 +264,12 @@ public class StatsFinancementController {
         Task<List<Object>> t = new Task<>() {
             @Override
             protected List<Object> call() throws Exception {
-                // on retourne List<Object> pour éviter contraintes de type si ton service renvoie autre chose
                 return new ArrayList<>(alertService.getAlertesProjet(idProjet));
             }
         };
 
         t.setOnSucceeded(e -> {
+            if (lvAlertes == null) return;
             List<Object> list = t.getValue();
             if (list == null || list.isEmpty()) {
                 lvAlertes.getItems().setAll("✅ Aucune alerte pour ce projet (ID=" + idProjet + ").");
@@ -256,6 +279,7 @@ public class StatsFinancementController {
         });
 
         t.setOnFailed(e -> {
+            if (lvAlertes == null) return;
             Throwable ex = t.getException();
             lvAlertes.getItems().setAll("❌ Erreur alertes : " + (ex == null ? "inconnue" : ex.getMessage()));
         });
@@ -484,7 +508,7 @@ public class StatsFinancementController {
 
     private static class Top {
         List<TopRow> rows = new ArrayList<>();
-        int firstProjetId() {
+        int firstProjetIdSafe() {
             return rows.isEmpty() ? 0 : rows.get(0).idProjet;
         }
     }

@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 
 public class DomaineController {
 
@@ -41,6 +42,9 @@ public class DomaineController {
     // Sidebar
     @FXML private ImageView avatarImageView;
     @FXML private Label welcomeLabel;
+
+    public DomaineController() throws SQLException {
+    }
 
     // ================= INITIALIZE =================
     @FXML

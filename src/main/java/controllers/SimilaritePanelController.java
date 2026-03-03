@@ -39,6 +39,9 @@ public class SimilaritePanelController implements Initializable {
     private final SimilarityService  similarity = new SimilarityService();
     private List<Candidature>        toutesLes;
 
+    public SimilaritePanelController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Seuil : 50% → 95%, défaut 75%

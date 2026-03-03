@@ -12,7 +12,7 @@ public class CandidatureService {
     private final Connection  connection;
     private final EmailService emailService = new EmailService(); // ✅ NOUVEAU
 
-    public CandidatureService() {
+    public CandidatureService() throws SQLException {
         connection = MyDatabase.getInstance().getConnection();
     }
 

@@ -54,6 +54,9 @@ public class SessionController {
     @FXML
     private TableColumn<Session, String> domaineColumn;
 
+    public SessionController() throws SQLException {
+    }
+
     // ================= INITIALIZE =================
     @FXML
     public void initialize() {

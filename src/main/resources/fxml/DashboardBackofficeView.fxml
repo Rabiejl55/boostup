@@ -8,7 +8,8 @@
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.DashboardBackofficeController"
-      styleClass="app-shell" spacing="0">
+      styleClass="app-shell" spacing="0"
+      stylesheets="@../css/style2.css">
 
     <!-- ══ SIDEBAR ADMIN UNIFIÉE ══ -->
     <fx:include source="sidebarADMIN.fxml" />

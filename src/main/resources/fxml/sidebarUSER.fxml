@@ -92,7 +92,7 @@
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />
-            <Button text="💰  Financements" onAction="#manageFinancements" maxWidth="Infinity"
+            <Button text="💰  Financements" onAction="#goDashboard" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
                            -fx-background-radius: 10; -fx-padding: 12 18; -fx-font-size: 13px;
                            -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" />

@@ -44,6 +44,9 @@ public class EvaluationBackofficeController implements Initializable {
     private final EvaluationPdfService pdfService = new EvaluationPdfService();
     private final ObservableList<Evaluation> evaluationList = FXCollections.observableArrayList();
 
+    public EvaluationBackofficeController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         nomCandidatureColumn.setCellValueFactory(new PropertyValueFactory<>("nomCandidature"));

@@ -35,25 +35,13 @@ build/
 .vscode/
 
 ### Mac OS ###
-.DS_Store
-
-# Fichiers de configuration sensibles
-application.properties
-application.yml
-.env
-*.key
-*.pem
-secrets/
-config/credentials.jsonsrc/main/resources/config.properties
+.DS_StoreCredentials
+OAuth client ID
+OAuth consent screen
+src/main/java/services/SentimentAnalysisService.java
 src/main/java/services/SmsService.java
 src/main/java/services/TestSms.java
-src/main/java/services/SentimentAnalysisService.java
-src/main/java/services/UtilisateurService/SmsService.java
 src/main/java/services/UtilisateurService/GoogleOAuthService.java
-src/main/resources/config.properties
-src/main/java/services/SmsService.java
-src/main/java/services/TestSms.java
-src/main/java/services/SentimentAnalysisService.java
 src/main/java/services/UtilisateurService/SmsService.java
-src/main/java/services/UtilisateurService/GoogleOAuthService.java
 src/main/java/services/api/ApiKeys.java
+src/main/resources/config.properties

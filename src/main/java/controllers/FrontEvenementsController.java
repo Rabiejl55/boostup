@@ -64,6 +64,9 @@ public class FrontEvenementsController implements Initializable {
 
     private final Map<Integer, Integer> bestNoteByEventId = new HashMap<>();
 
+    public FrontEvenementsController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupTri();

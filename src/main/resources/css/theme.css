@@ -688,8 +688,9 @@
 .stat-label { -fx-font-size: 12px; }
 /* Center wrapper */
 .page-wrap {
+    -fx-padding: 18;
     -fx-background-color: transparent;
-    -fx-padding: 18 24 24 24;
+    -fx-fill-width: true;
 }
 .page-container {
     -fx-background-color: transparent;
@@ -713,3 +714,171 @@
     -fx-border-radius: 10;
 }
 .copy-btn:hover { -fx-background-color: rgba(99,102,241,0.16); }
+
+.filters-bar{
+    -fx-padding: 14;
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+}
+
+.stats-grid{
+    -fx-padding: 16;
+}
+
+.card{
+    -fx-padding: 14;
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+}
+
+.kpi-card{
+    -fx-padding: 14;
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-min-height: 110;
+}
+
+.kpi-title{ -fx-text-fill: #64748b; -fx-font-size: 12px; }
+.kpi-value{ -fx-text-fill: #0f172a; -fx-font-size: 24px; -fx-font-weight: 800; }
+.section-title{ -fx-font-size: 16px; -fx-font-weight: 800; }
+
+/* =========================
+   CHART FIX (axes + labels)
+   ========================= */
+
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #e5e7eb;
+}
+
+.axis {
+    -fx-tick-label-fill: #64748b;   /* labels mois / valeurs */
+}
+
+.axis-label {
+    -fx-text-fill: #111827;         /* titre de l’axe */
+    -fx-font-weight: 700;
+}
+
+.axis-tick-mark,
+.axis-minor-tick-mark {
+    -fx-stroke: #cbd5e1;
+}
+
+.chart-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-weight: 800;
+}
+
+/* Legend (très important : sinon tu vois juste des points sans texte parfois) */
+.chart-legend {
+    -fx-background-color: transparent;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #334155;
+}
+
+/* ===== ScrollPane clean (évite blanc/gris bizarre) ===== */
+.main-scroll { -fx-background-color: transparent; }
+.main-scroll > .viewport { -fx-background-color: transparent; }
+
+/* ===== Grid 2 panels stable ===== */
+.two-panels-grid { -fx-background-color: transparent; }
+
+/* ===== Domain card (tu l'utilises dans FXML mais pas défini chez toi) ===== */
+.domain-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 16;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 3);
+}
+
+.card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+.card-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+/* ===== Badge statut (warn/ok/off) ===== */
+.card-badge {
+    -fx-padding: 4 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-font-weight: 900;
+    -fx-font-size: 11px;
+}
+.card-badge.warn { -fx-background-color: rgba(245,158,11,0.15); -fx-text-fill: #92400e; }
+.card-badge.ok   { -fx-background-color: rgba(34,197,94,0.15);  -fx-text-fill: #166534; }
+.card-badge.off  { -fx-background-color: rgba(148,163,184,0.20); -fx-text-fill: #334155; }
+
+/* ===== Danger action (tu l'utilises mais elle n'existe pas) ===== */
+.danger-action {
+    -fx-background-color: rgba(239,68,68,0.10);
+    -fx-text-fill: #b91c1c;
+    -fx-background-radius: 10;
+    -fx-padding: 8 14;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(239,68,68,0.25);
+    -fx-border-radius: 10;
+}
+.danger-action:hover { -fx-background-color: rgba(239,68,68,0.18); }
+
+/* ===== Portfolio KPI mini (plus stable que stat-card-premium en intégration) ===== */
+.kpi-mini {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 10 12;
+    -fx-min-width: 150;
+}
+.kpi-mini-title {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+.kpi-mini-value {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+}
+
+/* ===== Premium list (si pas définie ailleurs) ===== */
+.premium-list {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #e2e8f0;
+}
+.premium-list .list-cell {
+    -fx-padding: 10 12;
+    -fx-background-color: transparent;
+}
+.premium-list .list-cell:filled:hover {
+    -fx-background-color: rgba(59,130,246,0.06);
+}
+
+/* Optionnel : cards stats ont parfois une taille chelou en intégration */
+.stat-card-wide { -fx-min-height: 96; }
+
+.main-scroll, .main-scroll > .viewport, .main-scroll .content {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+.main-scroll .viewport { -fx-padding: 0; }

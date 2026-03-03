@@ -11,7 +11,7 @@ public class DomaineService {
 
     private final Connection conn;
 
-    public DomaineService() {
+    public DomaineService() throws SQLException {
         conn = MyDatabase.getInstance().getConnection();
     }
 

@@ -12,7 +12,7 @@ public class SessionService {
 
     private final Connection conn;
 
-    public SessionService() {
+    public SessionService() throws SQLException {
         conn = MyDatabase.getInstance().getConnection();
     }
 

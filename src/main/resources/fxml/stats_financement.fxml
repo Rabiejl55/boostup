@@ -7,101 +7,149 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="controllers.StatsFinancementController">
+            fx:controller="controllers.StatsFinancementController"
+            prefWidth="1200" prefHeight="800"
+            style="-fx-background-color: #f5f7fb;">
 
+    <!-- ===================== TOP FILTERS ===================== -->
     <top>
         <VBox spacing="10" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="12" right="12" bottom="12" left="12"/>
+                <Insets top="12" right="12" bottom="8" left="12"/>
             </padding>
 
-            <!-- Filters -->
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="Du:"/>
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                <Label text="Du:" style="-fx-text-fill:#0f172a; -fx-font-weight:700;"/>
                 <DatePicker fx:id="dpFrom"/>
 
-                <Label text="Au:"/>
+                <Label text="Au:" style="-fx-text-fill:#0f172a; -fx-font-weight:700;"/>
                 <DatePicker fx:id="dpTo"/>
 
-                <Label text="Statut Projet:"/>
-                <ComboBox fx:id="cbStatutProjet" prefWidth="150"/>
+                <Label text="Statut Projet:" style="-fx-text-fill:#0f172a; -fx-font-weight:700;"/>
+                <ComboBox fx:id="cbStatutProjet" prefWidth="170"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- Toast / loading -->
-                <Label fx:id="lblStatsToast" text="" visible="false" managed="false"/>
-            </HBox>
-
-            <!-- KPI cards + Alertes -->
-            <HBox spacing="12">
-                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
-                    <Label text="Total Levé"/>
-                    <Label fx:id="lblKpiTotalLeve" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-                </VBox>
-
-                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
-                    <Label text="Nb Projets"/>
-                    <Label fx:id="lblKpiNbProjets" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-                </VBox>
-
-                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
-                    <Label text="Nb Investissements"/>
-                    <Label fx:id="lblKpiNbInvest" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-                </VBox>
-
-                <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e5e7eb;">
-                    <Label text="Taux Financement"/>
-                    <Label fx:id="lblKpiTauxFinancement" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-                </VBox>
-
-                <VBox spacing="10" prefWidth="400">
-                    <Label text="Alertes Projet" styleClass="section-title"/>
-                    <ListView fx:id="lvAlertes" prefHeight="200"/>
-                </VBox>
+                <Label fx:id="lblStatsToast" text="" visible="false" managed="false"
+                       style="-fx-padding: 6 10; -fx-background-radius: 10; -fx-font-weight: 800; -fx-text-fill:#0f172a;"/>
             </HBox>
         </VBox>
     </top>
 
+    <!-- ===================== CENTER (SCROLL) ===================== -->
     <center>
-        <GridPane hgap="12" vgap="12">
-            <padding>
-                <Insets top="12" right="12" bottom="12" left="12"/>
-            </padding>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    pannable="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color:transparent;">
+            <content>
+                <VBox spacing="12">
+                    <padding>
+                        <Insets top="0" right="12" bottom="12" left="12"/>
+                    </padding>
 
-            <columnConstraints>
-                <ColumnConstraints percentWidth="50"/>
-                <ColumnConstraints percentWidth="50"/>
-            </columnConstraints>
+                    <!-- ===================== KPI + ALERTES ===================== -->
+                    <GridPane hgap="12" vgap="12">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="18" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="18" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="18" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="18" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="28" hgrow="ALWAYS"/>
+                        </columnConstraints>
 
-            <rowConstraints>
-                <RowConstraints percentHeight="50"/>
-                <RowConstraints percentHeight="50"/>
-            </rowConstraints>
+                        <!-- KPI 1 -->
+                        <VBox GridPane.columnIndex="0" spacing="6"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Total Levé" style="-fx-text-fill:#64748b; -fx-font-weight: 800;"/>
+                            <Label fx:id="lblKpiTotalLeve" text="0"
+                                   style="-fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                        </VBox>
 
-            <!-- Bar: Top projets -->
-            <BarChart fx:id="barTopProjets" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                <xAxis>
-                    <CategoryAxis fx:id="axisTopProjetsX" label="Projets"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis fx:id="axisTopProjetsY" label="Montant"/>
-                </yAxis>
-            </BarChart>
+                        <!-- KPI 2 -->
+                        <VBox GridPane.columnIndex="1" spacing="6"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Nb Projets" style="-fx-text-fill:#64748b; -fx-font-weight: 800;"/>
+                            <Label fx:id="lblKpiNbProjets" text="0"
+                                   style="-fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                        </VBox>
 
-            <!-- Pie: modes paiement -->
-            <PieChart fx:id="pieModesPaiement" GridPane.columnIndex="1" GridPane.rowIndex="0"
-                      title="Modes de paiement (VALIDEE)"/>
+                        <!-- KPI 3 -->
+                        <VBox GridPane.columnIndex="2" spacing="6"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Nb Investissements" style="-fx-text-fill:#64748b; -fx-font-weight: 800;"/>
+                            <Label fx:id="lblKpiNbInvest" text="0"
+                                   style="-fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                        </VBox>
 
-            <!-- Line: évolution -->
-            <LineChart fx:id="lineEvolution" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
-                <xAxis>
-                    <CategoryAxis fx:id="axisLineX" label="Mois"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis fx:id="axisLineY" label="Montant"/>
-                </yAxis>
-            </LineChart>
-        </GridPane>
+                        <!-- KPI 4 -->
+                        <VBox GridPane.columnIndex="3" spacing="6"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Taux Financement" style="-fx-text-fill:#64748b; -fx-font-weight: 800;"/>
+                            <Label fx:id="lblKpiTauxFinancement" text="0 %"
+                                   style="-fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                        </VBox>
+
+                        <!-- ALERTES -->
+                        <VBox GridPane.columnIndex="4" spacing="10"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Alertes Projet" style="-fx-font-size: 14; -fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                            <ListView fx:id="lvAlertes" minHeight="0" prefHeight="120" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+                    </GridPane>
+
+                    <!-- ===================== CHARTS ===================== -->
+                    <GridPane hgap="12" vgap="12">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <!-- On contrôle les hauteurs pour éviter "vide" -->
+                        <rowConstraints>
+                            <RowConstraints prefHeight="320" vgrow="ALWAYS"/>
+                            <RowConstraints prefHeight="320" vgrow="ALWAYS"/>
+                        </rowConstraints>
+
+                        <!-- BAR CARD -->
+                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="8" prefHeight="320"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Top Projets (montant financé)" style="-fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                            <BarChart fx:id="barTopProjets" animated="false" minHeight="0" VBox.vgrow="ALWAYS">
+                                <xAxis>
+                                    <CategoryAxis fx:id="axisTopProjetsX" label="Projets"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis fx:id="axisTopProjetsY" label="Montant"/>
+                                </yAxis>
+                            </BarChart>
+                        </VBox>
+
+                        <!-- PIE CARD -->
+                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="8" prefHeight="320"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Modes de paiement (VALIDEE)" style="-fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                            <PieChart fx:id="pieModesPaiement" animated="false" minHeight="0" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+
+                        <!-- LINE CARD -->
+                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" spacing="8" prefHeight="320"
+                              style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #e5e7eb;">
+                            <Label text="Évolution (montant mensuel des transactions validées)" style="-fx-font-weight: 900; -fx-text-fill:#0f172a;"/>
+                            <LineChart fx:id="lineEvolution" animated="false" minHeight="0" VBox.vgrow="ALWAYS">
+                                <xAxis>
+                                    <CategoryAxis fx:id="axisLineX" label="Mois"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis fx:id="axisLineY" label="Montant"/>
+                                </yAxis>
+                            </LineChart>
+                        </VBox>
+                    </GridPane>
+
+                </VBox>
+            </content>
+        </ScrollPane>
     </center>
 
-</BorderPane> 
+</BorderPane>

@@ -36,6 +36,9 @@ public class AddCandidatureController implements Initializable {
     private final CandidatureService service = new CandidatureService();
     private boolean saved = false;
 
+    public AddCandidatureController() throws SQLException {
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Date par défaut
